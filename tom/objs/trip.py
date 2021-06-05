@@ -1,9 +1,7 @@
-from typing import List, Dict
+from typing import List, Dict, Tuple
 import gurobipy as gp
-import numpy as np
 from location import MajorLocation
 from traveler import Traveler, LeadTraveler
-from mip import MIP
 
 
 class Trip(object):
@@ -19,6 +17,7 @@ class Trip(object):
         self.__travelers: List[Traveler] = []
         self.__traveler_major_loc_ratings: Dict[Traveler: List[float]] = {}
         self.__traveler_major_loc_times: Dict[Traveler: List[float]] = {}
+        self.__goals: Dict[str: Tuple[float, float]] = {}
 
     @property
     def name(self) -> str:
@@ -56,31 +55,38 @@ class Trip(object):
     def num_major_locs(self) -> int:
         return len(self.major_locations)
 
-    def add_traveler(self, traveler: Traveler) -> None:
+    @property
+    def num_travelers(self) -> int:
+        return len(self.travelers)
+
+    def add_traveler(self, traveler: Traveler):
         self.__travelers.append(traveler)
 
-    def rm_traveler(self, traveler: Traveler) -> None:
+    def rm_traveler(self, traveler: Traveler):
         self.__travelers.remove(traveler)
 
-    def add_start_loc(self, loc: MajorLocation) -> None:
+    def add_start_loc(self, loc: MajorLocation):
         self.__start_major_loc = loc
 
-    def add_end_loc(self, loc: MajorLocation) -> None:
+    def add_end_loc(self, loc: MajorLocation):
         self.__end_major_loc = loc
 
-    def add_major_loc(self, loc: MajorLocation) -> None:
+    def add_major_loc(self, loc: MajorLocation):
         self.__major_locations.append(loc)
 
-    def rm_major_loc(self, loc: MajorLocation) -> None:
+    def rm_major_loc(self, loc: MajorLocation):
         self.__major_locations.remove(loc)
 
-    def log_traveler_preferences(self, traveler: Traveler) -> None:
+    def log_traveler_preferences(self, traveler: Traveler):
         self.__traveler_major_loc_ratings[traveler] = traveler.major_loc_ratings
         self.__traveler_major_loc_times[traveler] = traveler.major_loc_times
 
-    def _init_model(self) -> None:
-        self.__model = MIP(self.name, self.lead_traveler)
+    def _init_model(self):
+        self.__model = gp.Model(f'{self.name}|{self.lead_traveler}')
 
-    def _init_vars(self) -> None:
+    def _init_decs_vars(self):
+        self.__model.addMVar((self.num_major_locs, 1), vtype=gp.GRB.BINARY, name='will_travel_to')
+        self.__model.addMVar((self.num_major_locs, self.num_major_locs), vtype=gp.GRB.BINARY, name='travel_from_to')
 
-        self.__model.addMVar()
+    def _init_objective(self):
+        pass

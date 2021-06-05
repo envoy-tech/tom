@@ -1,10 +1,16 @@
 
-class Location(object):
+class __Location(object):
 
     def __init__(self, name: str, lat: float, lon: float):
         self.__name: str = name
         self.__lat: float = lat
         self.__lon: float = lon
+
+    def __hash__(self):
+        return hash((self.name, self.lat, self.lon))
+
+    def __repr__(self):
+        return f"{self.name}|{self.lat}|{self.lon}"
 
     @property
     def name(self) -> str:
@@ -19,7 +25,7 @@ class Location(object):
         return self.__lon
 
 
-class MajorLocation(Location):
+class MajorLocation(__Location):
 
     def __init__(self, name, lat, lon, otherstuff):
         super().__init__(name, lat, lon)
