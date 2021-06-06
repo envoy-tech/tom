@@ -5,9 +5,11 @@ from tom.objs.location import MajorLocation, Location
 
 class TestLocation(unittest.TestCase):
 
-    def __init__(self, *args, **kwargs):
-        super(TestLocation, self).__init__(*args, **kwargs)
+    def setUp(self):
         self.test_location: Location = Location('Anywhere', 0.0, 0.0)
+
+    def tearDown(self):
+        del self.test_location
 
     def __reset_test_location(self):
         self.test_location = Location('Anywhere', 0.0, 0.0)
@@ -37,9 +39,9 @@ class TestLocation(unittest.TestCase):
         self.assertRaises(TypeError, self.__attempt_lat_setter, 'Ten')
         self.assertRaises(TypeError, self.__attempt_lat_setter, ['Ten'])
         self.assertRaises(TypeError, self.__attempt_lat_setter, {'Ten': 10})
-        self.assertRaises(AttributeError, self.__attempt_lat_setter, nan)
-        self.assertRaises(AttributeError, self.__attempt_lat_setter, NAN)
-        self.assertRaises(AttributeError, self.__attempt_lat_setter, NaN)
+        self.assertRaises(ValueError, self.__attempt_lat_setter, nan)
+        self.assertRaises(ValueError, self.__attempt_lat_setter, NAN)
+        self.assertRaises(ValueError, self.__attempt_lat_setter, NaN)
         self.assertEqual(self.__attempt_lat_setter(10.0), 10.0)
         self.__reset_test_location()
 
@@ -48,9 +50,9 @@ class TestLocation(unittest.TestCase):
         self.assertRaises(TypeError, self.__attempt_lon_setter, 'Ten')
         self.assertRaises(TypeError, self.__attempt_lon_setter, ['Ten'])
         self.assertRaises(TypeError, self.__attempt_lon_setter, {'Ten': 10})
-        self.assertRaises(AttributeError, self.__attempt_lon_setter, nan)
-        self.assertRaises(AttributeError, self.__attempt_lon_setter, NAN)
-        self.assertRaises(AttributeError, self.__attempt_lon_setter, NaN)
+        self.assertRaises(ValueError, self.__attempt_lon_setter, nan)
+        self.assertRaises(ValueError, self.__attempt_lon_setter, NAN)
+        self.assertRaises(ValueError, self.__attempt_lon_setter, NaN)
         self.assertEqual(self.__attempt_lon_setter(10.0), 10.0)
         self.__reset_test_location()
 

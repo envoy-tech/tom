@@ -32,7 +32,7 @@ class Location(object):
         if type(var) != float:
             raise TypeError(f"Location latitude must be float, not {type(var)}")
         elif str(var) == 'nan':
-            raise AttributeError(f"Location latitude cannot be nan")
+            raise ValueError(f"Location latitude cannot be nan")
         else:
             self.__lat = var
 
