@@ -1,6 +1,6 @@
 import unittest
 from numpy import nan, NAN, NaN
-from tom.objs.location import MajorLocation, Location
+from ..objs.location import Location
 
 
 class TestLocation(unittest.TestCase):

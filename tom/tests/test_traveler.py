@@ -1,12 +1,14 @@
 import unittest
-from tom.objs.traveler import Traveler, LeadTraveler
+from ..objs.traveler import Traveler
 
 
 class TestTraveler(unittest.TestCase):
 
-    def __init__(self, *args, **kwargs):
-        super(TestTraveler, self).__init__(*args, **kwargs)
+    def setUp(self):
         self.test_traveler: Traveler = Traveler('Jane', 'test@yeet.org')
+
+    def tearDown(self):
+        del self.test_traveler
 
     def __reset_test_traveler(self):
         self.test_traveler = Traveler('Jane', 'test@yeet.org')
