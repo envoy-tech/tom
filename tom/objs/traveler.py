@@ -22,7 +22,7 @@ class Traveler(object):
     @name.setter
     def name(self, var):
         if type(var) != str:
-            raise AttributeError(f"Traveler name must be str, not {type(var)}")
+            raise TypeError(f"Traveler name must be str, not {type(var)}")
         else:
             self.__name = var
 
@@ -33,7 +33,7 @@ class Traveler(object):
     @email.setter
     def email(self, var):
         if type(var) != str:
-            raise AttributeError(f"Traveler email must be str, not {type(var)}")
+            raise TypeError(f"Traveler email must be str, not {type(var)}")
         else:
             self.__email = var
 

@@ -20,18 +20,18 @@ class TestTraveler(unittest.TestCase):
         return self.test_traveler.email
 
     def test_name(self):
-        self.assertRaises(AttributeError, self.__attempt_name_setter, 25)
-        self.assertRaises(AttributeError, self.__attempt_name_setter, 1.0)
-        self.assertRaises(AttributeError, self.__attempt_name_setter, ['George'])
-        self.assertRaises(AttributeError, self.__attempt_name_setter, {'George': 10})
+        self.assertRaises(TypeError, self.__attempt_name_setter, 25)
+        self.assertRaises(TypeError, self.__attempt_name_setter, 1.0)
+        self.assertRaises(TypeError, self.__attempt_name_setter, ['George'])
+        self.assertRaises(TypeError, self.__attempt_name_setter, {'George': 10})
         self.assertEqual(self.__attempt_name_setter('George'), 'George')
         self.__reset_test_traveler()
 
     def test_email(self):
-        self.assertRaises(AttributeError, self.__attempt_email_setter, 25)
-        self.assertRaises(AttributeError, self.__attempt_email_setter, 1.0)
-        self.assertRaises(AttributeError, self.__attempt_email_setter, ['test@yahoo.com'])
-        self.assertRaises(AttributeError, self.__attempt_email_setter, {'test@yoohoo.com': 10})
+        self.assertRaises(TypeError, self.__attempt_email_setter, 25)
+        self.assertRaises(TypeError, self.__attempt_email_setter, 1.0)
+        self.assertRaises(TypeError, self.__attempt_email_setter, ['test@yahoo.com'])
+        self.assertRaises(TypeError, self.__attempt_email_setter, {'test@yoohoo.com': 10})
         self.assertEqual(self.__attempt_email_setter('test@yewho.io'), 'test@yewho.io')
         self.__reset_test_traveler()
 
