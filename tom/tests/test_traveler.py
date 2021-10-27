@@ -10,9 +10,6 @@ class TestTraveler(unittest.TestCase):
     def tearDown(self):
         del self.test_traveler
 
-    def __reset_test_traveler(self):
-        self.test_traveler = Traveler('Jane', 'test@yeet.org')
-
     def __attempt_name_setter(self, var) -> str:
         self.test_traveler.name = var
         return self.test_traveler.name
@@ -27,7 +24,7 @@ class TestTraveler(unittest.TestCase):
         self.assertRaises(TypeError, self.__attempt_name_setter, ['George'])
         self.assertRaises(TypeError, self.__attempt_name_setter, {'George': 10})
         self.assertEqual(self.__attempt_name_setter('George'), 'George')
-        self.__reset_test_traveler()
+        self.setUp()
 
     def test_email(self):
         self.assertRaises(TypeError, self.__attempt_email_setter, 25)
@@ -35,7 +32,7 @@ class TestTraveler(unittest.TestCase):
         self.assertRaises(TypeError, self.__attempt_email_setter, ['test@yahoo.com'])
         self.assertRaises(TypeError, self.__attempt_email_setter, {'test@yoohoo.com': 10})
         self.assertEqual(self.__attempt_email_setter('test@yewho.io'), 'test@yewho.io')
-        self.__reset_test_traveler()
+        self.setUp()
 
 
 if __name__ == '__main__':

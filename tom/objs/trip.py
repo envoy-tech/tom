@@ -1,23 +1,40 @@
-from typing import List, Dict, Tuple
-import gurobipy as gp
-from location import MajorLocation
+from typing import List
+from location import Location
 from traveler import Traveler, LeadTraveler
+import datetime as dt
 
 
-class Trip(object):
+class Trip:
 
     def __init__(self, name: str, lead_traveler: LeadTraveler):
         self.__name: str = name
-        self.__start_major_loc: MajorLocation = MajorLocation.empty_loc()
-        self.__end_major_loc: MajorLocation = MajorLocation.empty_loc()
-        self.__major_locations: List[MajorLocation] = []
-        self.__time_per_major_loc: Dict[MajorLocation: float] = {}
-        self.__max_duration_days: float = 0.0
         self.__lead_traveler: LeadTraveler = lead_traveler
-        self.__travelers: List[Traveler] = []
-        self.__traveler_major_loc_ratings: Dict[Traveler: List[float]] = {}
-        self.__traveler_major_loc_times: Dict[Traveler: List[float]] = {}
-        self.__goals: Dict[str: Tuple[float, float]] = {}
+        self.__travelers: List[Traveler] = [lead_traveler]
+        self.__locations: List[Location] = []
+        self.__start_location: Location or None = None
+        self.__end_location: Location or None = None
+        self.__start_date: dt.datetime or None = None
+        self.__end_date: dt.datetime or None = None
+        self.__id: int = self.__hash__()
+
+    def __hash__(self) -> int:
+        return hash((self.name, self.lead_traveler.name))
+
+    def __eq__(self, other) -> bool:
+        try:
+            return isinstance(other, type(self)) and other.id == self.id
+        except AttributeError:
+            return False
+
+    def __repr__(self) -> str:
+        return f"Trip(Name: {self.name}, " \
+               f"Start: {self.starting_location}, " \
+               f"End: {self.ending_location}, " \
+               f"Lead Traveler: {self.lead_traveler})"
+
+    @property
+    def id(self) -> int:
+        return self.__id
 
     @property
     def name(self) -> str:
@@ -28,65 +45,57 @@ class Trip(object):
         return self.__lead_traveler
 
     @property
-    def start_major_loc(self) -> MajorLocation:
-        return self.__start_major_loc
+    def starting_location(self) -> Location:
+        return self.__start_location
 
     @property
-    def end_major_loc(self) -> MajorLocation:
-        return self.__end_major_loc
+    def ending_location(self) -> Location:
+        return self.__end_location
 
     @property
-    def major_locations(self) -> List[MajorLocation]:
-        return self.__major_locations
+    def locations(self) -> List[Location]:
+        return self.__locations
 
     @property
-    def time_per_major_loc(self) -> Dict[MajorLocation: float]:
-        return self.__time_per_major_loc
+    def duration_datetime(self) -> dt.timedelta:
+        return self.__end_date - self.__start_date
 
     @property
-    def max_duration_days(self) -> float:
-        return self.__max_duration_days
+    def duration_days(self) -> float:
+        return self.duration_datetime.days
+
+    @property
+    def duration_hours(self) -> float:
+        return self.duration_datetime.total_seconds() / 60**2
 
     @property
     def travelers(self) -> List[Traveler]:
         return self.__travelers
 
     @property
-    def num_major_locs(self) -> int:
-        return len(self.major_locations)
+    def num_locations(self) -> int:
+        return len(self.locations)
 
     @property
     def num_travelers(self) -> int:
         return len(self.travelers)
 
     def add_traveler(self, traveler: Traveler):
+        if not isinstance(traveler, Traveler):
+            raise TypeError(f"Cannot append object class {type(traveler)} to traveler list, must be Traveler.")
         self.__travelers.append(traveler)
 
     def rm_traveler(self, traveler: Traveler):
         self.__travelers.remove(traveler)
 
-    def add_start_loc(self, loc: MajorLocation):
-        self.__start_major_loc = loc
+    def add_start_location(self, loc: Location):
+        self.__start_location = loc
 
-    def add_end_loc(self, loc: MajorLocation):
-        self.__end_major_loc = loc
+    def add_end_location(self, loc: Location):
+        self.__end_location = loc
 
-    def add_major_loc(self, loc: MajorLocation):
-        self.__major_locations.append(loc)
+    def add_location(self, loc: Location):
+        self.__locations.append(loc)
 
-    def rm_major_loc(self, loc: MajorLocation):
-        self.__major_locations.remove(loc)
-
-    def log_traveler_preferences(self, traveler: Traveler):
-        self.__traveler_major_loc_ratings[traveler] = traveler.major_loc_ratings
-        self.__traveler_major_loc_times[traveler] = traveler.major_loc_times
-
-    def _init_model(self):
-        self.__model = gp.Model(f'{self.name}|{self.lead_traveler}')
-
-    def _init_decs_vars(self):
-        self.__model.addMVar((self.num_major_locs, 1), vtype=gp.GRB.BINARY, name='will_travel_to')
-        self.__model.addMVar((self.num_major_locs, self.num_major_locs), vtype=gp.GRB.BINARY, name='travel_from_to')
-
-    def _init_objective(self):
-        pass
+    def rm_location(self, loc: Location):
+        self.__locations.remove(loc)

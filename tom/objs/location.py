@@ -1,16 +1,29 @@
+from typing import Tuple
 
-class Location(object):
+
+class Location:
 
     def __init__(self, name: str, lat: float, lon: float):
         self.__name: str = name
         self.__lat: float = lat
         self.__lon: float = lon
+        self.__id: int = self.__hash__()
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         return hash((self.name, self.lat, self.lon))
 
-    def __repr__(self):
+    def __eq__(self, other) -> bool:
+        try:
+            return isinstance(other, type(self)) and other.id == self.id
+        except AttributeError:
+            return False
+
+    def __repr__(self) -> str:
         return f"{self.name}|{self.lat}|{self.lon}"
+
+    @property
+    def id(self) -> int:
+        return self.__id
 
     @property
     def name(self) -> str:
@@ -49,16 +62,6 @@ class Location(object):
         else:
             self.__lon = var
 
-
-class MajorLocation(Location):
-
-    def __init__(self, name, lat, lon, otherstuff):
-        super().__init__(name, lat, lon)
-        self.things: object = otherstuff
-
-    def do_thing(self) -> object:
-        return self.things
-
-    @classmethod
-    def empty_loc(cls):
-        return cls("Anywhere", 0.0, 0.0, None)
+    @property
+    def coords(self) -> Tuple:
+        return self.lat, self.lon

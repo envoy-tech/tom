@@ -1,19 +1,26 @@
-from typing import List
-
-
-class Traveler(object):
+class Traveler:
 
     def __init__(self, name: str, email: str):
         self.__name: str = name
         self.__email: str = email
-        self.__major_loc_ratings: List[float] = []
-        self.__major_loc_times: List[float] = []
+        self.__id: int = self.__hash__()
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         return hash((self.name, self.email))
 
-    def __repr__(self):
-        return self.name
+    def __eq__(self, other) -> bool:
+        try:
+            return isinstance(other, type(self)) and other.id == self.id
+        except AttributeError:
+            return False
+
+    def __repr__(self) -> str:
+        return f"Traveler(Name: {self.name}, " \
+               f"Email: {self.email})"
+
+    @property
+    def id(self) -> int:
+        return self.__id
 
     @property
     def name(self) -> str:
@@ -23,8 +30,7 @@ class Traveler(object):
     def name(self, var):
         if type(var) != str:
             raise TypeError(f"Traveler name must be str, not {type(var)}")
-        else:
-            self.__name = var
+        self.__name = var
 
     @property
     def email(self) -> str:
@@ -34,16 +40,7 @@ class Traveler(object):
     def email(self, var):
         if type(var) != str:
             raise TypeError(f"Traveler email must be str, not {type(var)}")
-        else:
-            self.__email = var
-
-    @property
-    def major_loc_ratings(self) -> List[float]:
-        return self.__major_loc_ratings
-
-    @property
-    def major_loc_times(self) -> List[float]:
-        return self.__major_loc_times
+        self.__email = var
 
 
 class LeadTraveler(Traveler):

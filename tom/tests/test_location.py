@@ -1,4 +1,5 @@
 import unittest
+from typing import List
 from numpy import nan, NAN, NaN
 from ..objs.location import Location
 
@@ -7,12 +8,10 @@ class TestLocation(unittest.TestCase):
 
     def setUp(self):
         self.test_location: Location = Location('Anywhere', 0.0, 0.0)
+        self.nan_types: List[float] = [nan, NAN, NaN]
 
     def tearDown(self):
         del self.test_location
-
-    def __reset_test_location(self):
-        self.test_location = Location('Anywhere', 0.0, 0.0)
 
     def __attempt_name_setter(self, var) -> str:
         self.test_location.name = var
@@ -32,29 +31,27 @@ class TestLocation(unittest.TestCase):
         self.assertRaises(TypeError, self.__attempt_name_setter, ['Somewhere'])
         self.assertRaises(TypeError, self.__attempt_name_setter, {'Somewhere': 10})
         self.assertEqual(self.__attempt_name_setter('Somewhere'), 'Somewhere')
-        self.__reset_test_location()
+        self.setUp()
 
     def test_latitude(self):
         self.assertRaises(TypeError, self.__attempt_lat_setter, 10)
         self.assertRaises(TypeError, self.__attempt_lat_setter, 'Ten')
         self.assertRaises(TypeError, self.__attempt_lat_setter, ['Ten'])
         self.assertRaises(TypeError, self.__attempt_lat_setter, {'Ten': 10})
-        self.assertRaises(ValueError, self.__attempt_lat_setter, nan)
-        self.assertRaises(ValueError, self.__attempt_lat_setter, NAN)
-        self.assertRaises(ValueError, self.__attempt_lat_setter, NaN)
+        for nan_type in self.nan_types:
+            self.assertRaises(ValueError, self.__attempt_lat_setter, nan_type)
         self.assertEqual(self.__attempt_lat_setter(10.0), 10.0)
-        self.__reset_test_location()
+        self.setUp()
 
     def test_longitude(self):
         self.assertRaises(TypeError, self.__attempt_lon_setter, 10)
         self.assertRaises(TypeError, self.__attempt_lon_setter, 'Ten')
         self.assertRaises(TypeError, self.__attempt_lon_setter, ['Ten'])
         self.assertRaises(TypeError, self.__attempt_lon_setter, {'Ten': 10})
-        self.assertRaises(ValueError, self.__attempt_lon_setter, nan)
-        self.assertRaises(ValueError, self.__attempt_lon_setter, NAN)
-        self.assertRaises(ValueError, self.__attempt_lon_setter, NaN)
+        for nan_type in self.nan_types:
+            self.assertRaises(ValueError, self.__attempt_lon_setter, nan_type)
         self.assertEqual(self.__attempt_lon_setter(10.0), 10.0)
-        self.__reset_test_location()
+        self.setUp()
 
 
 if __name__ == '__main__':
