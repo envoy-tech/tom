@@ -1,0 +1,142 @@
+---
+trip:
+  _id: 0
+  start_date: 01/01/2024
+  end_date: 01/21/2024
+  start_location: &first_location
+    _id: 0
+    name: Los Angeles, CA
+    address: ~
+    lat: 34.052235
+    lon: -118.243683
+  end_location: *first_location
+
+locations:
+  - *first_location
+  - _id: 1
+    name: Santa Barbara, CA
+    address: ~
+    lat: 34.420830
+    lon: -119.698189
+  - _id: 2
+    name: San Francisco, CA
+    address: ~
+    lat: 37.774929
+    lon: -122.419418
+  - _id: 3
+    name: Sacramento, CA
+    address: ~
+    lat: 38.581573
+    lon: -121.494400
+  - _id: 4
+    name: Portland, OR
+    address: ~
+    lat: 45.512230
+    lon: -122.658722
+  - _id: 5
+    name: Weed, CA
+    address: ~
+    lat: 41.422649
+    lon: -122.386124
+  - _id: 6
+    name: Fresno, CA
+    address: ~
+    lat: 36.7394421
+    lon: -119.7848307
+  - _id: 7
+    name: Palm Springs, CA
+    address: ~
+    lat: 33.7721794
+    lon: -116.4952977
+  - _id: 8
+    name: New York, NY
+    address: ~
+    lat: 40.7127281
+    lon: -74.0060152
+
+
+travelers:
+  - _id: 0
+    username: user0
+    email: user0@nil.com
+    location_ratings:
+      - 5
+      - 10
+      - 7.5
+      - 2.5
+      - 8.25
+      - 1
+      - 4.75
+      - 9
+      - 6.5
+    desired_stay_in_location:
+      - 24
+      - 72
+      - 36
+      - 12
+      - 72
+      - 6
+      - 24
+      - 72
+      - 48
+    road_travel_threshold: 12
+    earliest_acceptable_start: 6
+    latest_acceptable_end: 22
+    allowed_start_flexibility: 2
+    allowed_end_flexibility: 1
+  - _id: 1
+    username: user1
+    email: user1@nil.com
+    location_ratings:
+      - 5
+      - 6.5
+      - 9
+      - 4.75
+      - 2
+      - 10
+      - 9
+      - 4.25
+      - 7.25
+    desired_stay_in_location:
+      - 24
+      - 36
+      - 72
+      - 24
+      - 6
+      - 96
+      - 72
+      - 24
+      - 36
+    road_travel_threshold: 10
+    earliest_acceptable_start: 8
+    latest_acceptable_end: 20
+    allowed_start_flexibility: 2
+    allowed_end_flexibility: 1
+  - _id: 2
+    username: user2
+    email: user2@nil.com
+    location_ratings:
+      - 2
+      - 3.6
+      - 2.75
+      - 8.75
+      - 10
+      - 5
+      - 5
+      - 6.5
+      - 2
+    desired_stay_in_location:
+      - 6
+      - 12
+      - 6
+      - 72
+      - 120
+      - 24
+      - 24
+      - 36
+      - 6
+    road_travel_threshold: 11
+    earliest_acceptable_start: 7
+    latest_acceptable_end: 21
+    allowed_start_flexibility: 2
+    allowed_end_flexibility: 1
