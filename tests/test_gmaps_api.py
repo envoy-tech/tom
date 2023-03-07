@@ -7,7 +7,7 @@ import numpy as np
 from tom.data_objects import Location
 
 
-def test_distance_matrix_api(sample_trip):
+def test_distance_matrix_api(env, sample_trip):
     
     gmaps = googlemaps.Client(key=os.getenv("GOOGLE_MAPS_API_KEY"))
 
@@ -40,4 +40,4 @@ def test_distance_matrix_api(sample_trip):
     distance = np.array(distance).reshape(num_locations, num_locations)
     duration = np.array(distance).reshape(num_locations, num_locations)
 
-    assert distance and duration
+    assert distance.any() and duration.any()

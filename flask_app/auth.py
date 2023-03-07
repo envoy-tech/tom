@@ -16,7 +16,7 @@ from werkzeug.security import (
     generate_password_hash
 )
 
-from flaskr.db import get_db
+from flask_app.db import get_db
 
 bp = Blueprint("auth", __name__, url_prefix="/auth")
 
