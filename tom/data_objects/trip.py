@@ -1,6 +1,5 @@
 import os
 import datetime as dt
-from itertools import permutations
 from dotenv import load_dotenv
 
 import numpy as np
@@ -9,6 +8,7 @@ from ortools.linear_solver import pywraplp
 
 from .location import Location
 from .traveler import Traveler
+from tom.model_utils import common_utils as cu
 
 
 class Trip:
@@ -184,22 +184,6 @@ class Trip:
         
         return trip
 
-    @staticmethod
-    def subtour(edges, stop_at) -> list[int]:
-        unvisited = stop_at.tolist()
-        cycle = range(len(stop_at)+1)  # initial length has 1 more city
-        while unvisited:  # true if len(unvisited) > 0
-            thiscycle = []
-            neighbors = unvisited
-            while neighbors:
-                current = neighbors[0]
-                thiscycle.append(current)
-                unvisited.remove(current)
-                neighbors = [j for j in edges[current] if j in unvisited]
-            if len(cycle) > len(thiscycle):
-                cycle = thiscycle
-        return cycle
-
 
     def optimize(
         self,
@@ -225,10 +209,8 @@ class Trip:
 
         I = self.get_duration_from_gmap_response(maps_response)
         np.fill_diagonal(I, I.max() + 25)
-        max_I = I.max()
+        max_I: float = I.max()
         
-        big_n = 10000
-
         n: int = self.num_locations
         m: int = self.num_travelers
 
@@ -254,24 +236,27 @@ class Trip:
         _empty_location_array = np.empty(n, dtype=object)
         _empty_traveler_array = np.empty(m, dtype=object)
         _empty_traveler_location_array = np.empty((m, n), dtype=object)
-        _empty_traveler_ll_tensor = np.empty((m, n, n), dtype=object)
 
         GO = np.empty_like(_empty_location_array)
         FROM = np.empty((n, n), dtype=object)
         INTER_DEPART_DAY = np.empty_like(FROM)
         INTER_DEPART_HOUR = np.empty_like(FROM)
-        R_DEV_Pos = np.empty_like(_empty_traveler_array)
-        R_DEV_Neg = np.empty_like(_empty_traveler_array)
-        R_DEV_IS_Pos = np.empty_like(_empty_traveler_array)
-        R_DEV_IS_Neg = np.empty_like(_empty_traveler_array)
-        S_DEV_Pos = np.empty_like(_empty_traveler_location_array)
-        S_DEV_Neg = np.empty_like(_empty_traveler_location_array)
-        S_DEV_IS_Pos = np.empty_like(_empty_traveler_location_array)
-        S_DEV_IS_Neg = np.empty_like(_empty_traveler_location_array)
-        I_DEV_Pos = np.empty_like(_empty_traveler_ll_tensor)
-        I_DEV_Neg = np.empty_like(_empty_traveler_ll_tensor)
-        I_DEV_IS_Pos = np.empty_like(_empty_traveler_ll_tensor)
-        I_DEV_IS_Neg = np.empty_like(_empty_traveler_ll_tensor)
+
+        R_DEV_Pos, R_DEV_Neg = cu.make_deviational_variables(
+            self.num_travelers, "R_DEV", solver, ub=10
+        )
+
+        S_DEV_Pos, S_DEV_Neg = cu.make_deviational_variables(
+            (self.num_travelers, self.num_locations), "S_DEV", solver, ub=self.num_hours
+        )
+
+        I_DEV_Pos, I_DEV_Neg, I_DEV_IS_Pos, I_DEV_IS_Neg = cu.make_deviational_variables(
+            (self.num_travelers, self.num_locations, self.num_locations),
+            "I_DEV",
+            solver,
+            ub=max_I,
+            return_bools=True
+        )
 
         DEPART_DAY = np.empty_like(_empty_location_array)
         DEPART_HOUR = np.empty_like(_empty_location_array)
@@ -320,12 +305,6 @@ class Trip:
         
         for traveler_i in range(m):
             
-            # TODO: Find smaller upper bound for R_DEV_* variables
-            R_DEV_Pos[traveler_i] = solver.NumVar(lb=0, ub=10, name=f"R_DEV_Pos_{traveler_i}")
-            R_DEV_Neg[traveler_i] = solver.NumVar(lb=0, ub=10, name=f"R_DEV_Neg_{traveler_i}")
-            R_DEV_IS_Pos[traveler_i] = solver.BoolVar(name=f"R_DEV_IS_Pos_{traveler_i}")
-            R_DEV_IS_Neg[traveler_i] = solver.BoolVar(name=f"R_DEV_IS_Neg_{traveler_i}")
-            
             # TODO: Find smaller upper bound for MEAN_R variables
             MEAN_R[traveler_i] = solver.NumVar(lb=0, ub=10, name=f"MEAN_R_{traveler_i}")
 
@@ -336,25 +315,6 @@ class Trip:
 
                 INTER_R[traveler_i, location_j] = solver.NumVar(lb=0, ub=n*10, name=f"INTER_R_{traveler_i}_{location_j}")
                 
-                # TODO: Find smaller upper bound for S_DEV_* variables
-                S_DEV_Pos[traveler_i, location_j] = solver.NumVar(
-                    lb=0, ub=self.num_hours, name=f"S_DEV_Pos_{traveler_i}_{location_j}"
-                )
-                S_DEV_Neg[traveler_i, location_j] = solver.NumVar(
-                    lb=0, ub=self.num_hours, name=f"S_DEV_Neg_{traveler_i}_{location_j}"
-                )
-                S_DEV_IS_Pos[traveler_i, location_j] = solver.BoolVar(
-                    name=f"S_DEV_IS_Pos_{traveler_i}_{location_j}"
-                )
-                S_DEV_IS_Neg[traveler_i, location_j] = solver.BoolVar(
-                    name=f"S_DEV_IS_Neg_{traveler_i}_{location_j}"
-                )
-                for l2 in range(n):
-                    I_DEV_Pos[traveler_i, location_j, l2] = solver.NumVar(lb=0, ub=max_I, name=f"I_DEV_Pos[{traveler_i},{location_j},{l2}]")
-                    I_DEV_Neg[traveler_i, location_j, l2] = solver.NumVar(lb=0, ub=max_I, name=f"I_DEV_Neg[{traveler_i},{location_j},{l2}]")
-                    I_DEV_IS_Pos[traveler_i, location_j, l2] = solver.BoolVar(name=f"I_DEV_IS_Pos[{traveler_i},{location_j},{l2}]")
-                    I_DEV_IS_Neg[traveler_i, location_j, l2] = solver.BoolVar(name=f"I_DEV_IS_Neg[{traveler_i},{location_j},{l2}]")
-
         ##### LOCATION CONSTRAINTS #####
 
         solver.Add(GO[start_location] == 1, name="Must go to start_location")
@@ -513,18 +473,6 @@ class Trip:
                 name=f"{traveler=}'s ratings of trip locations must equal SUM_R[{traveler}]"
             )
             solver.Add(
-                R_DEV_Pos[traveler] <= big_n * R_DEV_IS_Pos[traveler],
-                name=f"Set ceiling for R_DEV_Pos[{traveler}]"
-            )
-            solver.Add(
-                R_DEV_Neg[traveler] <= big_n * R_DEV_IS_Neg[traveler],
-                name=f"Set ceiling for R_DEV_Neg[{traveler}]"
-            )
-            solver.Add(
-                R_DEV_IS_Pos[traveler] + R_DEV_IS_Neg[traveler] <= 1,
-                name=f"Ensure only either R_DEV_IS_Pos[{traveler}] or R_DEV_IS_Neg[{traveler}] can be set to True"
-            )
-            solver.Add(
                 MEAN_R[traveler] - R_DEV_Pos[traveler] + R_DEV_Neg[traveler] == mean_R[traveler],
                 name=f"Ensure {traveler=}'s calculated MEAN_R +- the deviations equals their overall mean_R"
             )
@@ -542,18 +490,6 @@ class Trip:
                     name=f"Set floor for INTER_R[{traveler},{location}]"
                 )
                 solver.Add(
-                    S_DEV_Pos[traveler, location] <= big_n * S_DEV_IS_Pos[traveler, location],
-                    name=f"Set ceiling for S_DEV_Pos[{traveler},{location}]"
-                )
-                solver.Add(
-                    S_DEV_Neg[traveler, location] <= big_n * S_DEV_IS_Neg[traveler, location],
-                    name=f"Set ceiling for S_DEV_Neg[{traveler},{location}]"
-                )
-                solver.Add(
-                    S_DEV_IS_Pos[traveler, location] + S_DEV_IS_Neg[traveler, location] <= 1,
-                    name=f"Ensure only either S_DEV_IS_Pos[{traveler},{location}] or S_DEV_IS_Neg[{traveler},{location}] can be set to True"
-                )
-                solver.Add(
                     STAY[location] - S_DEV_Pos[traveler, location] + S_DEV_Neg[traveler, location] == S[traveler, location],
                     name=f"Ensure {location=}'s calculated STAY +- {traveler=}'s deviations equals their desired stay."
                 )
@@ -567,20 +503,8 @@ class Trip:
                         name=f"Set ceiling for I_DEV_IS_Pos[{traveler},{location},{l2}]"
                     )
                     solver.Add(
-                        I_DEV_Pos[traveler, location, l2] <= max_I * I_DEV_IS_Pos[traveler, location, l2],
-                        name=f"Set ceiling for I_DEV_Pos[{traveler},{location},{l2}]"
-                    )
-                    solver.Add(
-                        I_DEV_Neg[traveler, location, l2] <= max_I * I_DEV_IS_Neg[traveler, location, l2],
-                        name=f"Set ceiling for I_DEV_Neg[{traveler},{location},{l2}]"
-                    )
-                    solver.Add(
-                        I_DEV_IS_Pos[traveler, location, l2] + I_DEV_IS_Neg[traveler, location, l2] <= 1,
-                        name=f"Ensure only either I_DEV_IS_Pos[{traveler},{location},{l2}] or I_DEV_IS_Neg[{traveler},{location},{l2}] can be set to True"
-                    )
-                    solver.Add(
-                        (I[location, l2] * FROM[location, l2]) + I_DEV_Neg[traveler, location, l2] - I_DEV_Pos[traveler, location, l2] == travel_thresh[traveler] * FROM[location, l2]
-
+                        (I[location, l2] * FROM[location, l2]) + I_DEV_Neg[traveler, location, l2] - I_DEV_Pos[traveler, location, l2] == travel_thresh[traveler] * FROM[location, l2],
+                        name=f"Ensure devialtion variable equivalence for I[{traveler},{location},{l2}]"
                     )
 
         ##### OBJECTIVE FUNCTION #####
@@ -591,42 +515,23 @@ class Trip:
             S_DEV_Neg_sliced.sum() + R_DEV_Neg.sum() + I_DEV_Pos.sum()
         )
 
-        tour, NUM_STOPS_sol = [], 1
+        had_subtours = True
 
         # Continue solution attempts until solution without subtours is found
-        while len(tour) < NUM_STOPS_sol:
+        while had_subtours:
+            _ = solver.Solve()
+            had_subtours = cu.find_and_eliminate_subtours(FROM, start_location, solver)
 
-            status = solver.Solve()
-            GO_sol = np.array([val.solution_value() for val in GO])
-            FROM_sol = np.array([val.solution_value() for val in FROM.flatten()]).reshape(n, n)
-            stops = GO_sol.nonzero()[0]
-            NUM_STOPS_sol = NUM_STOPS.solution_value()
-            selected = {}
-            for l1 in range(n):
-                selected[l1] = []
-                for l2 in range(n):
-                    if FROM_sol[l1, l2]:
-                        selected[l1].append(l2)
-            tour = self.subtour(selected, stops)
-            if len(tour) < NUM_STOPS_sol:
-                if len(tour) == 2:
-                    i, j = tour
-                    solver.Add(FROM[i, j] + FROM[j, i] <= len(tour) - 1)
-                else:
-                    solver.Add(
-                        sum(FROM[i, j] for i, j in permutations(tour, 2)) <= len(tour) - 1
-                    )
+        AD = cu.get_solution_array(ARRIVE_DAY)
+        AH = cu.get_solution_array(ARRIVE_HOUR)
+        DD = cu.get_solution_array(DEPART_DAY)
+        DH = cu.get_solution_array(DEPART_HOUR)
 
-        AD = [d.solution_value() for d in ARRIVE_DAY]
-        AH = [d.solution_value() for d in ARRIVE_HOUR]
-        DD = [d.solution_value() for d in DEPART_DAY]
-        DH = [d.solution_value() for d in DEPART_HOUR]
+        IDD = cu.get_solution_array(INTER_DEPART_DAY)
+        IDH = cu.get_solution_array(INTER_DEPART_HOUR)
+        F = cu.get_solution_array(FROM)
 
-        IDD = np.array([i.solution_value() for i in INTER_DEPART_DAY.flatten()]).reshape(n, n)
-        IDH = np.array([i.solution_value() for i in INTER_DEPART_HOUR.flatten()]).reshape(n, n)
-        F = np.array([f.solution_value() for f in FROM.flatten()]).reshape(n, n)
-
-        IDP = np.array([i.solution_value() for i in I_DEV_Pos.flatten()]).reshape(m, n, n)
-        IDN = np.array([i.solution_value() for i in I_DEV_Neg.flatten()]).reshape(m, n, n)
+        IDP = cu.get_solution_array(I_DEV_Pos)
+        IDN = cu.get_solution_array(I_DEV_Neg)
 
         return solver
