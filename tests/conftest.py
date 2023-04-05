@@ -3,6 +3,7 @@ import tempfile
 import yaml
 
 import pytest
+import googlemaps
 from dotenv import load_dotenv
 from flask_app import create_app
 from flask_app.db import get_db, init_db
@@ -71,3 +72,8 @@ def env():
 @pytest.fixture
 def sample_trip():
     return _sample_trip
+
+
+@pytest.fixture
+def gmaps_client():
+    return googlemaps.Client(key=os.getenv("GOOGLE_MAPS_API_KEY"))

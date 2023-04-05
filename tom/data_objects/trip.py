@@ -1,5 +1,6 @@
 import os
 import datetime as dt
+from typing import Optional
 from dotenv import load_dotenv
 
 import numpy as np
@@ -15,6 +16,7 @@ class VarName:
     GO = "GO"
     FROM = "FROM"
     STAY = "STAY"
+    TIME = "TIME"
     INTER_DEPART_DAY = "INTER_DEPART_DAY"
     INTER_DEPART_HOUR = "INTER_DEPART_HOUR"
     DEPART_DAY = "DEPART_DAY"
@@ -54,10 +56,20 @@ class Trip:
         self._start_location = Location(**start_location)
         self._end_location = Location(**end_location)
         self.itineraries: dict[dict[str, str]]
+        self._itinerary_found: bool = False
+        self._solver: Optional[TripSolver] = None
 
     @property
     def id(self) -> str:
         return self._id
+
+    @property
+    def itinerary_found(self):
+        return self._itinerary_found
+
+    @property
+    def solver(self):
+        return self._solver
 
     @property
     def start_date(self) -> dt.datetime:
@@ -143,8 +155,8 @@ class Trip:
         return np.array([traveler.location_ratings for traveler in self.travelers])
 
     @property
-    def traveler_desired_stay_in_location(self) -> np.ndarray:
-        return np.array([traveler.desired_stay_in_location for traveler in self.travelers])
+    def traveler_desired_time_in_location(self) -> np.ndarray:
+        return np.array([traveler.desired_time_in_location for traveler in self.travelers])
 
     @property
     def traveler_travel_thresholds(self) -> np.ndarray:
@@ -157,6 +169,12 @@ class Trip:
     @property
     def traveler_latest_ends(self) -> np.ndarray:
         return np.array([traveler.latest_acceptable_end for traveler in self.travelers])
+
+    @property
+    def traveler_active_times(self) -> tuple[float, float]:
+        active_start = np.mean([traveler.active_stay_start for traveler in self.travelers])
+        active_end = np.mean([traveler.active_stay_end for traveler in self.travelers])
+        return active_start, active_end
 
     def get_duration_from_gmap_response(self, response) -> np.ndarray:
         """Traverse the Google Maps Distance Matrix API response and get the
@@ -184,8 +202,7 @@ class Trip:
         
         return trip
 
-    def create_travel_matrix(self, transport_mode: str):
-        gmaps_client = googlemaps.Client(key=os.getenv(EnvVars.GMAPS_API_KEY))
+    def create_travel_matrix(self, gmaps_client, transport_mode: str):
         response = gmaps_client.distance_matrix(
             self.location_lat_lons,
             self.location_lat_lons,
@@ -197,15 +214,33 @@ class Trip:
         )
         return self.get_duration_from_gmap_response(response)
 
+    def create_timezone_matrix(self, gmaps_client):
+        timezones = []
+        timezone_offsets = np.zeros((self.num_locations, self.num_locations))
+        for lat_lon in self.location_lat_lons:
+            response = gmaps_client.timezone(
+                location=lat_lon,
+                timestamp=self.start_date
+            )
+            timezones.append(response["rawOffset"] // 60**2)
+
+        for i, j in np.ndindex(timezone_offsets.shape):
+            timezone_offsets[i, j] = timezones[j] - timezones[i]
+
+        return timezone_offsets
+
     def optimize(
         self,
         *,
         transport_mode: str = "driving"
     ):
+
+        gmaps_client = googlemaps.Client(key=os.getenv(EnvVars.GMAPS_API_KEY))
         
         ##### Prepare input variables #####
 
-        travel_matrix = self.create_travel_matrix(transport_mode)
+        travel_matrix = self.create_travel_matrix(gmaps_client, transport_mode)
+        timezone_offsets = self.create_timezone_matrix(gmaps_client)
         max_travel: float = np.max(travel_matrix)
         np.fill_diagonal(travel_matrix, 2 * max_travel)
 
@@ -215,14 +250,20 @@ class Trip:
         traveler_rating_matrix: np.ndarray = self.traveler_location_ratings
         traveler_mean_rating: np.ndarray = np.mean(traveler_rating_matrix, axis=1)
 
-        traveler_stay_matrix: np.ndarray = self.traveler_desired_stay_in_location
-        location_min_stay = np.min(traveler_stay_matrix, axis=0)
+        traveler_time_matrix: np.ndarray = self.traveler_desired_time_in_location
+        location_min_time = np.min(traveler_time_matrix, axis=0)
 
         travel_thresh: np.ndarray = self.traveler_travel_thresholds
         abs_travel_thresh: int = np.max(travel_thresh)
 
         earliest_start: float = self.traveler_earliest_starts.mean()
         latest_end: float = self.traveler_latest_ends.mean()
+
+        active_start, active_end = self.traveler_active_times
+        active_hours = active_end - active_start
+
+        traveler_stay_matrix = (traveler_time_matrix / 24) * active_hours
+        location_min_stay = np.min(traveler_stay_matrix, axis=0)
 
         ##### Instantiate Model #####
 
@@ -248,6 +289,7 @@ class Trip:
         ARRIVE_DAY = solver.IntArray(self.num_locations, VarName.ARRIVE_DAY, ub=self.num_days)
         ARRIVE_HOUR = solver.NumArray(self.num_locations, VarName.ARRIVE_HOUR, ub=latest_end)
 
+        TIME = solver.NumArray(self.num_locations, VarName.TIME, ub=self.num_hours)
         STAY = solver.NumArray(self.num_locations, VarName.STAY, ub=self.num_hours)
         DURATION = solver.NumVar(lb=0, ub=self.num_hours, name="DURATION")
         NUM_STOPS = solver.IntVar(lb=0, ub=self.num_locations, name="NUM_STOPS")
@@ -288,10 +330,11 @@ class Trip:
         )
 
         solver.AddConstraint(
-            STAY.sum() + (travel_matrix * FROM).sum() == DURATION,
-            name="Sum of STAY and selected travel times must equal DURATION"
+            TIME.sum() + (travel_matrix * FROM).sum() == DURATION,
+            name="Sum of TIME and selected travel times must equal DURATION"
         )
 
+        solver.AddConstraint(TIME[start_idx] == 0, name="Time in start_location must be 0.")
         solver.AddConstraint(STAY[start_idx] == 0, name="Stay in start_location must be 0.")
         solver.AddConstraint(DEPART_DAY[start_idx] == 0, name="Depart start location on day 0")
         solver.AddConstraint(
@@ -332,7 +375,7 @@ class Trip:
             name_prefix="Set ceiling for ARRIVE_HOUR"
         )
 
-        arrive_hour_expr = INTER_DEPART_HOUR.sum(axis=0) + (FROM * travel_matrix).sum(axis=0)
+        arrive_hour_expr = INTER_DEPART_HOUR.sum(axis=0) + (FROM * (travel_matrix + timezone_offsets)).sum(axis=0)
         solver.ArrayConstraint(
             np.less_equal(ARRIVE_HOUR, arrive_hour_expr, dtype=object),
             name_prefix="Set target for ARRIVE_HOUR"
@@ -351,6 +394,22 @@ class Trip:
         )
         solver.ArrayConstraint(
             np.less_equal(
+                np.delete(TIME, start_idx),
+                np.delete(self.num_hours * GO, start_idx),
+                dtype=object
+            ),
+            name_prefix="Set ceiling for TIME"
+        )
+        solver.ArrayConstraint(
+            np.greater_equal(
+                np.delete(TIME, start_idx),
+                np.delete(location_min_time * GO, start_idx),
+                dtype=object
+            ),
+            name_prefix="Set floor for TIME"
+        )
+        solver.ArrayConstraint(
+            np.less_equal(
                 np.delete(STAY, start_idx),
                 np.delete(self.num_hours * GO, start_idx),
                 dtype=object
@@ -365,14 +424,35 @@ class Trip:
             ),
             name_prefix="Set floor for STAY"
         )
-        stay_expr = (24 * DEPART_DAY + DEPART_HOUR) - (24 * ARRIVE_DAY + ARRIVE_HOUR)
+        time_expr = (24 * DEPART_DAY + DEPART_HOUR) - (24 * ARRIVE_DAY + ARRIVE_HOUR)
+
+        stay_expr = active_hours * (DEPART_DAY - ARRIVE_DAY) \
+            + (DEPART_HOUR - (active_start * GO)) \
+            + ((active_end * GO) - ARRIVE_HOUR)
+
         solver.ArrayConstraint(
             np.equal(
+                np.delete(TIME, start_idx),
+                np.delete(time_expr, start_idx),
+                dtype=object
+            ),
+            name_prefix="TIME must equal (departure date - arrival date)"
+        )
+        solver.ArrayConstraint(
+            np.less_equal(
                 np.delete(STAY, start_idx),
                 np.delete(stay_expr, start_idx),
                 dtype=object
             ),
-            name_prefix="STAY must equal (departure date - arrival date)"
+            name_prefix="Set target for STAY"
+        )
+        solver.ArrayConstraint(
+            np.greater_equal(
+                np.delete(STAY, start_idx),
+                np.delete(stay_expr, start_idx) - (1 - np.delete(GO, start_idx)) * self.num_hours,
+                dtype=object
+            ),
+            name_prefix="Set target floor for STAY"
         )
         solver.ArrayConstraint(
             np.less_equal(INTER_DEPART_DAY, self.num_days * FROM, dtype=object),
@@ -541,7 +621,7 @@ class Trip:
         )
 
         ##### OBJECTIVE FUNCTION #####
-        # Trim start location from S_DEV_* matrices
+        # Trim start location from T_DEV_* matrices
         S_DEV_Neg_sliced = np.delete(S_DEV_Neg, start_idx, axis=1)
 
         solver.Minimize(
@@ -551,7 +631,9 @@ class Trip:
         had_subtours = True
         # Continue solution attempts until solution without subtours is found
         while had_subtours:
-            _ = solver.Solve()
+            solver.Solve()
             had_subtours = cu.find_and_eliminate_subtours(FROM, start_idx, solver)
 
+        self._solver = solver
+        self._itinerary_found = solver.is_solved
         return solver

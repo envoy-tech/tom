@@ -7,5 +7,5 @@ from tom.data_objects import Trip
 def test_optimize_trip(env, sample_trip):
 
     trip = Trip.load_from_dict(sample_trip)
-    solver = trip.optimize()
-    assert True
+    trip.optimize()
+    assert trip.itinerary_found
