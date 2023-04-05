@@ -69,7 +69,7 @@ travelers:
       - 4.75
       - 9
       - 6.5
-    desired_stay_in_location:
+    desired_time_in_location:
       - 24
       - 72
       - 36
@@ -84,6 +84,8 @@ travelers:
     latest_acceptable_end: 22
     allowed_start_flexibility: 2
     allowed_end_flexibility: 1
+    active_stay_start: 8
+    active_stay_end: 23
   - _id: 1
     username: user1
     email: user1@nil.com
@@ -97,7 +99,7 @@ travelers:
       - 9
       - 4.25
       - 7.25
-    desired_stay_in_location:
+    desired_time_in_location:
       - 24
       - 36
       - 72
@@ -112,6 +114,8 @@ travelers:
     latest_acceptable_end: 20
     allowed_start_flexibility: 2
     allowed_end_flexibility: 1
+    active_stay_start: 6
+    active_stay_end: 21
   - _id: 2
     username: user2
     email: user2@nil.com
@@ -125,7 +129,7 @@ travelers:
       - 5
       - 6.5
       - 2
-    desired_stay_in_location:
+    desired_time_in_location:
       - 6
       - 12
       - 6
@@ -140,3 +144,5 @@ travelers:
     latest_acceptable_end: 21
     allowed_start_flexibility: 2
     allowed_end_flexibility: 1
+    active_stay_start: 7.5
+    active_stay_end: 22
