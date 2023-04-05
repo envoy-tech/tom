@@ -1,4 +1,4 @@
-from typing import Union, Callable
+from typing import Union, Callable, Optional
 
 import numpy as np
 from ortools.linear_solver import pywraplp
@@ -19,6 +19,11 @@ class TripSolver:
 
     def __init__(self):
         self.solver = pywraplp.Solver.CreateSolver(SolverName.SCIP)
+        self._solve_status: Optional[int] = None
+
+    @property
+    def is_solved(self):
+        return True if self._solve_status in [0, 1] else False
 
     @staticmethod
     def _variable_array(
@@ -172,7 +177,7 @@ class TripSolver:
             self.AddConstraint(array_expr_result[idx], name=f"{name_prefix}_[{idx}]")
 
     def Solve(self, *args, **kwargs):
-        self.solver.Solve(*args, **kwargs)
+        self._solve_status = self.solver.Solve(*args, **kwargs)
 
     def Minimize(self, *args, **kwargs):
         self.solver.Minimize(*args, **kwargs)
