@@ -1,0 +1,50 @@
+syntax = "proto3";
+
+package tom;
+
+import "google/protobuf/timestamp.proto";
+
+service GoogleMaps {
+  /**
+   * Return a distance matrix for inputted locations from GoogleMaps.
+   */
+  rpc GetDistanceMatrix(DistanceMatrixRequest) returns (DistanceMatrixResponse) {}
+
+  /**
+   * Return timezones for each inputted location from GoogleMaps.
+   */
+  rpc GetTimeZone(TimeZoneRequest) returns (TimeZoneResponse) {}
+}
+
+message DistanceMatrixRequest {
+  Vector lat = 1;
+  Vector lon = 2;
+  string transport_mode = 3;
+  google.protobuf.Timestamp departure_time = 4;
+  repeated string avoid = 5;
+  string units = 6;
+  string traffic_model = 7;
+}
+
+message DistanceMatrixResponse {
+  Array durations = 1;
+  Array distances = 2;
+}
+
+message TimeZoneRequest {
+  Vector lat = 1;
+  Vector lon = 2;
+  google.protobuf.Timestamp timestamp = 3;
+}
+
+message TimeZoneResponse {
+  Vector timezone_offset = 1;
+}
+
+message Vector {
+  repeated float elements = 1;
+}
+
+message Array {
+  repeated Vector rows = 1;
+}

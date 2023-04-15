@@ -1,7 +1,9 @@
 Flask
 googlemaps
-wheel
-pytest
+grpcio
+grpcio-tools
 ortools
-pyyaml
+pytest
 python-dotenv
+pyyaml
+wheel
