@@ -1,6 +1,6 @@
 import pytest
 
-from tom.data_objects import Trip
+from tom.trip_manager.data_objects import Trip
 
 
 @pytest.mark.slow

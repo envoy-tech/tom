@@ -1,0 +1,67 @@
+syntax = "proto3";
+
+package tom;
+
+import "google/protobuf/timestamp.proto";
+
+service TripManagement {
+  /**
+   * Request optimization of a trip.
+   */
+  rpc BuildTripMPSFile(TripMPSRequest) returns (TripMPSResponse) {}
+}
+
+message TripMPSRequest {
+  string session_id = 1;
+  string trip_id = 2;
+  google.protobuf.Timestamp start_date = 3;
+  google.protobuf.Timestamp end_date = 4;
+  Location start_location = 5;
+  Location end_location = 6;
+  repeated Location locations = 7;
+  repeated Traveler travelers = 8;
+  TravelParams travel_params = 9;
+}
+
+message TripMPSResponse {
+  string session_id = 1;
+  int32 status_code = 2;
+}
+
+message TravelParams {
+  string avoid = 1;
+  string mode = 2;
+  string units = 3;
+  string traffic_model = 4;
+}
+
+message Location {
+  string location_id = 1;
+  string name = 2;
+  string address = 3;
+  float lat = 4;
+  float lon = 5;
+}
+
+message Traveler {
+  string traveler_id = 1;
+  string username = 2;
+  string email = 3;
+  Vector location_ratings = 4;
+  Vector desired_time_in_location = 5;
+  float road_travel_threshold = 6;
+  float earliest_acceptable_start = 7;
+  float latest_acceptable_end = 8;
+  float allowed_start_flexibility = 9;
+  float allowed_end_flexibility = 10;
+  float active_stay_start = 11;
+  float active_stay_end = 12;
+}
+
+message Vector {
+  repeated float elements = 1;
+}
+
+message Array {
+  repeated Vector rows = 1;
+}

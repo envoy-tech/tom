@@ -1,15 +1,14 @@
 import os
 import datetime as dt
-from typing import Optional
+from typing import Optional, Union
 from dotenv import load_dotenv
 
 import numpy as np
 import googlemaps
 
-from tom.trip_manager.data_objects.location import Location
-from tom.trip_manager.data_objects.traveler import Traveler
+from tom.common import Location
+from tom.common import Traveler
 from tom.trip_manager.data_objects.solver import TripSolver
-from tom.trip_manager.model_utils import common_utils as cu
 
 
 class VarName:
@@ -40,8 +39,8 @@ class Trip:
     def __init__(
             self,
             _id: str,
-            start_date: str,
-            end_date: str,
+            start_date: dt.datetime,
+            end_date: dt.datetime,
             start_location: dict,
             end_location: dict
     ):
@@ -49,23 +48,17 @@ class Trip:
         self._env = load_dotenv()
         if not self._env:
             raise EnvironmentError("Unable to load .env file")
-        self._start_date = dt.datetime.strptime(start_date, "%m/%d/%Y")
-        self._end_date = dt.datetime.strptime(end_date, "%m/%d/%Y")
+        self._start_date = start_date
+        self._end_date = end_date
         self._locations: list[Location] = []
         self._travelers: list[Traveler] = []
         self._start_location = Location(**start_location)
         self._end_location = Location(**end_location)
-        self.itineraries: dict[dict[str, str]]
-        self._itinerary_found: bool = False
         self._solver: Optional[TripSolver] = None
 
     @property
     def id(self) -> str:
         return self._id
-
-    @property
-    def itinerary_found(self):
-        return self._itinerary_found
 
     @property
     def solver(self):
@@ -140,10 +133,24 @@ class Trip:
     def num_hours(self) -> float:
         return self.total_trip_duration(unit="hours")
         
-    def add_location(self, location: Location):
+    def add_location(self, location: Union[Location, list[Location]]):
+        """ Add location to trip.
+
+        :param location: :class:`Location` instance or list of instances
+        """
+        if isinstance(location, list):
+            self._locations.extend(location)
+            return
         self._locations.append(location)
 
-    def add_traveler(self, traveler: Traveler):
+    def add_traveler(self, traveler: Union[Traveler, list[Traveler]]):
+        """ Add traveler to trip.
+
+        :param traveler: :class:`Traveler` instance or list of instances
+        """
+        if isinstance(traveler, list):
+            self._locations.extend(traveler)
+            return
         self._travelers.append(traveler)
 
     @property
@@ -171,7 +178,7 @@ class Trip:
         return np.array([traveler.latest_acceptable_end for traveler in self.travelers])
 
     @property
-    def traveler_active_times(self) -> tuple[float, float]:
+    def traveler_active_times(self) -> tuple[np.ndarray, np.ndarray]:
         active_start = np.mean([traveler.active_stay_start for traveler in self.travelers])
         active_end = np.mean([traveler.active_stay_end for traveler in self.travelers])
         return active_start, active_end
@@ -202,15 +209,12 @@ class Trip:
         
         return trip
 
-    def create_travel_matrix(self, gmaps_client, transport_mode: str):
+    def create_travel_matrix(self, gmaps_client, params: dict):
         response = gmaps_client.distance_matrix(
             self.location_lat_lons,
             self.location_lat_lons,
-            avoid="tolls",
-            mode=transport_mode,
-            units="imperial",
             departure_time=self.start_date,
-            traffic_model="best_guess"
+            **params
         )
         return self.get_duration_from_gmap_response(response)
 
@@ -229,17 +233,16 @@ class Trip:
 
         return timezone_offsets
 
-    def optimize(
+    def generate_mps_file(
         self,
-        *,
-        transport_mode: str = "driving"
+        distance_matrix_params: dict
     ):
 
         gmaps_client = googlemaps.Client(key=os.getenv(EnvVars.GMAPS_API_KEY))
         
         ##### Prepare input variables #####
 
-        travel_matrix = self.create_travel_matrix(gmaps_client, transport_mode)
+        travel_matrix = self.create_travel_matrix(gmaps_client, distance_matrix_params)
         timezone_offsets = self.create_timezone_matrix(gmaps_client)
         max_travel: float = np.max(travel_matrix)
         np.fill_diagonal(travel_matrix, 2 * max_travel)
@@ -621,19 +624,17 @@ class Trip:
         )
 
         ##### OBJECTIVE FUNCTION #####
-        # Trim start location from T_DEV_* matrices
+        # Trim start location from S_DEV_* matrices
         S_DEV_Neg_sliced = np.delete(S_DEV_Neg, start_idx, axis=1)
 
         solver.Minimize(
             S_DEV_Neg_sliced.sum() + R_DEV_Neg.sum() + I_DEV_Pos.sum()
         )
 
-        had_subtours = True
-        # Continue solution attempts until solution without subtours is found
-        while had_subtours:
-            solver.Solve()
-            had_subtours = cu.find_and_eliminate_subtours(FROM, start_idx, solver)
+        # had_subtours = True
+        # # Continue solution attempts until solution without subtours is found
+        # while had_subtours:
+        #     solver.Solve()
+        #     had_subtours = cu.find_and_eliminate_subtours(FROM, start_idx, solver)
 
-        self._solver = solver
-        self._itinerary_found = solver.is_solved
-        return solver
+        return solver.ExportModelAsMpsFormat()

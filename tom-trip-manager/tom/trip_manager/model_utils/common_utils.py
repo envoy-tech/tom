@@ -18,7 +18,7 @@ def find_subtours(departure_matrix: np.ndarray, start_location: int) -> list[lis
     
     A subtour is defined as a closed cycle of departures that occur within a trip.
     A trip needs to be one continuous cycle, so, if this is not achieved, we must
-    setup additional constraints to force to solver to find a new solution.
+    set up additional constraints to force to solver to find a new solution.
 
     :param departure_matrix: the feasible solution values from the FROM matrix
     :param start_location: the starting location for the trip

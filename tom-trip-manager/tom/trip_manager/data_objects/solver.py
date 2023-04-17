@@ -132,7 +132,6 @@ class TripSolver:
 
         :param shape: shape of the desired output variable arrays
         :param name_prefix: name prefix for all variables
-        :param solver: the OR-tools solver instance to add variables / constraints to
         :param lb: lower bound of variables (default: 0)
         :param ub: upper bound of variables (default: inf)
         :param return_bools: flag to return the is_pos and is_neg boolean variables that constrain
@@ -181,3 +180,6 @@ class TripSolver:
 
     def Minimize(self, *args, **kwargs):
         self.solver.Minimize(*args, **kwargs)
+
+    def ExportModelAsMpsFormat(self) -> str:
+        return self.solver.ExportModelAsMpsFormat(True, False)

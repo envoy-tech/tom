@@ -1,5 +1,5 @@
-PROTONAME = tom
-PROTODIR = ./tom/common
+PROTONAME = common
+PROTODIR = tom/common
 PYTHONDIR = ../tom-common
 
 TARGETS = $(PYTHONDIR)/$(PROTODIR)/$(PROTONAME)_pb2.py $(PYTHONDIR)/$(PROTODIR)/$(PROTONAME)_pb2_grpc.py

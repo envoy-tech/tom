@@ -1,10 +1,8 @@
-import os
 import datetime as dt
 
-import googlemaps
 import numpy as np
 
-from tom.data_objects import Location
+from tom.trip_manager.data_objects import Location
 
 
 def test_distance_matrix_api(env, gmaps_client, sample_trip):
