@@ -19,11 +19,6 @@ class TripSolver:
 
     def __init__(self):
         self.solver = pywraplp.Solver.CreateSolver(SolverName.SCIP)
-        self._solve_status: Optional[int] = None
-
-    @property
-    def is_solved(self):
-        return True if self._solve_status in [0, 1] else False
 
     @staticmethod
     def _variable_array(
@@ -64,12 +59,12 @@ class TripSolver:
 
         pos = self.NumVar(lb=lb, ub=ub, name=pos_name)
         neg = self.NumVar(lb=lb, ub=ub, name=neg_name)
-        is_pos = self.BoolVar(is_pos_name)
-        is_neg = self.BoolVar(is_neg_name)
+        is_pos = self.BoolVar(name=is_pos_name)
+        is_neg = self.BoolVar(name=is_neg_name)
 
-        self.Add(is_pos + is_neg <= 1, name=f"{name}_deviational_contstraint")
-        self.Add(pos <= ub * is_pos, name=f"set_ceiling_for_{name}_pos")
-        self.Add(neg <= ub * is_neg, name=f"set_ceiling_for_{name}_neg")
+        self.AddConstraint(is_pos + is_neg <= 1, name=f"{name}_deviational_contstraint")
+        self.AddConstraint(pos <= ub * is_pos, name=f"set_ceiling_for_{name}_pos")
+        self.AddConstraint(neg <= ub * is_neg, name=f"set_ceiling_for_{name}_neg")
 
         out = [pos, neg]
 
@@ -174,9 +169,6 @@ class TripSolver:
         shape = array_expr_result.shape
         for idx in np.ndindex(shape):
             self.AddConstraint(array_expr_result[idx], name=f"{name_prefix}_[{idx}]")
-
-    def Solve(self, *args, **kwargs):
-        self._solve_status = self.solver.Solve(*args, **kwargs)
 
     def Minimize(self, *args, **kwargs):
         self.solver.Minimize(*args, **kwargs)

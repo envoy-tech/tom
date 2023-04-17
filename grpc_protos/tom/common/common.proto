@@ -25,7 +25,6 @@ message TripMPSRequest {
 
 message TripMPSResponse {
   string session_id = 1;
-  int32 status_code = 2;
 }
 
 message TravelParams {

@@ -1,14 +1,13 @@
 import os
 import datetime as dt
 from typing import Optional, Union
-from dotenv import load_dotenv
 
 import numpy as np
 import googlemaps
 
-from tom.common import Location
-from tom.common import Traveler
+from tom.common import Location, Traveler
 from tom.trip_manager.data_objects.solver import TripSolver
+from tom.trip_manager import writer
 
 
 class VarName:
@@ -42,12 +41,10 @@ class Trip:
             start_date: dt.datetime,
             end_date: dt.datetime,
             start_location: dict,
-            end_location: dict
+            end_location: dict,
+            googlemaps_api_key: str
     ):
         self._id = _id
-        self._env = load_dotenv()
-        if not self._env:
-            raise EnvironmentError("Unable to load .env file")
         self._start_date = start_date
         self._end_date = end_date
         self._locations: list[Location] = []
@@ -55,6 +52,7 @@ class Trip:
         self._start_location = Location(**start_location)
         self._end_location = Location(**end_location)
         self._solver: Optional[TripSolver] = None
+        self._gmaps_api_key = googlemaps_api_key
 
     @property
     def id(self) -> str:
@@ -238,7 +236,7 @@ class Trip:
         distance_matrix_params: dict
     ):
 
-        gmaps_client = googlemaps.Client(key=os.getenv(EnvVars.GMAPS_API_KEY))
+        gmaps_client = googlemaps.Client(key=self._gmaps_api_key)
         
         ##### Prepare input variables #####
 
@@ -637,4 +635,7 @@ class Trip:
         #     solver.Solve()
         #     had_subtours = cu.find_and_eliminate_subtours(FROM, start_idx, solver)
 
-        return solver.ExportModelAsMpsFormat()
+        mps_string = solver.ExportModelAsMpsFormat()
+        mps_filename = "{}.mps".format(self.id)
+        writer.write_mps_file(mps_string, mps_filename)
+        return mps_filename
