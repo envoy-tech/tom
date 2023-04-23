@@ -5,9 +5,9 @@ import datetime as dt
 import grpc
 from google.protobuf import timestamp_pb2
 
-from tom.common import common_pb2, Env, S3Params
+from tom.common import common_pb2, S3Params
 from tom.trip_manager.servicer import TripMgmtServicer
-from tom.common.aws_resource_access import verify_file_in_s3
+from tom.common import aws_resource_access
 
 
 def test_build_trip_mps_file(
@@ -15,6 +15,8 @@ def test_build_trip_mps_file(
         sample_trip,
         sample_trip_params,
         mps_folder,
+        env,
+        s3,
         mocker
 ):
 
@@ -70,10 +72,6 @@ def test_build_trip_mps_file(
     assert os.path.exists(mps_file)
     os.remove(mps_file)
 
-    assert verify_file_in_s3(
-        mps_filename,
-        S3Params.BUCKET_NAME,
-        S3Params.REGION,
-        Env.S3_ACCESS_KEY_ID,
-        Env.S3_PRIVATE_KEY
-    )
+    assert aws_resource_access.verify_file_in_s3(s3, mps_filename, S3Params.BUCKET_NAME)
+
+    aws_resource_access.delete_file_in_s3(s3, mps_filename, S3Params.BUCKET_NAME)

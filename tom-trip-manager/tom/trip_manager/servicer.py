@@ -33,6 +33,14 @@ class TripMgmtServicer(common_pb2_grpc.TripManagementServicer):
         self._env = load_dotenv()
         if not self._env:
             raise EnvironmentError("Unable to load .env file")
+        self._role = aws_resource_access.assume_role(
+            os.getenv(Env.S3_ACCESS_ARN),
+            os.getenv(Env.S3_ACCESS_ROLE)
+        )
+        self._s3 = aws_resource_access.connect_to_s3(
+            S3Params.REGION,
+            self._role
+        )
 
     def BuildTripMPSFile(
             self,
@@ -68,12 +76,6 @@ class TripMgmtServicer(common_pb2_grpc.TripManagementServicer):
         if not os.path.exists(path_to_mps_file):
             pass  # TODO: Log this error and send back via gRPC
 
-        aws_resource_access.upload_to_s3(
-            filepath=path_to_mps_file,
-            bucket_name=S3Params.BUCKET_NAME,
-            region=S3Params.REGION,
-            aws_access_key_id=os.getenv(Env.S3_ACCESS_KEY_ID),
-            aws_secret_access_key=os.getenv(Env.S3_PRIVATE_KEY)
-        )
+        aws_resource_access.upload_to_s3(self._s3, path_to_mps_file, S3Params.BUCKET_NAME)
 
         return common_pb2.TripMPSResponse(session_id=_session_id)
