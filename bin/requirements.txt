@@ -4,6 +4,7 @@ grpcio
 grpcio-tools
 ortools
 pytest
+pytest-mock
 python-dotenv
 pyyaml
 wheel

@@ -1,0 +1,16 @@
+{
+  "CN": "Test CA",
+  "key": {
+    "algo": "rsa",
+    "size": 2048
+  },
+  "names": [
+    {
+      "C": "US",
+      "L": "McLean",
+      "O": "TOM",
+      "OU": "CertificateAuthority",
+      "ST": "Virginia"
+    }
+  ]
+}

@@ -6,6 +6,7 @@ OPTIMIZATION = tom-optimization
 TRAVELER_ACCESS = tom-traveler-access
 TRIP_ACCESS = tom-trip-access
 TRIP_MANAGER = tom-trip-manager
+GRPC = grpc_protos
 
 install:
 	pip install \
@@ -23,3 +24,6 @@ uninstall:
 	$(MAKE) -C $(TRAVELER_ACCESS) uninstall
 	$(MAKE) -C $(TRIP_ACCESS) uninstall
 	$(MAKE) -C $(TRIP_MANAGER) uninstall
+
+grpc:
+	$(MAKE) -C $(GRPC) grpc

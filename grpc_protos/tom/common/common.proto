@@ -35,7 +35,7 @@ message TravelParams {
 }
 
 message Location {
-  string location_id = 1;
+  string _id = 1;
   string name = 2;
   string address = 3;
   float lat = 4;
@@ -43,7 +43,7 @@ message Location {
 }
 
 message Traveler {
-  string traveler_id = 1;
+  string _id = 1;
   string username = 2;
   string email = 3;
   Vector location_ratings = 4;
