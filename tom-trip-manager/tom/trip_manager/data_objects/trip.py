@@ -1,9 +1,9 @@
-import os
 import datetime as dt
 from typing import Optional, Union
 
 import numpy as np
 import googlemaps
+from google.protobuf import timestamp_pb2
 
 from tom.common import Location, Traveler
 from tom.trip_manager.data_objects.solver import TripSolver
@@ -38,21 +38,21 @@ class Trip:
     def __init__(
             self,
             _id: str,
-            start_date: dt.datetime,
-            end_date: dt.datetime,
+            start_date: Union[str, dt.datetime],
+            end_date: Union[dt.datetime],
             start_location: dict,
             end_location: dict,
-            googlemaps_api_key: str
+            google_maps_api_key: str
     ):
         self._id = _id
-        self._start_date = start_date
-        self._end_date = end_date
+        self._start_date = self.parse_date_input(start_date)
+        self._end_date = self.parse_date_input(end_date)
         self._locations: list[Location] = []
         self._travelers: list[Traveler] = []
         self._start_location = Location(**start_location)
         self._end_location = Location(**end_location)
         self._solver: Optional[TripSolver] = None
-        self._gmaps_api_key = googlemaps_api_key
+        self._gmaps_api_key = google_maps_api_key
 
     @property
     def id(self) -> str:
@@ -147,7 +147,7 @@ class Trip:
         :param traveler: :class:`Traveler` instance or list of instances
         """
         if isinstance(traveler, list):
-            self._locations.extend(traveler)
+            self._travelers.extend(traveler)
             return
         self._travelers.append(traveler)
 
@@ -181,6 +181,12 @@ class Trip:
         active_end = np.mean([traveler.active_stay_end for traveler in self.travelers])
         return active_start, active_end
 
+    @staticmethod
+    def parse_date_input(date_input):
+        if isinstance(date_input, str):
+            return dt.datetime.strptime(date_input, "%m/%d/%Y")
+        return date_input
+
     def get_duration_from_gmap_response(self, response) -> np.ndarray:
         """Traverse the Google Maps Distance Matrix API response and get the
         duration of travel between locations in hours.
@@ -195,9 +201,9 @@ class Trip:
         return np.array(durations).reshape(self.num_locations, self.num_locations) / 60**2
 
     @classmethod
-    def load_from_dict(cls, trip_dict: dict):
+    def load_from_dict(cls, trip_dict: dict, google_maps_api_key: str):
         
-        trip = cls(**trip_dict["trip"])
+        trip = cls(**trip_dict["trip"], google_maps_api_key=google_maps_api_key)
         for location_dict in trip_dict["locations"]:
             location = Location(**location_dict)
             trip.add_location(location)

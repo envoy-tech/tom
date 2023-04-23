@@ -2,7 +2,7 @@ import datetime as dt
 
 import numpy as np
 
-from tom.trip_manager.data_objects import Location
+from tom.common import Location
 
 
 def test_distance_matrix_api(env, gmaps_client, sample_trip):

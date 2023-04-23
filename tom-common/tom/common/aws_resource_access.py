@@ -1,5 +1,6 @@
 import os
 from pathlib import Path
+from typing import Union
 
 import boto3
 
@@ -48,3 +49,15 @@ def upload_to_s3(
     _filename = os.path.basename(filepath)
     s3 = connect_to_s3(region, aws_access_key_id, aws_secret_access_key)
     s3.Bucket(bucket_name).upload_file(Filename=filepath, Key=_filename)
+
+
+def verify_file_in_s3(
+        filename: str,
+        bucket_name: str,
+        region: str,
+        aws_access_key_id: str,
+        aws_secret_access_key: str
+):
+    s3 = connect_to_s3(region, aws_access_key_id, aws_secret_access_key)
+    # TODO: Fix dis
+    return filename in s3.Bucket(bucket_name).objects.all()

@@ -1,10 +1,10 @@
 ---
 trip:
-  _id: 0
+  _id: "0"
   start_date: 01/01/2024
   end_date: 01/21/2024
   start_location: &first_location
-    _id: 0
+    _id: "0"
     name: Los Angeles, CA
     address: ~
     lat: 34.052235
@@ -13,42 +13,42 @@ trip:
 
 locations:
   - *first_location
-  - _id: 1
+  - _id: "1"
     name: Santa Barbara, CA
     address: ~
     lat: 34.420830
     lon: -119.698189
-  - _id: 2
+  - _id: "2"
     name: San Francisco, CA
     address: ~
     lat: 37.774929
     lon: -122.419418
-  - _id: 3
+  - _id: "3"
     name: Sacramento, CA
     address: ~
     lat: 38.581573
     lon: -121.494400
-  - _id: 4
+  - _id: "4"
     name: Portland, OR
     address: ~
     lat: 45.512230
     lon: -122.658722
-  - _id: 5
+  - _id: "5"
     name: Weed, CA
     address: ~
     lat: 41.422649
     lon: -122.386124
-  - _id: 6
+  - _id: "6"
     name: Fresno, CA
     address: ~
     lat: 36.7394421
     lon: -119.7848307
-  - _id: 7
+  - _id: "7"
     name: Palm Springs, CA
     address: ~
     lat: 33.7721794
     lon: -116.4952977
-  - _id: 8
+  - _id: "8"
     name: New York, NY
     address: ~
     lat: 40.7127281
@@ -56,7 +56,7 @@ locations:
 
 
 travelers:
-  - _id: 0
+  - _id: "0"
     username: user0
     email: user0@nil.com
     location_ratings:
@@ -86,7 +86,7 @@ travelers:
     allowed_end_flexibility: 1
     active_stay_start: 8
     active_stay_end: 23
-  - _id: 1
+  - _id: "1"
     username: user1
     email: user1@nil.com
     location_ratings:
@@ -116,7 +116,7 @@ travelers:
     allowed_end_flexibility: 1
     active_stay_start: 6
     active_stay_end: 21
-  - _id: 2
+  - _id: "2"
     username: user2
     email: user2@nil.com
     location_ratings:

@@ -1,12 +1,19 @@
 import os
-import pathlib
+from pathlib import Path
 from dotenv import load_dotenv
 from configparser import ConfigParser
 
 import grpc
 from google.protobuf.json_format import MessageToDict
 
-from tom.common import common_pb2, common_pb2_grpc, grpc_utils, aws_resource_access
+from tom.common import (
+    common_pb2,
+    common_pb2_grpc,
+    grpc_utils,
+    aws_resource_access,
+    Env,
+    S3Params
+)
 from tom.trip_manager.data_objects import Trip
 
 
@@ -16,18 +23,9 @@ class ConfigSection:
     TLS = "TLS"
 
 
-class Env:
-    GMAPS_API_KEY = "GOOGLE_MAPS_API_KEY"
-    S3_ACCESS_KEY_ID = "S3_ACCESS_KEY_ID"
-    S3_PRIVATE_KEY = "S3_PRIVATE_KEY"
-
-
-class S3Params:
-    REGION = "us-east-1"
-    BUCKET_NAME = "allin-mps-files"
-
-
 class TripMgmtServicer(common_pb2_grpc.TripManagementServicer):
+
+    MPS_FOLDER = (Path(__file__) / "../../../../mps_files").resolve()
 
     def __init__(self, config: ConfigParser):
         self._config = config
@@ -50,8 +48,8 @@ class TripMgmtServicer(common_pb2_grpc.TripManagementServicer):
         _session_id = request.session_id
         _trip_args = (
             request.trip_id,
-            request.start_date.ToDatetime,
-            request.end_date.ToDatetime,
+            request.start_date.ToDatetime(),
+            request.end_date.ToDatetime(),
             MessageToDict(request.start_location, **grpc_utils.message_to_dict_kwargs),
             MessageToDict(request.end_location, **grpc_utils.message_to_dict_kwargs),
             os.getenv(Env.GMAPS_API_KEY)
@@ -65,8 +63,7 @@ class TripMgmtServicer(common_pb2_grpc.TripManagementServicer):
         mps_filename = trip.generate_mps_file(_travel_params)
 
         # Verify MPS file was generated
-        path_to_mps_folder = pathlib.Path("../../../mps_files")
-        path_to_mps_file = path_to_mps_folder / mps_filename
+        path_to_mps_file = self.MPS_FOLDER / mps_filename
 
         if not os.path.exists(path_to_mps_file):
             pass  # TODO: Log this error and send back via gRPC

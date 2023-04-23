@@ -7,7 +7,7 @@ class Location:
 
     _id: str
     name: str
-    address: Optional[str]
+    address: str
     lat: float
     lon: float
 

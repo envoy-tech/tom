@@ -42,9 +42,9 @@ def parse_location_from_rpc(
     :param msg: the :class:`common_pb2.Location` gRPC message or list of such messages
     :return: :class:`Location` instance or list of such instances
     """
-    if isinstance(msg, list):
-        return [Location(**MessageToDict(loc, **message_to_dict_kwargs)) for loc in msg]
-    return Location(**MessageToDict(msg, **message_to_dict_kwargs))
+    if isinstance(msg, common_pb2.Location):
+        return Location(**MessageToDict(msg, **message_to_dict_kwargs))
+    return [Location(**MessageToDict(loc, **message_to_dict_kwargs)) for loc in msg]
 
 
 def parse_traveler_from_rpc(
@@ -55,7 +55,7 @@ def parse_traveler_from_rpc(
     :param msg: the :class:`common_pb2.Traveler` gRPC message
     :return: :class:`Traveler` instance
     """
-    if not isinstance(msg, list):
+    if isinstance(msg, common_pb2.Traveler):
         msg = [msg]
 
     travelers = []
