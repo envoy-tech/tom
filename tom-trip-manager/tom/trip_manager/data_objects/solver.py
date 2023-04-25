@@ -1,4 +1,4 @@
-from typing import Union, Callable, Optional
+from typing import Union, Callable
 
 import numpy as np
 from ortools.linear_solver import pywraplp

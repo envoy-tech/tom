@@ -3,7 +3,6 @@ from typing import Optional, Union
 
 import numpy as np
 import googlemaps
-from google.protobuf import timestamp_pb2
 
 from tom.common import Location, Traveler
 from tom.trip_manager.data_objects.solver import TripSolver
@@ -634,12 +633,6 @@ class Trip:
         solver.Minimize(
             S_DEV_Neg_sliced.sum() + R_DEV_Neg.sum() + I_DEV_Pos.sum()
         )
-
-        # had_subtours = True
-        # # Continue solution attempts until solution without subtours is found
-        # while had_subtours:
-        #     solver.Solve()
-        #     had_subtours = cu.find_and_eliminate_subtours(FROM, start_idx, solver)
 
         mps_string = solver.ExportModelAsMpsFormat()
         mps_filename = "{}.mps".format(self.id)
