@@ -1,7 +1,6 @@
 .PHONY: install uninstall
 
 COMMON = tom-common
-MODEL_SETUP = tom-model-setup
 OPTIMIZATION = tom-optimization
 TRAVELER_ACCESS = tom-traveler-access
 TRIP_ACCESS = tom-trip-access
@@ -11,7 +10,6 @@ GRPC = grpc_protos
 install:
 	pip install \
 		-e $(COMMON) \
-		-e $(MODEL_SETUP) \
 		-e $(OPTIMIZATION) \
 		-e $(TRAVELER_ACCESS) \
 		-e $(TRIP_ACCESS) \
@@ -19,7 +17,6 @@ install:
 
 uninstall:
 	$(MAKE) -C $(COMMON) uninstall
-	$(MAKE) -C $(MODEL_SETUP) uninstall
 	$(MAKE) -C $(OPTIMIZATION) uninstall
 	$(MAKE) -C $(TRAVELER_ACCESS) uninstall
 	$(MAKE) -C $(TRIP_ACCESS) uninstall
