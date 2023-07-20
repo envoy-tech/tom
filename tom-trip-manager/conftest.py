@@ -40,7 +40,7 @@ def mps_folder() -> Path:
 
 @pytest.fixture(scope="package")
 def sample_trip() -> dict:
-    with open(_get_absolute_path("tests/sample_trip.yaml"), "r") as f:
+    with open(_get_absolute_path("tests/sample_trip2.yaml"), "r") as f:
         _sample_trip = yaml.safe_load(f)
     return _sample_trip
 
@@ -62,7 +62,7 @@ def gmaps_client():
 
 
 @pytest.fixture(scope="package")
-def aws_assumed_role():
+def aws_assumed_role(env):
     return aws_resource_access.assume_role(os.getenv(Env.S3_ACCESS_ARN), os.getenv(Env.S3_ACCESS_ROLE))
 
 

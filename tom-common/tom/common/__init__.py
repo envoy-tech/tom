@@ -13,3 +13,23 @@ class Env:
 class S3Params:
     REGION = "us-east-1"
     BUCKET_NAME = "allin-mps-files"
+
+
+class VarName:
+    GO = "GO"
+    FROM = "FROM"
+    STAY = "STAY"
+    TIME = "TIME"
+    INTER_DEPART_DAY = "INTER_DEPART_DAY"
+    INTER_DEPART_HOUR = "INTER_DEPART_HOUR"
+    DEPART_DAY = "DEPART_DAY"
+    DEPART_HOUR = "DEPART_HOUR"
+    ARRIVE_DAY = "ARRIVE_DAY"
+    ARRIVE_HOUR = "ARRIVE_HOUR"
+    R_DEV = "R_DEV"
+    S_DEV = "S_DEV"
+    I_DEV = "I_DEV"
+    MEAN_R = "MEAN_R"
+    INTER_R = "INTER_R"
+    SUM_R = "SUM_R"
+

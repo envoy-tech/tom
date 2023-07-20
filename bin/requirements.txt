@@ -1,3 +1,5 @@
+ansible
+awscli
 boto3
 googlemaps
 grpcio

@@ -4,28 +4,9 @@ from typing import Optional, Union
 import numpy as np
 import googlemaps
 
-from tom.common import Location, Traveler
+from tom.common import Location, Traveler, VarName
 from tom.trip_manager.data_objects.solver import TripSolver
 from tom.trip_manager import writer
-
-
-class VarName:
-    GO = "GO"
-    FROM = "FROM"
-    STAY = "STAY"
-    TIME = "TIME"
-    INTER_DEPART_DAY = "INTER_DEPART_DAY"
-    INTER_DEPART_HOUR = "INTER_DEPART_HOUR"
-    DEPART_DAY = "DEPART_DAY"
-    DEPART_HOUR = "DEPART_HOUR"
-    ARRIVE_DAY = "ARRIVE_DAY"
-    ARRIVE_HOUR = "ARRIVE_HOUR"
-    R_DEV = "R_DEV"
-    S_DEV = "S_DEV"
-    I_DEV = "I_DEV"
-    MEAN_R = "MEAN_R"
-    INTER_R = "INTER_R"
-    SUM_R = "SUM_R"
 
 
 class EnvVars:
@@ -186,7 +167,8 @@ class Trip:
             return dt.datetime.strptime(date_input, "%m/%d/%Y")
         return date_input
 
-    def get_duration_from_gmap_response(self, response) -> np.ndarray:
+    @staticmethod
+    def get_duration_from_gmap_response(response) -> list[float]:
         """Traverse the Google Maps Distance Matrix API response and get the
         duration of travel between locations in hours.
 
@@ -197,7 +179,7 @@ class Trip:
             for element in row["elements"]:
                 durations.append(element["duration"]["value"])
 
-        return np.array(durations).reshape(self.num_locations, self.num_locations) / 60**2
+        return durations
 
     @classmethod
     def load_from_dict(cls, trip_dict: dict, google_maps_api_key: str):
@@ -213,13 +195,30 @@ class Trip:
         return trip
 
     def create_travel_matrix(self, gmaps_client, params: dict):
-        response = gmaps_client.distance_matrix(
-            self.location_lat_lons,
-            self.location_lat_lons,
-            departure_time=self.start_date,
-            **params
-        )
-        return self.get_duration_from_gmap_response(response)
+
+        num_elements_to_request = self.num_locations**2
+
+        if num_elements_to_request <= 100:
+            response = gmaps_client.distance_matrix(
+                self.location_lat_lons,
+                self.location_lat_lons,
+                departure_time=self.start_date,
+                **params
+            )
+            durations = self.get_duration_from_gmap_response(response)
+
+        else:
+            durations = []
+            for lat_lon in self.location_lat_lons:
+                response = gmaps_client.distance_matrix(
+                    lat_lon,
+                    self.location_lat_lons,
+                    departure_time=self.start_date,
+                    **params
+                )
+                durations.extend(self.get_duration_from_gmap_response(response))
+
+        return np.array(durations).reshape(self.num_locations, self.num_locations) / 60**2
 
     def create_timezone_matrix(self, gmaps_client):
         timezones = []

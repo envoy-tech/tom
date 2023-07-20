@@ -9,10 +9,10 @@ class SolverName:
 
 
 class DeviationalVarSuffix:
-    POS = "pos"
-    NEG = "neg"
-    IS_POS = "is_pos"
-    IS_NEG = "is_neg"
+    POS = "Pos"
+    NEG = "Neg"
+    IS_POS = "IS_Pos"
+    IS_NEG = "IS_Neg"
 
 
 class TripSolver:
