@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools", "setuptools-scm"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["tom"]
+namespaces = true
+
+[project]
+name = "tom-trip-manager"
+version = "0.0.1"
+description = "Trip creation manager service for TOM."
+dependencies = [
+    "tom-common",
+    "googlemaps",
+    "numpy",
+    "python-dotenv",
+    "ortools",
+    "configparser",
+    "grpcio"
+]

@@ -1,0 +1,14 @@
+[build-system]
+requires = ["setuptools", "setuptools-scm"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["tom"]
+namespaces = true
+
+[project]
+name = "tom-common"
+version = "0.0.1"
+description = "Common utilities for TOM namespace packages."
+dependencies = ["boto3", "grpcio", "googlemaps"]
