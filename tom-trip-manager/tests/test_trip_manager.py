@@ -3,10 +3,8 @@ import uuid
 import datetime as dt
 
 import grpc
-from google.protobuf import timestamp_pb2
 
 from tom.common import common_pb2, S3Params
-from tom.trip_manager.servicer import TripMgmtServicer
 from tom.common import aws_resource_access
 
 

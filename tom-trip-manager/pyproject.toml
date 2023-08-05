@@ -17,6 +17,5 @@ dependencies = [
     "numpy",
     "python-dotenv",
     "ortools",
-    "configparser",
-    "grpcio"
+    "configparser"
 ]

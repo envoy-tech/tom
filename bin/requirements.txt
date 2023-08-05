@@ -2,11 +2,8 @@ ansible
 awscli
 boto3
 googlemaps
-grpcio
-grpcio-tools
 ortools
 pytest
 pytest-mock
 python-dotenv
-pyyaml
 wheel
