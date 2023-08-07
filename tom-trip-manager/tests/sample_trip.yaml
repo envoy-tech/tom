@@ -3,16 +3,16 @@ trip:
   _id: "0"
   start_date: 01/01/2024
   end_date: 01/21/2024
-  start_location: &first_location
-    _id: "0"
+  start_location_id: "0"
+  end_location_id: "0"
+  trip_owner_id: "0"
+
+locations:
+  - _id: "0"
     name: Los Angeles, CA
     address: ~
     lat: 34.052235
     lon: -118.243683
-  end_location: *first_location
-
-locations:
-  - *first_location
   - _id: "1"
     name: Santa Barbara, CA
     address: ~
