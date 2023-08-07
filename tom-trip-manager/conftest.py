@@ -36,7 +36,7 @@ def mps_folder() -> Path:
 
 @pytest.fixture(scope="package")
 def sample_trip() -> dict:
-    with open(_get_absolute_path("tests/sample_trip2.yaml"), "r") as f:
+    with open(_get_absolute_path("tests/sample_trip2.json"), "r") as f:
         sample_trip = json.load(f)
     return sample_trip
 

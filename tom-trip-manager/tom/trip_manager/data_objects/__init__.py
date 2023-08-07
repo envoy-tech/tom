@@ -1,1 +1,1 @@
-from .trip import Trip
+from .trip import TripManager

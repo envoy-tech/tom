@@ -1,66 +1,62 @@
+from __future__ import annotations
 import datetime as dt
 from typing import Optional, Union
 
 import numpy as np
-import googlemaps
 
 from tom.common import Location, Traveler, VarName
+from tom.common import googlemaps_access as gmaps
 from tom.trip_manager.data_objects.solver import TripSolver
 from tom.trip_manager import writer
 
 
-class EnvVars:
-    GMAPS_API_KEY = "GOOGLE_MAPS_API_KEY"
-
-
-class Trip:
+class TripManager:
 
     def __init__(
             self,
-            _id: str,
-            start_date: Union[str, dt.datetime],
-            end_date: Union[dt.datetime],
-            start_location: dict,
-            end_location: dict,
-            google_maps_api_key: str
+            *,
+            trip: dict[str, Union[str, float, int]],
+            locations: list[dict[str, Union[str, float, int]]],
+            travelers: list[dict[str, Union[str, float, int]]]
     ):
-        self._id = _id
-        self._start_date = self.parse_date_input(start_date)
-        self._end_date = self.parse_date_input(end_date)
-        self._locations: list[Location] = []
-        self._travelers: list[Traveler] = []
-        self._start_location = Location(**start_location)
-        self._end_location = Location(**end_location)
-        self._solver: Optional[TripSolver] = None
-        self._gmaps_api_key = google_maps_api_key
+        start_location_id, end_location_id, trip_owner_id = self._parse_trip(**trip)
+        self._parse_locations(locations, start_location_id, end_location_id)
+        self._parse_travelers(travelers, trip_owner_id)
+        self.solver: Optional[TripSolver] = None
 
-    @property
-    def id(self) -> str:
-        return self._id
+    def _parse_trip(
+            self,
+            _id: str,
+            start_date: str,
+            end_date: str,
+            start_location_id: str,
+            end_location_id: str,
+            trip_owner_id: str,
+    ):
+        self.id = _id
+        self.start_date = self.parse_date_input(start_date)
+        self.end_date = self.parse_date_input(end_date)
+        return start_location_id, end_location_id, trip_owner_id
 
-    @property
-    def solver(self):
-        return self._solver
+    def _parse_locations(
+            self,
+            locations: list[dict[str, Union[str, float, int]]],
+            start_location_id: str,
+            end_location_id: str
+    ):
+        loc_dict = {location["_id"]: Location(**location) for location in locations}
+        self.start_location = loc_dict[start_location_id]
+        self.end_location = loc_dict[end_location_id]
+        self.locations = list(loc_dict.values())
 
-    @property
-    def start_date(self) -> dt.datetime:
-        return self._start_date
-
-    @property
-    def end_date(self) -> dt.datetime:
-        return self._end_date
-
-    @property
-    def locations(self) -> list[Location]:
-        return self._locations
-
-    @property
-    def start_location(self) -> Location:
-        return self._start_location
-
-    @property
-    def end_location(self) -> Location:
-        return self._end_location
+    def _parse_travelers(
+            self,
+            travelers: list[dict[str, Union[str, float, int]]],
+            trip_owner_id: str
+    ):
+        trav_dict = {traveler["_id"]: Traveler(**traveler) for traveler in travelers}
+        self.trip_owner = trav_dict[trip_owner_id]
+        self.travelers = list(trav_dict.values())
 
     @property
     def start_location_index(self) -> int:
@@ -71,12 +67,8 @@ class Trip:
         return self.locations.index(self.end_location)
     
     @property
-    def trip_is_circular(self) -> bool:
+    def is_circular(self) -> bool:
         return self.start_location_index == self.end_location_index
-
-    @property
-    def travelers(self) -> list[Traveler]:
-        return self._travelers
 
     @property
     def num_locations(self) -> int:
@@ -90,6 +82,14 @@ class Trip:
     def trip_time_delta(self) -> dt.timedelta:
         return self.end_date - self.start_date
 
+    @property
+    def num_days(self) -> float:
+        return self.total_trip_duration(unit="days")
+
+    @property
+    def num_hours(self) -> float:
+        return self.total_trip_duration(unit="hours")
+
     def total_trip_duration(self, *, unit: str = "seconds") -> float:
         match unit:
             case "seconds":
@@ -102,34 +102,6 @@ class Trip:
                 return self.trip_time_delta.days
             case _:
                 raise ValueError(f"time unit {unit} not recognized.")
-
-    @property
-    def num_days(self) -> float:
-        return self.total_trip_duration(unit="days")
-
-    @property
-    def num_hours(self) -> float:
-        return self.total_trip_duration(unit="hours")
-        
-    def add_location(self, location: Union[Location, list[Location]]):
-        """ Add location to trip.
-
-        :param location: :class:`Location` instance or list of instances
-        """
-        if isinstance(location, list):
-            self._locations.extend(location)
-            return
-        self._locations.append(location)
-
-    def add_traveler(self, traveler: Union[Traveler, list[Traveler]]):
-        """ Add traveler to trip.
-
-        :param traveler: :class:`Traveler` instance or list of instances
-        """
-        if isinstance(traveler, list):
-            self._travelers.extend(traveler)
-            return
-        self._travelers.append(traveler)
 
     @property
     def location_lat_lons(self) -> list[tuple[float, float]]:
@@ -167,85 +139,15 @@ class Trip:
             return dt.datetime.strptime(date_input, "%m/%d/%Y")
         return date_input
 
-    @staticmethod
-    def get_duration_from_gmap_response(response) -> list[float]:
-        """Traverse the Google Maps Distance Matrix API response and get the
-        duration of travel between locations in hours.
-
-        :param response: the Google Maps Distance Matrix API response
-        """
-        durations = []
-        for row in response["rows"]:
-            for element in row["elements"]:
-                durations.append(element["duration"]["value"])
-
-        return durations
-
-    @classmethod
-    def load_from_dict(cls, trip_dict: dict, google_maps_api_key: str):
-        
-        trip = cls(**trip_dict["trip"], google_maps_api_key=google_maps_api_key)
-        for location_dict in trip_dict["locations"]:
-            location = Location(**location_dict)
-            trip.add_location(location)
-        for traveler_dict in trip_dict["travelers"]:
-            traveler = Traveler(**traveler_dict)
-            trip.add_traveler(traveler)
-        
-        return trip
-
-    def create_travel_matrix(self, gmaps_client, params: dict):
-
-        num_elements_to_request = self.num_locations**2
-
-        if num_elements_to_request <= 100:
-            response = gmaps_client.distance_matrix(
-                self.location_lat_lons,
-                self.location_lat_lons,
-                departure_time=self.start_date,
-                **params
-            )
-            durations = self.get_duration_from_gmap_response(response)
-
-        else:
-            durations = []
-            for lat_lon in self.location_lat_lons:
-                response = gmaps_client.distance_matrix(
-                    lat_lon,
-                    self.location_lat_lons,
-                    departure_time=self.start_date,
-                    **params
-                )
-                durations.extend(self.get_duration_from_gmap_response(response))
-
-        return np.array(durations).reshape(self.num_locations, self.num_locations) / 60**2
-
-    def create_timezone_matrix(self, gmaps_client):
-        timezones = []
-        timezone_offsets = np.zeros((self.num_locations, self.num_locations))
-        for lat_lon in self.location_lat_lons:
-            response = gmaps_client.timezone(
-                location=lat_lon,
-                timestamp=self.start_date
-            )
-            timezones.append(response["rawOffset"] // 60**2)
-
-        for i, j in np.ndindex(timezone_offsets.shape):
-            timezone_offsets[i, j] = timezones[j] - timezones[i]
-
-        return timezone_offsets
-
     def generate_mps_file(
         self,
         distance_matrix_params: dict
     ):
 
-        gmaps_client = googlemaps.Client(key=self._gmaps_api_key)
-        
         ##### Prepare input variables #####
 
-        travel_matrix = self.create_travel_matrix(gmaps_client, distance_matrix_params)
-        timezone_offsets = self.create_timezone_matrix(gmaps_client)
+        travel_matrix = gmaps.create_duration_matrix(self.location_lat_lons, self.start_date, distance_matrix_params)
+        timezone_offsets = gmaps.create_timezone_matrix(self.location_lat_lons, self.start_date)
         max_travel: float = np.max(travel_matrix)
         np.fill_diagonal(travel_matrix, 2 * max_travel)
 
@@ -504,7 +406,7 @@ class Trip:
         middle_FROM = np.delete(FROM, [start_idx, end_idx], axis=1)
         middle_GO = np.delete(GO, [start_idx, end_idx])
 
-        if self.trip_is_circular:
+        if self.is_circular:
             middle_FROM = FROM
             middle_GO = GO
         else:
