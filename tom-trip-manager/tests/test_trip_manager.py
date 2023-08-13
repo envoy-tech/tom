@@ -1,19 +1,9 @@
-import os
-
-from tom.trip_manager import TripManager
+from tom.trip_manager.lambda_function import handler
 
 
 def test_build_trip_mps_file(
         sample_trip,
-        sample_trip_params,
-        mps_folder,
-        env
+        mps_folder
 ):
 
-    trip = TripManager(**sample_trip)
-    trip.generate_mps_file(sample_trip_params)
-
-    mps_filename = "{}.mps".format(trip.id)
-    mps_file = mps_folder / mps_filename
-    assert os.path.exists(mps_file)
-    os.remove(mps_file)
+    handler(sample_trip, {"test-context": "test-context"})

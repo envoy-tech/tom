@@ -1,1 +1,1 @@
-from .data_objects import TripManager
+from .trip_manager import TripManager
