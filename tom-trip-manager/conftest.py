@@ -1,17 +1,15 @@
 import os
 import json
-import random
 from pathlib import Path
 from functools import cache
 
 
-import configparser
 import pytest
 import googlemaps
 from dotenv import load_dotenv
 
-from tom.common.configuration.loader import parse_config
-from tom.common import aws_resource_access, Env, S3Params
+from tom.common import S3Params
+from tom.common.accessor import aws_access
 
 
 def _get_absolute_path(relative_path: str) -> Path:
@@ -58,20 +56,5 @@ def gmaps_client():
 
 
 @pytest.fixture(scope="package")
-def aws_assumed_role(env):
-    return aws_resource_access.assume_role(os.getenv(Env.S3_ACCESS_ARN), os.getenv(Env.S3_ACCESS_ROLE))
-
-
-@pytest.fixture(scope="package")
-def s3(aws_assumed_role):
-    return aws_resource_access.connect_to_s3(S3Params.REGION, aws_assumed_role)
-
-
-@pytest.fixture(scope="package")
-def trip_manager_hostname() -> str:
-    return "localhost"
-
-
-@pytest.fixture(scope="package")
-def trip_manager_port_number() -> int:
-    return random.randint(2**9, 2**15 - 1) * 2
+def s3():
+    return aws_access.connect_to_s3(S3Params.REGION)
