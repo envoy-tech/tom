@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [tool.setuptools.packages.find]
 where = ["."]
-include = ["tom"]
+include = ["tom.*"]
 namespaces = true
 
 [project]
@@ -13,10 +13,6 @@ version = "0.0.1"
 description = "Trip creation manager service for TOM."
 dependencies = [
     "tom-common",
-    "googlemaps",
     "numpy",
-    "python-dotenv",
-    "ortools",
-    "configparser",
-    "grpcio"
+    "ortools"
 ]
