@@ -1,12 +1,15 @@
 "use client";
-import Link from "next/link";
 import Steps from "@/components/Steps";
-import { useState, useMemo, useRef } from "react";
+import { useState, useMemo, useRef, MouseEventHandler } from "react";
 import { RE_DIGIT } from "@/utils/constants";
 import { useAppSelector } from "@/hooks/redux";
+import { useRouter } from "next/navigation";
 
 export default function RegisterStep1() {
   const [value, setValue] = useState("");
+  const [error, setError] = useState("");
+  const [verificationMessage, setVerificationMessage] = useState("");
+  const { push } = useRouter();
   const email = useAppSelector((state) => state.email);
   const formRef = useRef(null);
   const valueItems = useMemo(() => {
@@ -116,15 +119,40 @@ export default function RegisterStep1() {
     target.setSelectionRange(0, target.value.length);
   };
 
-  const handleConfirmation = async (e) => {
+  // TODO: handle error cases through error boundary
+  // TODO: handle case of NotAuthorizedException where user has already confirmed
+  const handleConfirmation = async (
+    e: MouseEventHandler<HTMLButtonElement>
+  ) => {
+    e.preventDefault();
+    setError("");
+    setVerificationMessage("");
     const response = await fetch("/api/auth/signUp", {
       method: "POST",
       body: JSON.stringify({ email, code: value }),
     });
 
-    const data = await response.json();
+    if (response.status === 200) {
+      push("/register/step/2");
+    } else {
+      setError("An unexpected error has occurred.");
+    }
+  };
 
-    console.log(data);
+  // TODO: use message toasts instead of text
+  const handleResendVerification = async (e) => {
+    e.preventDefault();
+    const response = await fetch("/api/auth/resendVerification", {
+      method: "POST",
+      body: JSON.stringify({ email }),
+    });
+
+    if (response.status === 200) {
+      setVerificationMessage("A new code has been sent to your email.");
+      setError("");
+    } else {
+      setError("An unexpected error has occurred.");
+    }
   };
 
   return (
@@ -147,7 +175,7 @@ export default function RegisterStep1() {
               <label className="block text-sm font-medium leading-6 text-gray-900 text-center">
                 We have sent a code to your email.
               </label>
-              <div className="flex flex-col space-y-16 mt-3">
+              <div className="flex flex-col mt-3 justify-center items-center">
                 <div className="flex flex-row items-center justify-between mx-auto w-full max-w-xs">
                   {valueItems.map((digit, idx) => (
                     <div className="w-12 h-12" key={`otp-input-${idx}-group`}>
@@ -169,18 +197,30 @@ export default function RegisterStep1() {
                     </div>
                   ))}
                 </div>
+                {verificationMessage && (
+                  <label className="text-xs text-green-500 mt-1">
+                    {verificationMessage}
+                  </label>
+                )}
+                {error && (
+                  <label className="text-xs text-red-500 mt-1">{error}</label>
+                )}
               </div>
             </div>
 
-            <div className="flex flex-row justify-center text-center items-center mt-3">
-              <Link href="/register/step/2">
-                <button
-                  className="flex w-32 justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-                  onClick={handleConfirmation}
-                >
-                  Next
-                </button>
-              </Link>
+            <div className="flex flex-col justify-center text-center items-center mt-3 space-y-3">
+              <a
+                className="underline text-sm font-bold cursor-pointer"
+                onClick={handleResendVerification}
+              >
+                Resend verification code
+              </a>
+              <button
+                className="flex w-32 justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                onClick={handleConfirmation}
+              >
+                Next
+              </button>
             </div>
           </div>
         </form>
