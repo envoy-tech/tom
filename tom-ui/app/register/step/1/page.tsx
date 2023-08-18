@@ -6,9 +6,13 @@ import { Formik, Form, Field } from "formik";
 import * as Yup from "yup";
 import YupPassword from "yup-password";
 import { signIn } from "next-auth/react";
+import { setEmail } from "@/redux/slices/userSlice";
+import { useAppDispatch } from "@/hooks/redux";
 YupPassword(Yup);
 
 export default function RegisterStep1() {
+  const dispatch = useAppDispatch();
+
   const handleSubmitForm = async (
     firstname: string,
     lastname: string,
@@ -17,14 +21,14 @@ export default function RegisterStep1() {
     setSubmitting: Function
   ) => {
     setSubmitting(true);
-
+    dispatch(setEmail(email));
     const request = await signIn(
       "credentials",
       {
         name: `${firstname} ${lastname}`,
         email,
         password,
-        callbackUrl: "/register/step/2",
+        callbackUrl: "/register/step/1/confirm",
       },
       { newUser: "true" }
     );

@@ -6,7 +6,7 @@ import {
   InitiateAuthCommand,
   SignUpCommand,
 } from "@aws-sdk/client-cognito-identity-provider";
-import { createClientForDefaultRegion } from "@/lib/utils/aws-sdk";
+import { createClientForDefaultRegion } from "@/utils/aws-sdk";
 
 export const authOptions: NextAuthOptions = {
   // Configure one or more authentication providers
@@ -45,23 +45,26 @@ export const authOptions: NextAuthOptions = {
               UserAttributes: [{ Name: "name", Value: credentials?.name }],
             });
 
-            client.send(command);
+            const request = await client.send(command);
+
+            return request;
+          } else {
+            // If signing into an existing User, and still log them in even so.
+
+            const command = new InitiateAuthCommand({
+              AuthFlow: AuthFlowType.USER_PASSWORD_AUTH,
+              AuthParameters: {
+                USERNAME: credentials?.email as string,
+                PASSWORD: credentials?.password as string,
+                EMAIL: credentials?.email as string,
+              },
+              ClientId: process.env.COGNITO_CLIENT_ID,
+            });
+
+            const request = await client.send(command);
+
+            return request;
           }
-          // If signing into an existing User, and still log them in even so.
-
-          const command = new InitiateAuthCommand({
-            AuthFlow: AuthFlowType.USER_PASSWORD_AUTH,
-            AuthParameters: {
-              USERNAME: credentials?.email as string,
-              PASSWORD: credentials?.password as string,
-              EMAIL: credentials?.email as string,
-            },
-            ClientId: process.env.COGNITO_CLIENT_ID,
-          });
-
-          client.send(command);
-
-          return command.input.UserContextData;
         } else {
           throw new Error("Missing query parameters.");
         }
@@ -71,6 +74,15 @@ export const authOptions: NextAuthOptions = {
   pages: {
     signIn: "/signin",
     newUser: "/register/1",
+  },
+  callbacks: {
+    async signIn({ user, account, profile, email, credentials }) {
+      if (user && user.$metadata.httpStatusCode === 200) {
+        return true;
+      }
+
+      return false;
+    },
   },
 };
 
