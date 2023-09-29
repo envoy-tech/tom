@@ -1,5 +1,6 @@
 "use client";
 import { useEffect } from "react";
+import Btn from "@/components/ui-components/Btn";
 
 export default function Error({
   error,
@@ -18,13 +19,9 @@ export default function Error({
         <h1 className="font-black text-gray-200 text-9xl">401</h1>
         <h2 className="font-black text-gray-200 text-7xl">{error.message}</h2>
 
-        <button
-          type="button"
-          onClick={() => reset()}
-          className="inline-block px-5 py-3 mt-6 text-sm font-medium text-white bg-indigo-600 rounded hover:bg-indigo-700 focus:outline-none focus:ring"
-        >
+        <Btn type="button" onClickHandler={() => reset()} buttonType="primary">
           Try Again
-        </button>
+        </Btn>
       </div>
     </div>
   );

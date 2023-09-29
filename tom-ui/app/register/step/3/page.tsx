@@ -1,5 +1,6 @@
 import Link from "next/link";
-import Steps from "@/components/Steps";
+import Steps from "@/components/page-components/Steps";
+import Btn from "@/components/ui-components/Btn";
 
 export default function RegisterStep3() {
   return (
@@ -50,17 +51,14 @@ export default function RegisterStep3() {
           </ul>
           <div className="flex flex-row justify-between text-center items-center mt-3">
             <Link href="/register/step/2">
-              <button className="flex w-32 justify-center rounded-md bg-gray-200 px-3 py-1.5 text-sm font-semibold leading-6 text-black shadow-sm hover:bg-gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
+              <Btn type="button" buttonType="secondary">
                 Back
-              </button>
+              </Btn>
             </Link>
             <Link href="/register/step/4">
-              <button
-                type="submit"
-                className="flex w-32 justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-              >
+              <Btn type="submit" buttonType="primary">
                 Next
-              </button>
+              </Btn>
             </Link>
           </div>
         </div>

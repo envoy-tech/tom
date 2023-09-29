@@ -1,8 +1,14 @@
 "use client";
 import Link from "next/link";
-import Steps from "@/components/Steps";
+import { useRouter } from "next/navigation";
+import Steps from "@/components/page-components/Steps";
+import Spinner from "@/components/ui-components/Spinner";
+import Btn from "@/components/ui-components/Btn";
+import FormField from "@/components/ui-components/FormField";
+import { useState } from "react";
+import { ERROR_MAP } from "@/utils/constants";
 
-import { Formik, Form, Field } from "formik";
+import { Formik, Form } from "formik";
 import * as Yup from "yup";
 import YupPassword from "yup-password";
 import { signIn } from "next-auth/react";
@@ -12,6 +18,8 @@ YupPassword(Yup);
 
 export default function RegisterStep1() {
   const dispatch = useAppDispatch();
+  const router = useRouter();
+  const [registerError, setRegisterError] = useState("");
 
   const handleSubmitForm = async (
     firstname: string,
@@ -29,9 +37,18 @@ export default function RegisterStep1() {
         email,
         password,
         callbackUrl: "/register/step/1/confirm",
+        redirect: false,
       },
       { newUser: "true" }
     );
+
+    if (request && request.error) {
+      setRegisterError(ERROR_MAP[request.error]);
+    } else if (request && request.status === 200 && !request.error) {
+      router.push("/register/step/1/confirm");
+    }
+
+    setSubmitting(false);
   };
 
   const registerSchema = Yup.object().shape({
@@ -98,118 +115,63 @@ export default function RegisterStep1() {
               <Form className="space-y-3">
                 <div className="flex flex-row">
                   <div className="flex flex-col flex-grow mr-3">
-                    <label
-                      htmlFor="firstname"
-                      className="block text-sm font-medium leading-6 text-gray-900"
-                    >
-                      First Name
-                    </label>
-                    <div className="mt-2">
-                      <Field
-                        id="firstname"
-                        name="firstname"
-                        type="text"
-                        autoComplete="firstname"
-                        className="block w-full rounded-md border-0 px-3 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                      />
-                    </div>
-                    {errors.firstname && touched.firstname ? (
-                      <label className="text-xs text-red-500 mt-1">
-                        {errors.firstname}
-                      </label>
-                    ) : null}
+                    <FormField
+                      labelText="First Name"
+                      id="firstname"
+                      name="firstname"
+                      type="text"
+                      autoComplete="firstname"
+                      fieldError={errors.firstname}
+                      fieldTouched={touched.firstname}
+                    />
                   </div>
                   <div className="flex flex-col flex-grow">
-                    <label
-                      htmlFor="lastname"
-                      className="block text-sm font-medium leading-6 text-gray-900"
-                    >
-                      Last Name
-                    </label>
-                    <div className="mt-2">
-                      <Field
-                        id="lastname"
-                        name="lastname"
-                        type="text"
-                        autoComplete="lastname"
-                        className="block w-full rounded-md border-0 px-3 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                      />
-                    </div>
-                    {errors.lastname && touched.lastname ? (
-                      <label className="text-xs text-red-500 mt-1">
-                        {errors.lastname}
-                      </label>
-                    ) : null}
+                    <FormField
+                      labelText="Last Name"
+                      id="lastname"
+                      name="lastname"
+                      type="text"
+                      autoComplete="lastname"
+                      fieldError={errors.lastname}
+                      fieldTouched={touched.lastname}
+                    />
                   </div>
                 </div>
 
                 <div>
-                  <label
-                    htmlFor="email"
-                    className="block text-sm font-medium leading-6 text-gray-900"
-                  >
-                    Email Address
-                  </label>
-                  <div className="mt-2">
-                    <Field
-                      id="email"
-                      name="email"
-                      type="email"
-                      autoComplete="email"
-                      className="block w-full rounded-md border-0 px-3 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                    />
-                  </div>
-                  {errors.email && touched.email ? (
-                    <label className="text-xs text-red-500 mt-1">
-                      {errors.email}
-                    </label>
-                  ) : null}
+                  <FormField
+                    labelText="Email Address"
+                    id="email"
+                    name="email"
+                    type="email"
+                    autoComplete="email"
+                    fieldError={errors.email}
+                    fieldTouched={touched.email}
+                  />
                 </div>
 
                 <div className="flex flex-row">
                   <div className="flex flex-col flex-grow mr-3">
-                    <label
-                      htmlFor="password"
-                      className="block text-sm font-medium leading-6 text-gray-900"
-                    >
-                      Password
-                    </label>
-                    <div className="mt-2">
-                      <Field
-                        id="password"
-                        name="password"
-                        type="password"
-                        autoComplete="current-password"
-                        className="block w-full rounded-md border-0 px-3 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                      />
-                    </div>
-                    {errors.password && touched.password ? (
-                      <label className="text-xs text-red-500 mt-1">
-                        {errors.password}
-                      </label>
-                    ) : null}
+                    <FormField
+                      labelText="Password"
+                      id="password"
+                      name="password"
+                      type="password"
+                      autoComplete="password"
+                      fieldError={errors.password}
+                      fieldTouched={touched.password}
+                    />
                   </div>
                   <div className="flex flex-col flex-grow">
-                    <label
-                      htmlFor="confirmpassword"
-                      className="block text-sm font-medium leading-6 text-gray-900"
-                    >
-                      Confirm Password
-                    </label>
-                    <div className="mt-2">
-                      <Field
-                        id="confirmpassword"
-                        name="confirmpassword"
-                        type="password"
-                        autoComplete="current-password"
-                        className="block w-full rounded-md border-0 px-3 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                      />
-                    </div>
-                    {errors.confirmpassword && touched.confirmpassword ? (
-                      <label className="text-xs text-red-500 mt-1">
-                        {errors.confirmpassword}
-                      </label>
-                    ) : null}
+                    <FormField
+                      labelText="Confirm Password"
+                      id="confirmpassword"
+                      name="confirmpassword"
+                      type="password"
+                      autoComplete="current-password"
+                      fieldError={errors.confirmpassword}
+                      fieldTouched={touched.confirmpassword}
+                    />
                   </div>
                 </div>
 
@@ -220,16 +182,20 @@ export default function RegisterStep1() {
                       Log in
                     </Link>
                   </p>
-                  <Link href="/register/step/2">
-                    <button
-                      type="submit"
-                      className="flex w-32 justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-                      onClick={handleSubmit}
-                    >
-                      Next
-                    </button>
-                  </Link>
+                  <Btn
+                    type="submit"
+                    buttonType="primary"
+                    onClickHandler={handleSubmit}
+                    disabled={isSubmitting}
+                  >
+                    {isSubmitting ? <Spinner /> : "Next"}
+                  </Btn>
                 </div>
+                {registerError && (
+                  <label className="text-xs text-red-500 mt-1 self-center">
+                    {registerError}
+                  </label>
+                )}
               </Form>
             )}
           </Formik>

@@ -3,9 +3,10 @@ import type { PayloadAction } from "@reduxjs/toolkit";
 
 interface UserState {
   email: string;
+  referred: boolean;
 }
 
-const initialState = { email: "" } as UserState;
+const initialState = { email: "", referred: false } as UserState;
 
 const userSlice = createSlice({
   name: "user",
@@ -13,10 +14,12 @@ const userSlice = createSlice({
   reducers: {
     setEmail(state, action: PayloadAction<string>) {
       state.email = action.payload;
-      return state;
+    },
+    setReferred(state, action: PayloadAction<boolean>) {
+      state.referred = action.payload;
     },
   },
 });
 
-export const { setEmail } = userSlice.actions;
+export const { setEmail, setReferred } = userSlice.actions;
 export default userSlice.reducer;

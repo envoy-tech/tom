@@ -24,7 +24,8 @@
       "@/components/*": ["components/*"],
       "@/utils/*": ["utils/*"],
       "@/redux/*": ["redux/*"],
-      "@/hooks/*": ["hooks/*"]
+      "@/hooks/*": ["hooks/*"],
+      "@/app/*": ["app/*"]
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],

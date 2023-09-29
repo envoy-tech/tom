@@ -5,7 +5,6 @@ import {
 import { createClientForDefaultRegion } from "@/utils/aws-sdk";
 import { NextResponse } from "next/server";
 
-
 export async function POST(request: Request) {
   const { email } = await request.json();
   const client = createClientForDefaultRegion(CognitoIdentityProviderClient);
@@ -15,16 +14,21 @@ export async function POST(request: Request) {
     Username: email,
   });
 
-  const response = await client.send(command);
+  try {
+    const response = await client.send(command);
 
-  if (response.$metadata.httpStatusCode === 200) {
-    return NextResponse.json("Success!", {
-      status: 200,
-    });
-  } else {
-    return new Response(null, {
-      status: 500,
-      statusText: "A Server error has occured.",
-    });
+    if (response.$metadata.httpStatusCode === 200) {
+      return NextResponse.json("Success!", {
+        status: 200,
+      });
+    }
+  } catch (e) {
+    return NextResponse.json(
+      {
+        error: true,
+        errorMessage: e.message,
+      },
+      { status: 200 }
+    );
   }
 }

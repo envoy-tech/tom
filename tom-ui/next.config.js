@@ -17,6 +17,7 @@ const nextConfig = {
       );
     return config;
   },
+  pageExtensions: ["ts", "tsx"],
 };
 
 module.exports = nextConfig;

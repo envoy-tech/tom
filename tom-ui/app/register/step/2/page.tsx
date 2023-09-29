@@ -1,7 +1,8 @@
 "use client";
 import Link from "next/link";
-import Steps from "@/components/Steps";
-import Dropdown from "@/components/Dropdown";
+import Steps from "@/components/page-components/Steps";
+import Dropdown from "@/components/ui-components/Dropdown";
+import Btn from "@/components/ui-components/Btn";
 import { useRef } from "react";
 
 export default function RegisterStep2() {
@@ -78,9 +79,9 @@ export default function RegisterStep2() {
 
             <div className="flex flex-row justify-between text-center items-center mt-3">
               <Link href="/register/step/1">
-                <button className="flex w-32 justify-center rounded-md bg-gray-200 px-3 py-1.5 text-sm font-semibold leading-6 text-black shadow-sm hover:bg-gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
+                <Btn type="button" buttonType="secondary">
                   Back
-                </button>
+                </Btn>
               </Link>
               <div className="flex flex-row justify-center items-center">
                 <Link
@@ -90,12 +91,9 @@ export default function RegisterStep2() {
                   Skip
                 </Link>
                 <Link href="/register/step/3">
-                  <button
-                    type="submit"
-                    className="flex w-32 justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-                  >
+                  <Btn type="submit" buttonType="primary">
                     Next
-                  </button>
+                  </Btn>
                 </Link>
               </div>
             </div>

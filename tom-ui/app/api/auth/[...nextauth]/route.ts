@@ -27,8 +27,6 @@ export const authOptions: NextAuthOptions = {
         },
       },
       async authorize(credentials, req) {
-        console.debug("****createCredential: ", JSON.stringify(credentials));
-
         const newUser = req.query?.newUser;
 
         if (newUser !== undefined && newUser !== null) {
@@ -45,9 +43,14 @@ export const authOptions: NextAuthOptions = {
               UserAttributes: [{ Name: "name", Value: credentials?.name }],
             });
 
-            const request = await client.send(command);
-
-            return request;
+            try {
+              const request = await client.send(command);
+              return {
+                email: credentials?.email,
+              };
+            } catch (e) {
+              return e;
+            }
           } else {
             // If signing into an existing User, and still log them in even so.
 
@@ -61,9 +64,14 @@ export const authOptions: NextAuthOptions = {
               ClientId: process.env.COGNITO_CLIENT_ID,
             });
 
-            const request = await client.send(command);
-
-            return request;
+            try {
+              const request = await client.send(command);
+              return {
+                email: credentials?.email,
+              };
+            } catch (e) {
+              return e;
+            }
           }
         } else {
           throw new Error("Missing query parameters.");
@@ -77,11 +85,13 @@ export const authOptions: NextAuthOptions = {
   },
   callbacks: {
     async signIn({ user, account, profile, email, credentials }) {
-      if (user && user.$metadata.httpStatusCode === 200) {
+      //
+      if (user && user.email) {
         return true;
       }
 
-      return false;
+      // This means that we're returning the error state if this is the case.
+      throw new Error(user.__type);
     },
   },
 };
