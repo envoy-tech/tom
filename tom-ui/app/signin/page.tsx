@@ -6,8 +6,8 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { useState, useMemo, Suspense } from "react";
 import Btn from "@/components/ui-components/Btn";
 import Spinner from "@/components/ui-components/Spinner";
+import Link from "@/components/ui-components/Link";
 import * as Yup from "yup";
-import Link from "next/link";
 
 export default function SignIn() {
   const [fromSignupFlow, setFromSignupFlow] = useState(false);
@@ -136,12 +136,9 @@ export default function SignIn() {
                   ) : null}
                 </div>
                 <div className="text-sm">
-                  <a
-                    href="#"
-                    className="font-semibold text-white hover:text-indigo-500"
-                  >
+                  <Link href="#" linkType="primary">
                     Forgot password?
-                  </a>
+                  </Link>
                 </div>
 
                 <div className="flex flex-col items-center">
@@ -159,10 +156,7 @@ export default function SignIn() {
           </Formik>
 
           <div className="w-full flex justify-center items-center mt-4">
-            <Link
-              href="register/step/1"
-              className="underline font-semi text-white"
-            >
+            <Link href="register/step/1" linkType="primary">
               Create an account
             </Link>
           </div>

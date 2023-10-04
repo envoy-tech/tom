@@ -1,0 +1,54 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Profile {
+  profile_id       Int     @id @default(autoincrement())
+  email            String  @unique
+  name             String
+  ethnicity        String?
+  income           String?
+  preferred_season String?
+  trips            Trip[]
+}
+
+model Trip {
+  trip_id             Int             @id @default(autoincrement())
+  createdAt           DateTime        @default(now())
+  name                String
+  profiles            Profile[]
+  start_date          DateTime
+  end_date            DateTime
+  dates_approximate   Boolean
+  start_loc           String
+  end_loc             String
+  itinerary_finalized Boolean
+  optimized           Boolean
+  locations           Location[]
+  optimized_trips     OptimizedTrip[]
+}
+
+model Location {
+  location_id Int    @id @default(autoincrement())
+  trip        Trip   @relation(fields: [trip_id], references: [trip_id])
+  trip_id     Int
+  notes       String
+  place       String
+  time_alloc  Int
+  interest    Int
+}
+
+model OptimizedTrip {
+  optimized_trip_id Int  @id @default(autoincrement())
+  trip              Trip @relation(fields: [trip_id], references: [trip_id])
+  optimized_trip    Json
+  trip_id           Int
+}
