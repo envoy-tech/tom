@@ -70,19 +70,22 @@ export default function RegisterStep1() {
 
   return (
     <>
-      <div className="flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8 relative">
+      <div className="flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8 relative bg-gradient-to-tr from-advus-navyblue-500 to-advus-lightblue-500">
         <div className="sm:mx-auto sm:w-full sm:max-w-sm">
           <img
             className="mx-auto h-10 w-auto"
-            src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=600"
+            src="/advus-banner.svg"
             alt="Your Company"
           />
-          <h2 className="mt-10 text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">
+          <h2 className="mt-10 text-center text-2xl font-semibold leading-9 tracking-tight text-white">
             Let's start your adventure!
           </h2>
+          <p className="text-white text-sm text-center">
+            Create an account to begin planning your first trip
+          </p>
         </div>
 
-        <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-md">
+        <div className="mt-6 sm:mx-auto sm:w-full sm:max-w-md">
           <Formik
             initialValues={{
               firstname: "",
@@ -112,80 +115,89 @@ export default function RegisterStep1() {
               isSubmitting,
               /* and other goodies */
             }) => (
-              <Form className="space-y-3">
+              <Form className="space-y-3" onSubmit={handleSubmit}>
                 <div className="flex flex-row">
                   <div className="flex flex-col flex-grow mr-3">
                     <FormField
-                      labelText="First Name"
                       id="firstname"
                       name="firstname"
                       type="text"
                       autoComplete="firstname"
+                      textColor="text-white"
                       fieldError={errors.firstname}
                       fieldTouched={touched.firstname}
-                    />
+                    >
+                      First Name
+                    </FormField>
                   </div>
                   <div className="flex flex-col flex-grow">
                     <FormField
-                      labelText="Last Name"
                       id="lastname"
                       name="lastname"
                       type="text"
                       autoComplete="lastname"
+                      textColor="text-white"
                       fieldError={errors.lastname}
                       fieldTouched={touched.lastname}
-                    />
+                    >
+                      Last Name
+                    </FormField>
                   </div>
                 </div>
 
                 <div>
                   <FormField
-                    labelText="Email Address"
                     id="email"
                     name="email"
                     type="email"
                     autoComplete="email"
+                    textColor="text-white"
                     fieldError={errors.email}
                     fieldTouched={touched.email}
-                  />
+                  >
+                    Email Address
+                  </FormField>
                 </div>
 
                 <div className="flex flex-row">
                   <div className="flex flex-col flex-grow mr-3">
                     <FormField
-                      labelText="Password"
                       id="password"
                       name="password"
                       type="password"
                       autoComplete="password"
+                      textColor="text-white"
                       fieldError={errors.password}
                       fieldTouched={touched.password}
-                    />
+                    >
+                      Password
+                    </FormField>
                   </div>
                   <div className="flex flex-col flex-grow">
                     <FormField
-                      labelText="Confirm Password"
                       id="confirmpassword"
                       name="confirmpassword"
                       type="password"
                       autoComplete="current-password"
+                      textColor="text-white"
                       fieldError={errors.confirmpassword}
                       fieldTouched={touched.confirmpassword}
-                    />
+                    >
+                      Confirm Password
+                    </FormField>
                   </div>
                 </div>
 
                 <div className="flex flex-row justify-between text-center items-center mt-3">
-                  <p>
+                  <p className="text-white">
                     Already have an account?{" "}
-                    <Link href="/signin" className="underline font-bold">
+                    <Link href="/signin" className="no-underline font-semibold">
                       Log in
                     </Link>
                   </p>
                   <Btn
                     type="submit"
                     buttonType="primary"
-                    onClickHandler={handleSubmit}
                     disabled={isSubmitting}
                   >
                     {isSubmitting ? <Spinner /> : "Next"}

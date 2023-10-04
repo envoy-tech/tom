@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { MouseEventHandler, PropsWithChildren } from "react";
+import { PropsWithChildren, MouseEventHandler } from "react";
 
 type BtnProps = {
   onClickHandler?: MouseEventHandler<HTMLElement>;

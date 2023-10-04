@@ -1,6 +1,6 @@
 "use client";
 import Steps from "@/components/page-components/Steps";
-import { useState, useRef, MouseEventHandler } from "react";
+import { useState, useRef, SyntheticEvent } from "react";
 import { useAppSelector } from "@/hooks/redux";
 import { useRouter } from "next/navigation";
 import Spinner from "@/components/ui-components/Spinner";
@@ -16,9 +16,7 @@ export default function RegisterStep1() {
   const { push } = useRouter();
   const formRef = useRef(null);
 
-  const handleConfirmation = async (
-    e: MouseEventHandler<HTMLButtonElement>
-  ) => {
+  const handleConfirmation = async (e: SyntheticEvent) => {
     e.preventDefault();
     setSubmitting(true);
     setError("");
@@ -43,8 +41,7 @@ export default function RegisterStep1() {
   };
 
   // TODO: use message toasts instead of text
-  const handleResendVerification = async (e) => {
-    e.preventDefault();
+  const handleResendVerification = async () => {
     const response = await fetch("/api/auth/resendVerification", {
       method: "POST",
       body: JSON.stringify({ email }),
@@ -72,7 +69,7 @@ export default function RegisterStep1() {
           </h2>
         </div>
 
-        <form className="space-y-3" ref={formRef}>
+        <form className="space-y-3" ref={formRef} onSubmit={handleConfirmation}>
           <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-md">
             <div className="flex flex-col justify-center">
               <label className="block text-sm font-medium leading-6 text-gray-900 text-center">
@@ -98,11 +95,7 @@ export default function RegisterStep1() {
               >
                 Resend verification code
               </a>
-              <Btn
-                onClickHandler={handleConfirmation}
-                buttonType="primary"
-                disabled={isSubmitting}
-              >
+              <Btn buttonType="primary" disabled={isSubmitting} type="submit">
                 {isSubmitting ? <Spinner /> : "Next"}
               </Btn>
             </div>

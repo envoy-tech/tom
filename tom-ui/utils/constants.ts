@@ -1,6 +1,10 @@
 export const RE_DIGIT = new RegExp(/^\d+$/);
 
-export const ERROR_MAP = {
+type ErrorMap = {
+  [index: string]: string;
+};
+
+export const ERROR_MAP: ErrorMap = {
   CodeMismatchException: "You have input the wrong verification code!",
   UsernameExistsException:
     "Your email has already been used for a separate account.",
