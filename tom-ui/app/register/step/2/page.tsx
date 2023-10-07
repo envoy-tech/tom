@@ -43,65 +43,66 @@ export default function RegisterStep2() {
 
   return (
     <>
-      <div className="flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8 relative">
-        <div className="sm:mx-auto sm:w-full sm:max-w-sm">
-          <img
-            className="mx-auto h-10 w-auto"
-            src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=600"
-            alt="Your Company"
+      <div className="sm:mx-auto sm:w-full sm:max-w-sm">
+        <img
+          className="mx-auto h-10 w-auto"
+          src="/advus-banner.svg"
+          alt="Your Company"
+        />
+        <h2 className="mt-10 text-center text-2xl font-semibold leading-9 tracking-tight text-white">
+          Provide some additional details
+        </h2>
+        <p className="font-semibold text-xs text-center mt-2 text-white">
+          To better your experience, provide some additional information below.
+          Note: This is an optional step!
+        </p>
+      </div>
+
+      <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-md">
+        <form className="space-y-3" ref={formRef} onSubmit={submitForm}>
+          <Dropdown
+            fieldName="Ethnicity (Optional)"
+            items={ethnicityOptions}
+            name="ethnicity"
+            textColor="text-white"
           />
-          <h2 className="mt-10 text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">
-            Provide some additional details
-          </h2>
-          <p className="font-semibold text-xs text-center mt-2">
-            To better your experience, provide some additional information
-            below. Note: This is an optional step!
-          </p>
-        </div>
+          <Dropdown
+            fieldName={"Income (Optional)"}
+            items={incomeOptions}
+            name="income"
+            textColor="text-white"
+          />
+          <Dropdown
+            fieldName="Preferred Season to Travel (Optional)"
+            items={preferredSeasonOptions}
+            name="season"
+            textColor="text-white"
+          />
 
-        <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-md">
-          <form className="space-y-3" ref={formRef} onSubmit={submitForm}>
-            <Dropdown
-              fieldName="Ethnicity (Optional)"
-              items={ethnicityOptions}
-              name="ethnicity"
-            />
-            <Dropdown
-              fieldName={"Income (Optional)"}
-              items={incomeOptions}
-              name="income"
-            />
-            <Dropdown
-              fieldName="Preferred Season to Travel (Optional)"
-              items={preferredSeasonOptions}
-              name="season"
-            />
-
-            <div className="flex flex-row justify-between text-center items-center mt-3">
-              <Link href="/register/step/1">
-                <Btn type="button" buttonType="secondary">
-                  Back
+          <div className="flex flex-row justify-between text-center items-center mt-3">
+            <Link href="/register/step/1">
+              <Btn type="button" buttonType="secondary">
+                Back
+              </Btn>
+            </Link>
+            <div className="flex flex-row justify-center items-center">
+              <Link
+                href="/register/step/3"
+                className="font-semibold no-underline mr-3 text-white"
+              >
+                Skip
+              </Link>
+              <Link href="/register/step/3">
+                <Btn type="submit" buttonType="primary">
+                  Next
                 </Btn>
               </Link>
-              <div className="flex flex-row justify-center items-center">
-                <Link
-                  href="/register/step/3"
-                  className="font-semibold underline mr-3"
-                >
-                  Skip
-                </Link>
-                <Link href="/register/step/3">
-                  <Btn type="submit" buttonType="primary">
-                    Next
-                  </Btn>
-                </Link>
-              </div>
             </div>
-          </form>
-        </div>
-        <div className="absolute bottom-10 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-          <Steps currentStep={2} numberOfSteps={4} />
-        </div>
+          </div>
+        </form>
+      </div>
+      <div className="absolute bottom-10 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+        <Steps currentStep={2} numberOfSteps={4} />
       </div>
     </>
   );

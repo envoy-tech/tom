@@ -70,151 +70,145 @@ export default function RegisterStep1() {
 
   return (
     <>
-      <div className="flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8 relative bg-gradient-to-tr from-advus-navyblue-500 to-advus-lightblue-500">
-        <div className="sm:mx-auto sm:w-full sm:max-w-sm">
-          <img
-            className="mx-auto h-10 w-auto"
-            src="/advus-banner.svg"
-            alt="Your Company"
-          />
-          <h2 className="mt-10 text-center text-2xl font-semibold leading-9 tracking-tight text-white">
-            Let's start your adventure!
-          </h2>
-          <p className="text-white text-sm text-center">
-            Create an account to begin planning your first trip
-          </p>
-        </div>
+      <div className="sm:mx-auto sm:w-full sm:max-w-sm">
+        <img
+          className="mx-auto h-10 w-auto"
+          src="/advus-banner.svg"
+          alt="Your Company"
+        />
+        <h2 className="mt-10 text-center text-2xl font-semibold leading-9 tracking-tight text-white">
+          Let's start your adventure!
+        </h2>
+        <p className="text-white text-sm text-center">
+          Create an account to begin planning your first trip
+        </p>
+      </div>
 
-        <div className="mt-6 sm:mx-auto sm:w-full sm:max-w-md">
-          <Formik
-            initialValues={{
-              firstname: "",
-              lastname: "",
-              email: "",
-              password: "",
-              confirmpassword: "",
-            }}
-            validationSchema={registerSchema}
-            onSubmit={(values, { setSubmitting }) =>
-              handleSubmitForm(
-                values.firstname,
-                values.lastname,
-                values.email,
-                values.password,
-                setSubmitting
-              )
-            }
-          >
-            {({
-              values,
-              errors,
-              touched,
-              handleChange,
-              handleBlur,
-              handleSubmit,
-              isSubmitting,
-              /* and other goodies */
-            }) => (
-              <Form className="space-y-3" onSubmit={handleSubmit}>
-                <div className="flex flex-row">
-                  <div className="flex flex-col flex-grow mr-3">
-                    <FormField
-                      id="firstname"
-                      name="firstname"
-                      type="text"
-                      autoComplete="firstname"
-                      textColor="text-white"
-                      fieldError={errors.firstname}
-                      fieldTouched={touched.firstname}
-                    >
-                      First Name
-                    </FormField>
-                  </div>
-                  <div className="flex flex-col flex-grow">
-                    <FormField
-                      id="lastname"
-                      name="lastname"
-                      type="text"
-                      autoComplete="lastname"
-                      textColor="text-white"
-                      fieldError={errors.lastname}
-                      fieldTouched={touched.lastname}
-                    >
-                      Last Name
-                    </FormField>
-                  </div>
-                </div>
-
-                <div>
+      <div className="mt-6 sm:mx-auto sm:w-full sm:max-w-md">
+        <Formik
+          initialValues={{
+            firstname: "",
+            lastname: "",
+            email: "",
+            password: "",
+            confirmpassword: "",
+          }}
+          validationSchema={registerSchema}
+          onSubmit={(values, { setSubmitting }) =>
+            handleSubmitForm(
+              values.firstname,
+              values.lastname,
+              values.email,
+              values.password,
+              setSubmitting
+            )
+          }
+        >
+          {({
+            values,
+            errors,
+            touched,
+            handleChange,
+            handleBlur,
+            handleSubmit,
+            isSubmitting,
+            /* and other goodies */
+          }) => (
+            <Form className="space-y-3" onSubmit={handleSubmit}>
+              <div className="flex flex-row">
+                <div className="flex flex-col flex-grow mr-3">
                   <FormField
-                    id="email"
-                    name="email"
-                    type="email"
-                    autoComplete="email"
+                    id="firstname"
+                    name="firstname"
+                    type="text"
+                    autoComplete="firstname"
                     textColor="text-white"
-                    fieldError={errors.email}
-                    fieldTouched={touched.email}
+                    fieldError={errors.firstname}
+                    fieldTouched={touched.firstname}
                   >
-                    Email Address
+                    First Name
                   </FormField>
                 </div>
-
-                <div className="flex flex-row">
-                  <div className="flex flex-col flex-grow mr-3">
-                    <FormField
-                      id="password"
-                      name="password"
-                      type="password"
-                      autoComplete="password"
-                      textColor="text-white"
-                      fieldError={errors.password}
-                      fieldTouched={touched.password}
-                    >
-                      Password
-                    </FormField>
-                  </div>
-                  <div className="flex flex-col flex-grow">
-                    <FormField
-                      id="confirmpassword"
-                      name="confirmpassword"
-                      type="password"
-                      autoComplete="current-password"
-                      textColor="text-white"
-                      fieldError={errors.confirmpassword}
-                      fieldTouched={touched.confirmpassword}
-                    >
-                      Confirm Password
-                    </FormField>
-                  </div>
-                </div>
-
-                <div className="flex flex-row justify-between text-center items-center mt-3">
-                  <p className="text-white">
-                    Already have an account?{" "}
-                    <Link href="/signin" className="no-underline font-semibold">
-                      Log in
-                    </Link>
-                  </p>
-                  <Btn
-                    type="submit"
-                    buttonType="primary"
-                    disabled={isSubmitting}
+                <div className="flex flex-col flex-grow">
+                  <FormField
+                    id="lastname"
+                    name="lastname"
+                    type="text"
+                    autoComplete="lastname"
+                    textColor="text-white"
+                    fieldError={errors.lastname}
+                    fieldTouched={touched.lastname}
                   >
-                    {isSubmitting ? <Spinner /> : "Next"}
-                  </Btn>
+                    Last Name
+                  </FormField>
                 </div>
-                {registerError && (
-                  <label className="text-xs text-red-500 mt-1 self-center">
-                    {registerError}
-                  </label>
-                )}
-              </Form>
-            )}
-          </Formik>
-        </div>
-        <div className="absolute bottom-20 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-          <Steps currentStep={1} numberOfSteps={4} />
-        </div>
+              </div>
+
+              <div>
+                <FormField
+                  id="email"
+                  name="email"
+                  type="email"
+                  autoComplete="email"
+                  textColor="text-white"
+                  fieldError={errors.email}
+                  fieldTouched={touched.email}
+                >
+                  Email Address
+                </FormField>
+              </div>
+
+              <div className="flex flex-row">
+                <div className="flex flex-col flex-grow mr-3">
+                  <FormField
+                    id="password"
+                    name="password"
+                    type="password"
+                    autoComplete="password"
+                    textColor="text-white"
+                    fieldError={errors.password}
+                    fieldTouched={touched.password}
+                  >
+                    Password
+                  </FormField>
+                </div>
+                <div className="flex flex-col flex-grow">
+                  <FormField
+                    id="confirmpassword"
+                    name="confirmpassword"
+                    type="password"
+                    autoComplete="current-password"
+                    textColor="text-white"
+                    fieldError={errors.confirmpassword}
+                    fieldTouched={touched.confirmpassword}
+                  >
+                    Confirm Password
+                  </FormField>
+                </div>
+              </div>
+
+              <div className="flex flex-row justify-between text-center items-center mt-3">
+                <p className="text-white">
+                  Already have an account?{" "}
+                  <Link href="/signin" className="no-underline font-semibold">
+                    Log in
+                  </Link>
+                </p>
+                <Btn type="submit" buttonType="primary" disabled={isSubmitting}>
+                  {isSubmitting ? <Spinner /> : "Next"}
+                </Btn>
+              </div>
+              {registerError && (
+                <label className="text-xs text-red-500 mt-1 self-center">
+                  {registerError}
+                </label>
+              )}
+            </Form>
+          )}
+        </Formik>
+      </div>
+      <div className="absolute bottom-20 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+        <Steps currentStep={1} numberOfSteps={4} />
       </div>
     </>
   );

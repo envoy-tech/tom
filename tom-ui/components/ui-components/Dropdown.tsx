@@ -10,10 +10,11 @@ type DropdownProps = {
   }[];
   fieldName: string;
   name: string;
+  textColor: string;
 };
 
 export default function Dropdown(props: DropdownProps) {
-  const { items, fieldName, name } = props;
+  const { items, fieldName, name, textColor } = props;
   const [selectedItem, setSelectedItem] = useState(items[0]);
 
   return (
@@ -21,7 +22,9 @@ export default function Dropdown(props: DropdownProps) {
       <Listbox value={selectedItem} onChange={setSelectedItem} name={name}>
         <div className="relative mt-1">
           <div className="flex flex-col justify-center align-start">
-            <Listbox.Label className="mb-2 text-sm font-semibold">
+            <Listbox.Label
+              className={`mb-2 text-sm font-semibold ${textColor}`}
+            >
               {fieldName}
             </Listbox.Label>
             <Listbox.Button className="relative cursor-default rounded-lg bg-white py-2 pl-3 pr-10 text-left shadow-md focus:outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-orange-300 sm:text-sm overflow-ellipsis">
@@ -47,7 +50,9 @@ export default function Dropdown(props: DropdownProps) {
                   key={`${fieldName}-item-${itemIdx}`}
                   className={({ active }) =>
                     `relative cursor-default select-none py-2 pl-10 pr-4 ${
-                      active ? "bg-amber-100 text-amber-900" : "text-gray-900"
+                      active
+                        ? "bg-advus-lightblue-500 text-white"
+                        : "text-gray-900"
                     }`
                   }
                   value={item}
@@ -62,7 +67,7 @@ export default function Dropdown(props: DropdownProps) {
                         {item.name}
                       </span>
                       {selected ? (
-                        <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-amber-600">
+                        <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-advus-navyblue-500">
                           <CheckIcon className="h-5 w-5" aria-hidden="true" />
                         </span>
                       ) : null}
