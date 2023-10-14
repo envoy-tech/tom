@@ -207,7 +207,7 @@ export default function RegisterStep1() {
           )}
         </Formik>
       </div>
-      <div className="absolute bottom-20 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+      <div className="mt-20">
         <Steps currentStep={1} numberOfSteps={4} />
       </div>
     </>

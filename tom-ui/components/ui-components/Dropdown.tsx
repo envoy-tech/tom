@@ -11,11 +11,16 @@ type DropdownProps = {
   fieldName: string;
   name: string;
   textColor: string;
+  preselected?: number;
 };
 
 export default function Dropdown(props: DropdownProps) {
-  const { items, fieldName, name, textColor } = props;
-  const [selectedItem, setSelectedItem] = useState(items[0]);
+  const { items, fieldName, name, textColor, preselected } = props;
+  const [selectedItem, setSelectedItem] = useState(
+    (preselected as number) >= 0
+      ? items.find((item) => item.value === (preselected as number))
+      : items[0]
+  );
 
   return (
     <>

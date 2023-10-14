@@ -1,4 +1,3 @@
-import Header from "@/components/page-components/Header";
 import Footer from "@/components/page-components/Footer";
 
 export default function AuthenticatedLayout({
@@ -8,9 +7,8 @@ export default function AuthenticatedLayout({
 }) {
   return (
     <div className="min-h-full flex flex-col justify-between">
-      <Header />
       {children}
-      <Footer mode="dark" />
+      <Footer mode="light" />
     </div>
   );
 }

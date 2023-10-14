@@ -19,12 +19,15 @@ export default function Btn(props: PropsWithChildren<BtnProps>) {
     case "primary":
       typeStyling =
         "bg-advus-lightblue-500 text-white outline-advus-lightblue-500 hover:bg-white hover:outline-advus-navyblue-500 hover:text-advus-navyblue-500 active:text-white active:bg-advus-navyblue-500";
+      break;
     case "secondary":
       typeStyling =
         "text-advus-lightblue-500 outline-advus-lightblue-500 hover:bg-advus-lightblue-100 hover:outline-advus-lightblue-500 hover:text-advus-navyblue-500 active:outline-advus-lightblue-500 active:text-advus-navyblue-500 active:bg-advus-lightblue-300";
+      break;
     default:
       typeStyling =
         "bg-advus-lightblue-500 text-white outline-advus-lightblue-500 hover:bg-white hover:outline-advus-navyblue-500 hover:text-advus-navyblue-500 active:text-white active:bg-advus-navyblue-500";
+      break;
   }
 
   const btnComponent = (

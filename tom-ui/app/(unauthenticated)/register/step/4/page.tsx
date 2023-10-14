@@ -5,9 +5,18 @@ import Btn from "@/components/ui-components/Btn";
 import { useAppSelector } from "@/hooks/redux";
 
 export default function RegisterStep4() {
-  const referred = useAppSelector((state) => state.user.referred);
+  const { email, ethnicity, income, preferredSeason, referred } =
+    useAppSelector((state) => state.user);
 
-  // TODO: keep this component a server component, abstract out the client component stuff so we can make API requests for referred state.
+  const handleSubmit = async (e) => {
+    const response = await fetch("/api/userPreferences", {
+      method: "POST",
+      body: JSON.stringify({ email, ethnicity, income, preferredSeason }),
+    });
+
+    const json = await response.json();
+    console.log(json);
+  };
 
   return (
     <>
@@ -47,14 +56,18 @@ export default function RegisterStep4() {
               </Btn>
             </Link>
             <Link href="/signin?fromSignupFlow=true">
-              <Btn type="submit" buttonType="primary">
+              <Btn
+                type="submit"
+                buttonType="primary"
+                onClickHandler={handleSubmit}
+              >
                 Next
               </Btn>
             </Link>
           </div>
         </form>
       </div>
-      <div className="absolute bottom-10 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+      <div className="mt-20">
         <Steps currentStep={4} numberOfSteps={4} />
       </div>
     </>

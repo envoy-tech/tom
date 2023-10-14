@@ -16,8 +16,9 @@ export async function POST(request: Request) {
   });
 
   try {
-    const response = await client.send(command);
-    if (response.$metadata.httpStatusCode === 200) {
+    const cognitoResponse = await client.send(command);
+
+    if (cognitoResponse.$metadata.httpStatusCode === 200) {
       return NextResponse.json("Success!", {
         status: 200,
       });

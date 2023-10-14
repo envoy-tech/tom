@@ -25,23 +25,23 @@ export default function DetailsPageStepOne() {
       .required("Start Date is required"),
     enddate: Yup.date()
       .typeError("End Date is required")
-      .required("End Date is required")
-      .when("startdate", (startdate) => {
-        if (startdate) {
-          return Yup.date()
-            .min(startdate, "End Date must be after Start Date")
-            .typeError("End Date is required");
-        }
-      }),
+      .required("End Date is required"),
+    // .when("startdate", (startdate) => {
+    //   if (startdate) {
+    //     return Yup.date()
+    //       .min(startdate, "End Date must be after Start Date")
+    //       .typeError("End Date is required");
+    //   }
+    // }),
     approximatedate: Yup.string().required("This field is required."),
   });
 
   return (
     <>
-      <div className="absolute top-36 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-        <MainNavigationSteps currentStep={1} />
-      </div>
       <div className="flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8 relative">
+        <div className="w-100 mb-20 flex items-center justify-center">
+          <MainNavigationSteps currentStep={1} />
+        </div>
         <div className="sm:mx-auto sm:w-full sm:max-w-sm flex flex-col items-center justify-center">
           <p className="text-xs">STEP 1 OF 3</p>
           <img
@@ -144,14 +144,18 @@ export default function DetailsPageStepOne() {
                     </label>
                   </div>
                 </div>
-                <FormField
-                  labelText="What is the desired duration of your trip (in days)?"
-                  id="approxmiateduration"
-                  name="approxmiateduration"
-                  type="password"
-                  fieldError={errors.approxmiateduration}
-                  fieldTouched={touched.approxmiateduration}
-                />
+                {isApproxDate && (
+                  <FormField
+                    id="approxmiateduration"
+                    name="approxmiateduration"
+                    type="text"
+                    fieldError={errors.approxmiateduration}
+                    fieldTouched={touched.approxmiateduration}
+                    textColor="text-black"
+                  >
+                    What is the desired duration of your trip (in days)?
+                  </FormField>
+                )}
 
                 <div className="flex flex-row justify-end text-center items-center mt-3">
                   <Link href="/details/2">

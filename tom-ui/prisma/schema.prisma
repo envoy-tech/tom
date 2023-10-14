@@ -10,22 +10,22 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Profile {
-  profile_id       Int           @id @default(autoincrement())
-  email            String        @unique
+model profile {
+  profile_id       Int            @id @default(autoincrement())
+  email            String         @unique
   name             String
   ethnicity        String?
   income           String?
   preferred_season String?
   friends          Int[]
-  profile_trip     ProfileTrip[]
+  profile_trip     profile_trip[]
 }
 
 // do composite primary key for profile trip
-model ProfileTrip {
-  profile               Profile @relation(fields: [profile_id], references: [profile_id])
+model profile_trip {
+  profile               profile @relation(fields: [profile_id], references: [profile_id])
   profile_id            Int
-  trip                  Trip    @relation(fields: [trip_id], references: [trip_id])
+  trip                  trip    @relation(fields: [trip_id], references: [trip_id])
   trip_id               Int
   is_ready_to_optimize  Boolean
   trip_preferences_json Json
@@ -33,9 +33,9 @@ model ProfileTrip {
   @@unique([profile_id, trip_id])
 }
 
-model Trip {
-  trip_id                Int           @id @default(autoincrement())
-  createdAt              DateTime      @default(now())
+model trip {
+  trip_id                Int            @id @default(autoincrement())
+  createdAt              DateTime       @default(now())
   name                   String
   start_date_dttm        DateTime
   end_date_dttm          DateTime
@@ -44,5 +44,5 @@ model Trip {
   end_location_idx       String
   locations_json         Json
   itineraries_json_array Json[]
-  profile_trip           ProfileTrip[]
+  profile_trip           profile_trip[]
 }

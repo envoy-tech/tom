@@ -27,7 +27,6 @@ export default function RootLayout({
         <ReduxProvider>
           <AuthProvider>
             {children} <Toast />
-            <Footer />
           </AuthProvider>
         </ReduxProvider>
       </body>

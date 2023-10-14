@@ -18,12 +18,6 @@ export default function RegisterStep3() {
 
       <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-md text-white">
         <ul className="space-y-12 mb-12">
-          <div
-            className="absolute inset-0 flex items-center"
-            aria-hidden="true"
-          >
-            <div className="h-full w-0.5 bg-gray-200" />
-          </div>
           <li className="relative flex flex-row items-center justify-start">
             <span
               className="absolute h-12 w-12 rounded-full bg-advus-brown-500 flex items-center justify-center"
@@ -79,19 +73,16 @@ export default function RegisterStep3() {
           </li>
         </ul>
         <div className="flex flex-row justify-between text-center items-center mt-3">
-          <Link href="/register/step/2">
-            <Btn type="button" buttonType="secondary">
-              Back
-            </Btn>
-          </Link>
-          <Link href="/register/step/4">
-            <Btn type="submit" buttonType="primary">
-              Next
-            </Btn>
-          </Link>
+          <Btn type="button" buttonType="secondary" href="/register/step/2">
+            Back
+          </Btn>
+
+          <Btn type="submit" buttonType="primary" href="/register/step/4">
+            Next
+          </Btn>
         </div>
       </div>
-      <div className="absolute bottom-10 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+      <div className="mt-20">
         <Steps currentStep={3} numberOfSteps={4} />
       </div>
     </>

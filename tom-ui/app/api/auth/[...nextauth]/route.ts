@@ -7,6 +7,7 @@ import {
   SignUpCommand,
 } from "@aws-sdk/client-cognito-identity-provider";
 import { createClientForDefaultRegion } from "@/utils/aws-sdk";
+import prisma from "@/utils/prisma";
 
 export const authOptions: NextAuthOptions = {
   // Configure one or more authentication providers
@@ -45,6 +46,16 @@ export const authOptions: NextAuthOptions = {
 
             try {
               const request = await client.send(command);
+
+              if (request.$metadata.httpStatusCode === 200) {
+                const pgResponse = await prisma.profile.create({
+                  data: {
+                    email: credentials?.email as string,
+                    name: credentials?.name as string,
+                  },
+                });
+              }
+
               return {
                 email: credentials?.email,
               };
