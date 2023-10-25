@@ -9,8 +9,7 @@ __pycache__/
 # Distribution / packaging
 .Python
 build/
-!aux/build
-aux/wheels
+!auxiliary/build
 develop-eggs/
 dist/
 downloads/
@@ -137,4 +136,4 @@ dmypy.json
 .vscode/
 
 # C++ build libraries
-tom-optimization/cmake-build-*/
+optimization-engine/cmake-build-*/

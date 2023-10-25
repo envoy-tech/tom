@@ -1,32 +1,34 @@
 .PHONY: clean install uninstall wheels
 
+WHEEL_DIR = wheels
+
 COMMON = tom-common
-TRAVELER_ACCESS = tom-traveler-access
-TRIP_ACCESS = tom-trip-access
+OPTIMIZATION_ENGINE = optimization-engine
 TRIP_MANAGER = tom-trip-manager
 
 clean:
-	rm -rf aux/build/wheels
+	rm -rf $(WHEEL_DIR)
 	$(MAKE) -C $(COMMON) clean
-	$(MAKE) -C $(TRAVELER_ACCESS) clean
-	$(MAKE) -C $(TRIP_ACCESS) clean
+	$(MAKE) -C $(OPTIMIZATION_ENGINE) clean
 	$(MAKE) -C $(TRIP_MANAGER) clean
 
 install:
 	$(MAKE) -C $(COMMON) install
-	$(MAKE) -C $(TRAVELER_ACCESS) install
-	$(MAKE) -C $(TRIP_ACCESS) install
+	# $(MAKE) -C $(OPTIMIZATION_ENGINE) install
 	$(MAKE) -C $(TRIP_MANAGER) install
 
 uninstall:
 	$(MAKE) -C $(COMMON) uninstall
-	$(MAKE) -C $(TRAVELER_ACCESS) uninstall
-	$(MAKE) -C $(TRIP_ACCESS) uninstall
+	$(MAKE) -C $(OPTIMIZATION_ENGINE) uninstall
 	$(MAKE) -C $(TRIP_MANAGER) uninstall
 
 wheels: clean install
-	mkdir aux/build/wheels
+	mkdir $(WHEEL_DIR)
 	$(MAKE) -C $(COMMON) wheel
-	$(MAKE) -C $(TRAVELER_ACCESS) wheel
-	$(MAKE) -C $(TRIP_ACCESS) wheel
+	# $(MAKE) -C $(OPTIMIZATION_ENGINE) wheel
 	$(MAKE) -C $(TRIP_MANAGER) wheel
+
+lambda_images:
+	# $(MAKE) -C $(OPTIMIZATION_ENGINE) lambda_image
+	$(MAKE) -C $(TRIP_MANAGER) lambda_image
+

@@ -15,10 +15,29 @@ class DeviationalVarSuffix:
     IS_NEG = "IS_Neg"
 
 
+def log_var_indices(func):
+
+    def wrapper(*args, **kwargs):
+        solver_inst = args[0]
+        name = kwargs.get("name")
+        result = func(*args, **kwargs)
+        if isinstance(result, pywraplp.Variable):
+            solver_inst.var_indices[name] = tuple(result.index())
+
+        elif isinstance(result, np.ndarray):
+            flat_arr: list[pywraplp.Variable] = result.flatten().tolist()
+            solver_inst.var_indices[name] = (flat_arr[0].index(), flat_arr[-1].index())
+
+        return result
+
+    return wrapper
+
+
 class TripSolver:
 
     def __init__(self):
         self.solver = pywraplp.Solver.CreateSolver(SolverName.SCIP)
+        self.var_indices: dict[str, tuple[int, ...]] = {}
 
     @staticmethod
     def _variable_array(
@@ -42,7 +61,7 @@ class TripSolver:
 
     def BoolVar(self, **kwargs) -> pywraplp.Variable:
         return self.solver.BoolVar(**kwargs)
-    
+
     def DeviationVar(
             self,
             lb: Union[int, float] = 0,
@@ -73,44 +92,49 @@ class TripSolver:
         
         return out
 
+    @log_var_indices
     def NumArray(
             self,
             shape: Union[int, tuple[int, ...]],
-            name_prefix: str,
             *,
+            name: str = "",
             lb: Union[int, float] = 0,
             ub: Union[int, float] = pywraplp.Solver.Infinity()
     ):
         
         func = self.NumVar
-        return self._variable_array(shape, func, name_prefix, lb=lb, ub=ub)
+        return self._variable_array(shape, func, name, lb=lb, ub=ub)
 
+    @log_var_indices
     def IntArray(
             self,
             shape: Union[int, tuple[int, ...]],
-            name_prefix: str,
             *,
+            name: str = "",
             lb: Union[int, float] = 0.0,
             ub: Union[int, float] = pywraplp.Solver.Infinity()
     ):
         
         func = self.IntVar
-        return self._variable_array(shape, func, name_prefix, lb=lb, ub=ub)
+        return self._variable_array(shape, func, name, lb=lb, ub=ub)
 
+    @log_var_indices
     def BoolArray(
             self,
             shape: Union[int, tuple[int, ...]],
-            name_prefix: str
+            *,
+            name: str = ""
     ):
         
         func = self.BoolVar
-        return self._variable_array(shape, func, name_prefix)
+        return self._variable_array(shape, func, name)
 
+    @log_var_indices
     def DeviationArray(
         self,
         shape: Union[int, tuple[int, ...]],
-        name_prefix: str,
         *,
+        name: str = "",
         lb: Union[int, float] = 0,
         ub: Union[int, float] = pywraplp.Solver.Infinity(),
         return_bools: bool = False
@@ -126,33 +150,33 @@ class TripSolver:
         Other constraints on the variables can be added after the fact with the output of this function.
 
         :param shape: shape of the desired output variable arrays
-        :param name_prefix: name prefix for all variables
+        :param name: name prefix for all variables
         :param lb: lower bound of variables (default: 0)
         :param ub: upper bound of variables (default: inf)
         :param return_bools: flag to return the is_pos and is_neg boolean variables that constrain
                             the other deviational variables
         """
-        pos_name = f"{name_prefix}_{DeviationalVarSuffix.POS}"
-        neg_name = f"{name_prefix}_{DeviationalVarSuffix.NEG}"
-        is_pos_name = f"{name_prefix}_{DeviationalVarSuffix.IS_POS}"
-        is_neg_name = f"{name_prefix}_{DeviationalVarSuffix.IS_NEG}"
+        pos_name = f"{name}_{DeviationalVarSuffix.POS}"
+        neg_name = f"{name}_{DeviationalVarSuffix.NEG}"
+        is_pos_name = f"{name}_{DeviationalVarSuffix.IS_POS}"
+        is_neg_name = f"{name}_{DeviationalVarSuffix.IS_NEG}"
         
-        pos = self.NumArray(shape, pos_name, lb=lb, ub=ub)
-        neg = self.NumArray(shape, neg_name, lb=lb, ub=ub)
-        is_pos = self.BoolArray(shape, is_pos_name)
-        is_neg = self.BoolArray(shape, is_neg_name)        
+        pos = self.NumArray(shape, name=pos_name, lb=lb, ub=ub)
+        neg = self.NumArray(shape, name=neg_name, lb=lb, ub=ub)
+        is_pos = self.BoolArray(shape, name=is_pos_name)
+        is_neg = self.BoolArray(shape, name=is_neg_name)
         
         self.ArrayConstraint(
             np.less_equal(is_pos + is_neg, 1, dtype=object),
-            name_prefix=f"{name_prefix}_deviational_contstraint"
+            name_prefix=f"{name}_deviational_contstraint"
         )
         self.ArrayConstraint(
             np.less_equal(pos, ub * is_pos, dtype=object),
-            name_prefix=f"set_ceiling_for_{name_prefix}_pos"
+            name_prefix=f"set_ceiling_for_{name}_pos"
         )
         self.ArrayConstraint(
             np.less_equal(neg, ub * is_neg, dtype=object),
-            name_prefix=f"set_ceiling_for_{name_prefix}_neg"
+            name_prefix=f"set_ceiling_for_{name}_neg"
         )
         
         out = [pos, neg]
