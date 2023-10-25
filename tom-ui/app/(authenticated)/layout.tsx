@@ -9,7 +9,7 @@ export default function AuthenticatedLayout({
   return (
     <div className="min-h-full flex flex-col justify-between">
       <Header />
-      {children}
+      <div className="">{children}</div>
       <Footer mode="dark" />
     </div>
   );

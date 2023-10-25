@@ -1,15 +1,16 @@
 "use client";
 
 import NextLink from "next/link";
-import { PropsWithChildren } from "react";
+import { PropsWithChildren, MouseEventHandler } from "react";
 
 type LinkProps = {
   href: string;
   linkType: "primary" | "secondary" | "tertiary";
+  onClick?: MouseEventHandler;
 };
 
 export default function Link(props: PropsWithChildren<LinkProps>) {
-  const { href, linkType, children } = props;
+  const { href, linkType, children, onClick } = props;
 
   let typeStyling;
 
@@ -32,7 +33,11 @@ export default function Link(props: PropsWithChildren<LinkProps>) {
   }
 
   return (
-    <NextLink href={href} className={typeStyling}>
+    <NextLink
+      href={href}
+      className={typeStyling}
+      onClick={onClick ? onClick : undefined}
+    >
       {children}
     </NextLink>
   );
