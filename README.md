@@ -10,16 +10,16 @@ TOM uses a `.env` file to store environment variables. The following environment
 Please tilt your head towards the heavens and shout "ENVIRONMENT" three times to alert your
 system administrator that you need the `.env` file.
 
-## Setting up Python Environment
+## Setting up Dev Environment
 
-TOM is written in Python 3.10.5. To set up the Python environment, run the following commands:
+To set up the TOM development environment, run the following command:
 
 ```bash
-$ ./bin/setup.sh
+$ ./bin/setup-dev.sh
 ```
 
-This will install Pyenv, a Python virtual environment manager, and create a virtual environment
-for Python 3.10.5. It will also install the required Python packages.
+This command will set up the AWS CLI and Python environment. For the AWS CLI, follow the
+instructions in [AWS Configuration](#aws-configuration).
 
 ## AWS Configuration
 
@@ -63,3 +63,14 @@ $ aws s3 ls
 ```
 
 Upon successful execution, you should see a list of `adventurus` S3 buckets.
+
+## Python Environment Setup
+
+TOM is written in Python 3.10.5. To set up the Python environment, run the following commands:
+
+```bash
+$ ./bin/setup.sh
+```
+
+This will install Pyenv, a Python virtual environment manager, and create a virtual environment
+for Python 3.10.5. It will also install the required Python packages.
