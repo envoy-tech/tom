@@ -1,7 +1,7 @@
 .PHONY: clean install uninstall wheel
 
 PYTHON_PACKAGE = tom-common
-WHEEL_DIR = ../aux/build/wheels
+WHEEL_DIR = ../wheels
 
 wheel:
 	pip wheel . -w $(WHEEL_DIR) --no-deps

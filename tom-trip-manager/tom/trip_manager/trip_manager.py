@@ -1,12 +1,17 @@
 from __future__ import annotations
 import datetime as dt
 from typing import Optional, Union
+import json
 
 import numpy as np
 
-from tom.common import Location, Traveler, VarName
-from tom.common.accessor import googlemaps_access as gmaps
+from tom.common import Location, Traveler, VARIABLE_REGISTRY
+from tom.common.cloud_access import gmaps
 from tom.trip_manager.solver import TripSolver
+
+
+class VarName:
+    pass
 
 
 class TripManager:
@@ -138,10 +143,15 @@ class TripManager:
             return dt.datetime.strptime(date_input, "%m/%d/%Y")
         return date_input
 
-    def generate_mps_file(
+    def generate_mps_string(
         self,
         distance_matrix_params: dict
     ):
+        ##### Prepare Variable classes #####
+        VARS = {}
+        for var_name in VARIABLE_REGISTRY:
+            setattr(VarName, var_name, var_name)
+            VARS[var_name] = VARIABLE_REGISTRY[var_name](self.num_travelers, self.num_locations)
 
         ##### Prepare input variables #####
 
@@ -174,47 +184,57 @@ class TripManager:
         ##### Instantiate Model #####
 
         solver = TripSolver()
+        self.solver = solver
 
         ##### REQUIRED DECISION VARIABLES #####
 
-        GO = solver.BoolArray(self.num_locations, VarName.GO)
-        FROM = solver.BoolArray((self.num_locations, self.num_locations), VarName.FROM)
+        GO = solver.BoolArray(VARS[VarName.GO].shape, name=VarName.GO)
+        FROM = solver.BoolArray(VARS[VarName.FROM].shape, name=VarName.FROM)
         INTER_DEPART_DAY = solver.IntArray(
-            (self.num_locations, self.num_locations),
-            VarName.INTER_DEPART_DAY,
+            VARS[VarName.INTER_DEPART_DAY].shape,
+            name=VarName.INTER_DEPART_DAY,
             ub=self.num_days
         )
         INTER_DEPART_HOUR = solver.NumArray(
-            (self.num_locations, self.num_locations),
-            VarName.INTER_DEPART_HOUR,
+            VARS[VarName.INTER_DEPART_HOUR].shape,
+            name=VarName.INTER_DEPART_HOUR,
             ub=latest_end
         )
 
-        DEPART_DAY = solver.IntArray(self.num_locations, VarName.DEPART_DAY, ub=self.num_days)
-        DEPART_HOUR = solver.NumArray(self.num_locations, VarName.DEPART_HOUR, ub=latest_end)
-        ARRIVE_DAY = solver.IntArray(self.num_locations, VarName.ARRIVE_DAY, ub=self.num_days)
-        ARRIVE_HOUR = solver.NumArray(self.num_locations, VarName.ARRIVE_HOUR, ub=latest_end)
+        DEPART_DAY = solver.IntArray(VARS[VarName.DEPART_DAY].shape, name=VarName.DEPART_DAY, ub=self.num_days)
+        DEPART_HOUR = solver.NumArray(VARS[VarName.DEPART_HOUR].shape, name=VarName.DEPART_HOUR, ub=latest_end)
+        ARRIVE_DAY = solver.IntArray(VARS[VarName.ARRIVE_DAY].shape, name=VarName.ARRIVE_DAY, ub=self.num_days)
+        ARRIVE_HOUR = solver.NumArray(VARS[VarName.ARRIVE_HOUR].shape, name=VarName.ARRIVE_HOUR, ub=latest_end)
 
-        TIME = solver.NumArray(self.num_locations, VarName.TIME, ub=self.num_hours)
-        STAY = solver.NumArray(self.num_locations, VarName.STAY, ub=self.num_hours)
+        TIME = solver.NumArray(VARS[VarName.TIME].shape, name=VarName.TIME, ub=self.num_hours)
+        STAY = solver.NumArray(VARS[VarName.STAY].shape, name=VarName.STAY, ub=self.num_hours)
+
+        # TODO: Come back and find better way to handle logging these variable indices
         DURATION = solver.NumVar(lb=0, ub=self.num_hours, name="DURATION")
+        solver.var_indices["DURATION"] = (DURATION.index())
         NUM_STOPS = solver.IntVar(lb=0, ub=self.num_locations, name="NUM_STOPS")
+        solver.var_indices["NUM_STOPS"] = (NUM_STOPS.index())
         NUM_TRANSITS = solver.IntVar(lb=0, ub=self.num_locations, name="NUM_TRANSITS")
+        solver.var_indices["NUM_TRANSITS"] = (NUM_TRANSITS.index())
 
         ##### OPTIONAL GOAL VARIABLES #####
 
-        R_DEV_Pos, R_DEV_Neg = solver.DeviationArray(self.num_travelers, VarName.R_DEV, ub=10)
-        MEAN_R = solver.NumArray(self.num_travelers, VarName.MEAN_R, ub=10)
-        INTER_R = solver.NumArray((self.num_travelers, self.num_locations), VarName.INTER_R, ub=self.num_locations * 10)
-        SUM_R = solver.NumArray(self.num_travelers, VarName.SUM_R, ub=self.num_locations * 10)
+        R_DEV_Pos, R_DEV_Neg = solver.DeviationArray(VARS[VarName.R_DEV].shape, name=VarName.R_DEV, ub=10)
+        MEAN_R = solver.NumArray(VARS[VarName.MEAN_R].shape, name=VarName.MEAN_R, ub=10)
+        INTER_R = solver.NumArray(
+            VARS[VarName.INTER_R].shape,
+            name=VarName.INTER_R,
+            ub=self.num_locations * 10
+        )
+        SUM_R = solver.NumArray(VARS[VarName.SUM_R].shape, name=VarName.SUM_R, ub=self.num_locations * 10)
 
         S_DEV_Pos, S_DEV_Neg = solver.DeviationArray(
-            (self.num_travelers, self.num_locations), VarName.S_DEV, ub=self.num_hours
+            VARS[VarName.S_DEV].shape, name=VarName.S_DEV, ub=self.num_hours
         )
 
         I_DEV_Pos, I_DEV_Neg, I_DEV_IS_Pos, I_DEV_IS_Neg = solver.DeviationArray(
-            (self.num_travelers, self.num_locations, self.num_locations),
-            VarName.I_DEV,
+            VARS[VarName.I_DEV].shape,
+            name=VarName.I_DEV,
             ub=max_travel,
             return_bools=True
         )
@@ -536,3 +556,20 @@ class TripManager:
 
         mps_string = solver.ExportModelAsMpsFormat()
         return mps_string
+
+    @property
+    def metadata(self):
+
+        json_metadata = {
+            "trip_id": str(self.id),
+            "start_date": str(self.start_date),
+            "end_date": str(self.end_date),
+            "start_location_id": str(self.start_location_index),
+            "end_location_id": str(self.end_location_index),
+            "num_locations": str(self.num_locations),
+            "location_ids": str([location.id for location in self.locations]),
+            "num_travelers": str(self.num_travelers),
+            "var_idxs": str(self.solver.var_indices)
+        }
+
+        return json_metadata

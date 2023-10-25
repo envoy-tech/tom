@@ -9,7 +9,7 @@ import googlemaps
 from dotenv import load_dotenv
 
 from tom.common import S3Params
-from tom.common.accessor import aws_access
+from tom.common.cloud_access import aws_access
 
 
 def _get_absolute_path(relative_path: str) -> Path:

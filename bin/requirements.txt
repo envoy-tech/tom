@@ -1,8 +1,9 @@
-ansible
 boto3
 googlemaps
 ortools
+pybind11
 pytest
 pytest-mock
 python-dotenv
+scikit-build
 wheel

@@ -1,9 +1,10 @@
-from tom.trip_manager.lambda_function import handler
+from tom.trip_manager import TripManager
 
 
 def test_build_trip_mps_file(
         sample_trip,
-        mps_folder
+        sample_trip_params
 ):
-
-    handler(sample_trip, {"test-context": "test-context"})
+    trip_manager = TripManager(**sample_trip)
+    mps_string = trip_manager.generate_mps_string(sample_trip_params)
+    assert mps_string is not None
