@@ -10,6 +10,7 @@ import Btn from "@/components/ui-components/Btn";
 import LocationBox from "@/components/page-components/LocationBox";
 import MainNavigationSteps from "@/components/page-components/MainNavigationSteps";
 import { DUMMY_LOCATION_DATA } from "@/utils/dummy-data";
+import LocationListViewBox from "@/components/page-components/LocationListViewBox";
 
 export default function ItineraryPage() {
   const libraries = useMemo(() => ["places"], []);
@@ -34,7 +35,7 @@ export default function ItineraryPage() {
 
   return (
     <div className="flex flex-col items-center justify-center w-full h-full">
-      <div className="w-2/5 mb-20 flex items-center justify-center">
+      <div className="w-2/5 mb-20 flex items-center justify-center mt-36">
         <MainNavigationSteps currentStep={3} />
       </div>
       <div className="w-full h-full flex flex-row justify-center items-center">
@@ -124,26 +125,42 @@ export default function ItineraryPage() {
               )}
             </div>
           </div>
-          {showMapView ? (
-            isLoaded ? (
-              <GoogleMap
-                options={mapOptions}
-                zoom={14}
-                center={mapCenter}
-                mapTypeId={window.google.maps.MapTypeId.ROADMAP}
-                mapContainerStyle={{
-                  minWidth: "550px",
-                  minHeight: "750px",
-                  width: "100%",
-                  height: "100%",
-                }}
-              />
+          <div className="w-full h-full">
+            {showMapView ? (
+              isLoaded ? (
+                <GoogleMap
+                  options={mapOptions}
+                  zoom={14}
+                  center={mapCenter}
+                  mapTypeId={window.google.maps.MapTypeId.ROADMAP}
+                  mapContainerStyle={{
+                    minWidth: "550px",
+                    minHeight: "750px",
+                    width: "100%",
+                    height: "100%",
+                  }}
+                />
+              ) : (
+                "Loading..."
+              )
             ) : (
-              "Loading..."
-            )
-          ) : (
-            <div className="border-gray-400 border-2 w-full h-full"></div>
-          )}
+              <div className="border-gray-400 border-2 w-full h-full flex flex-col justify-center items-center space-y-3 p-6">
+                {DUMMY_LOCATION_DATA.map((locationData, index) => (
+                  <>
+                    <LocationListViewBox
+                      locationName={locationData.location}
+                      locationAddress={locationData.address}
+                      key={`location-${index}`}
+                      index={index + 1}
+                    />
+                    {index !== DUMMY_LOCATION_DATA.length - 1 && (
+                      <div className="border-gray-400 border-b-2 w-full"></div>
+                    )}
+                  </>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>

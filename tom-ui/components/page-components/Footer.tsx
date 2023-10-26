@@ -8,7 +8,7 @@ export default function Footer(props: FooterProps) {
   const { mode } = props;
   return (
     <div
-      className={`w-full flex flex-row justify-between space-x-6 pl-6 pr-6 pt-3 pb-3 ${
+      className={`w-full flex flex-row justify-between space-x-6 pl-6 pr-6 pt-3 pb-3 mt-auto ${
         mode === "light" ? "bg-white" : "bg-advus-navyblue-500"
       }`}
     >
