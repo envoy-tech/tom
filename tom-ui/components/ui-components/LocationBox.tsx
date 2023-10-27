@@ -1,13 +1,15 @@
+"use client";
 import { PlusIcon, TrashIcon } from "@heroicons/react/20/solid";
+import { useState } from "react";
 
 type LocationBoxProps = {
-  added: boolean;
   locationName: string;
   locationAddress: string;
 };
 
 export default function LocationBox(props: LocationBoxProps) {
-  const { added, locationName, locationAddress } = props;
+  const { locationName, locationAddress } = props;
+  const [added, setAdded] = useState(false);
 
   return (
     <div className="flex justify-between w-11/12 flex-row">
@@ -16,9 +18,10 @@ export default function LocationBox(props: LocationBoxProps) {
         <p className="mt-2">{locationAddress}</p>
       </div>
       <div
-        className={`flex flex-row justify-center items-center ${
+        className={`flex flex-row justify-center items-center hover:cursor-pointer select-none ${
           added ? "text-advus-brown-500" : "text-advus-lightblue-500"
         }`}
+        onClick={() => setAdded(!added)}
       >
         {added ? (
           <TrashIcon

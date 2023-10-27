@@ -1,34 +1,28 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# AdventurUs UI
+
+Welcome to the README for the AdventurUs UI, This project is built off of Next.js, Prisma, Storybook, and TailwindCSS. There are a couple of other things sprinkled around like Formik for form validation, headlessUI for TailwindUI components, and redux toolkit for persistence and state management.
 
 ## Getting Started
 
-First, run the development server:
+In order to start using the UI, we would need to install all the npm dependencies which can be done through:
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
+```
+npm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Then, we can run the dev server through:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```
+npm run dev
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+If we are deploying to production, we would want to build then start:
 
-## Learn More
+```
+npm run build
+npm run start
+```
 
-To learn more about Next.js, take a look at the following resources:
+## Development
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+For users to start developing in the UI, we need to make sure some environment variables are set. Start by making a copy of the example.env file as just a `.env` file, then populate those fields with the appropriate values.

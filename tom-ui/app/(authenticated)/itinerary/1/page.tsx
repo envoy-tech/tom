@@ -7,10 +7,10 @@ import {
   ListBulletIcon,
 } from "@heroicons/react/20/solid";
 import Btn from "@/components/ui-components/Btn";
-import LocationBox from "@/components/page-components/LocationBox";
+import LocationBox from "@/components/ui-components/LocationBox";
 import MainNavigationSteps from "@/components/page-components/MainNavigationSteps";
+import LocationListViewBox from "@/components/ui-components/LocationListViewBox";
 import { DUMMY_LOCATION_DATA } from "@/utils/dummy-data";
-import LocationListViewBox from "@/components/page-components/LocationListViewBox";
 
 export default function ItineraryPage() {
   const libraries = useMemo(() => ["places"], []);
@@ -38,7 +38,7 @@ export default function ItineraryPage() {
       <div className="w-2/5 mb-20 flex items-center justify-center mt-36">
         <MainNavigationSteps currentStep={3} />
       </div>
-      <div className="w-full h-full flex flex-row justify-center items-center">
+      <div className="w-full h-full flex flex-row justify-center items-center mt-6">
         <div className="w-1/2 h-full flex flex-col justify-start items-start pl-40 pr-40">
           <p className="text-xs">STEP 1 OF 2</p>
           <h1 className="text-left font-semibold text-3xl mt-2">
@@ -69,25 +69,25 @@ export default function ItineraryPage() {
           <div className="w-full flex flex-col justify-start mt-3">
             <p className="text-xs text-gray-400">SEARCH RESULTS</p>
             <div className="w-full flex flex-col mt-3 border-b-2 bordery-gray-400 pb-3">
-              <div className="overflow-y-scroll max-h-96 space-y-5">
+              <div className="overflow-y-scroll max-h-96 space-y-4 pr-3">
                 {DUMMY_LOCATION_DATA.map((locationData, index) => (
-                  <>
+                  <div className="space-y-3" key={`location-${index}`}>
                     <LocationBox
                       locationName={locationData.location}
                       locationAddress={locationData.address}
-                      added={index % 2 === 1}
-                      key={`location-${index}`}
                     />
-                    <div className="border-gray-400 border-b-2 w-11/12"></div>
-                  </>
+                    {index !== DUMMY_LOCATION_DATA.length - 1 && (
+                      <div className="border-gray-400 border-b-2 w-full"></div>
+                    )}
+                  </div>
                 ))}
               </div>
             </div>
             <div className="w-full flex flex-row justify-between mt-16">
-              <Btn buttonType="secondary" type="submit" href="/details/2">
+              <Btn buttonType="secondary" type="submit" href="/travelers">
                 Back
               </Btn>
-              <Btn buttonType="primary" type="submit" href="/travelers">
+              <Btn buttonType="primary" type="submit" href="/itinerary/2">
                 Next
               </Btn>
             </div>
@@ -146,17 +146,19 @@ export default function ItineraryPage() {
             ) : (
               <div className="border-gray-400 border-2 w-full h-full flex flex-col justify-center items-center space-y-3 p-6">
                 {DUMMY_LOCATION_DATA.map((locationData, index) => (
-                  <>
+                  <div
+                    className="w-full h-full space-y-3"
+                    key={`location-list-${index}`}
+                  >
                     <LocationListViewBox
                       locationName={locationData.location}
                       locationAddress={locationData.address}
-                      key={`location-${index}`}
                       index={index + 1}
                     />
                     {index !== DUMMY_LOCATION_DATA.length - 1 && (
                       <div className="border-gray-400 border-b-2 w-full"></div>
                     )}
-                  </>
+                  </div>
                 ))}
               </div>
             )}
