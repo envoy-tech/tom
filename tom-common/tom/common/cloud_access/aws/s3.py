@@ -63,3 +63,14 @@ def delete_file_in_s3(
         bucket_name: str
 ):
     s3.Object(bucket_name, filename).delete()
+
+
+def parse_s3_event(event: dict) -> tuple[str, str]:
+    """ Parse S3 event for bucket and object key
+
+    :param event: S3 event
+    :return: bucket name and object key
+    """
+    bucket_name = event["Records"][0]["s3"]["bucket"]["name"]
+    object_key = event["Records"][0]["s3"]["object"]["key"]
+    return bucket_name, object_key

@@ -14,7 +14,7 @@ clean:
 
 install:
 	$(MAKE) -C $(COMMON) install
-	# $(MAKE) -C $(OPTIMIZATION_ENGINE) install
+	$(MAKE) -C $(OPTIMIZATION_ENGINE) install
 	$(MAKE) -C $(TRIP_MANAGER) install
 
 uninstall:
@@ -25,10 +25,9 @@ uninstall:
 wheels: clean install
 	mkdir $(WHEEL_DIR)
 	$(MAKE) -C $(COMMON) wheel
-	# $(MAKE) -C $(OPTIMIZATION_ENGINE) wheel
+	$(MAKE) -C $(OPTIMIZATION_ENGINE) wheel
 	$(MAKE) -C $(TRIP_MANAGER) wheel
 
 lambda_images:
 	# $(MAKE) -C $(OPTIMIZATION_ENGINE) lambda_image
 	$(MAKE) -C $(TRIP_MANAGER) lambda_image
-

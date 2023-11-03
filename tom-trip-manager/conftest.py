@@ -9,7 +9,7 @@ import googlemaps
 from dotenv import load_dotenv
 
 from tom.common import S3Params
-from tom.common.cloud_access import aws_access
+from tom.common.cloud_access import aws
 
 
 def _get_absolute_path(relative_path: str) -> Path:
@@ -34,7 +34,7 @@ def mps_folder() -> Path:
 
 @pytest.fixture(scope="package")
 def sample_trip() -> dict:
-    with open(_get_absolute_path("tests/sample_trip2.json"), "r") as f:
+    with open(_get_absolute_path("tests/subtour_trip.json"), "r") as f:
         sample_trip = json.load(f)
     return sample_trip
 
@@ -57,4 +57,4 @@ def gmaps_client():
 
 @pytest.fixture(scope="package")
 def s3():
-    return aws_access.connect_to_s3(S3Params.REGION)
+    return aws.s3.connect_to_s3(S3Params.REGION)

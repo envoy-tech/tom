@@ -19,23 +19,14 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 list(PREPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/cmake)
 
 find_package(Python COMPONENTS Interpreter Development)
+find_package(ortools CONFIG REQUIRED)
 
-include(FetchContent)
 include(pybind11)
-
-FetchContent_Declare(
-  or-tools
-  GIT_REPOSITORY https://github.com/google/or-tools.git
-  GIT_TAG        stable
-)
-
-FetchContent_MakeAvailable(or-tools)
 
 set(OPTIMIZATION_LIBRARY optimization-engine)
 add_library(
   ${OPTIMIZATION_LIBRARY}
-  src/optimization-engine/utils.cpp
-  src/optimization-engine/optimize.cpp
+  src/optimization_engine/optimize.cpp
 )
 
 target_include_directories(
@@ -49,14 +40,14 @@ target_link_libraries(
   PUBLIC Python::Python
 )
 
-set(OE-PYTHON-MODULE optimization_engine)
+set(OE-PYTHON-MODULE optimize_bind)
 pybind11_add_module(
   ${OE-PYTHON-MODULE} MODULE
-  src/optimization-engine/optimize.cpp
+  src/optimization_engine/optimize_bind.cpp
 )
 
 target_link_libraries(${OE-PYTHON-MODULE} PRIVATE ${OPTIMIZATION_LIBRARY})
 
-install(TARGETS ${OE-PYTHON-MODULE} DESTINATION src/optimization-engine)
+install(TARGETS ${OE-PYTHON-MODULE} DESTINATION src/optimization_engine)
 
 add_subdirectory(tests)

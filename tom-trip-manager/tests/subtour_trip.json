@@ -1,0 +1,179 @@
+{
+  "trip": {
+    "_id": "0",
+    "start_date": "01/01/2024",
+    "end_date": "01/21/2024",
+    "start_location_id": "0",
+    "end_location_id": "0",
+    "trip_owner_id": "0"
+  },
+  "locations": [
+    {
+      "_id": "0",
+      "name": "Los Angeles, CA",
+      "address": null,
+      "lat": 34.052235,
+      "lon": -118.243683
+    },
+    {
+      "_id": "1",
+      "name": "Santa Barbara, CA",
+      "address": null,
+      "lat": 34.42083,
+      "lon": -119.698189
+    },
+    {
+      "_id": "2",
+      "name": "Palm Springs, CA",
+      "address": null,
+      "lat": 33.7721794,
+      "lon": -116.4952977
+    },
+    {
+      "_id": "3",
+      "name": "New York, NY",
+      "address": null,
+      "lat": 40.7127281,
+      "lon": -74.0060152
+    },
+    {
+      "_id": "4",
+      "name": "Seattle, WA",
+      "address": null,
+      "lat": 47.6038321,
+      "lon": -122.3300624
+    },
+    {
+      "_id": "5",
+      "name": "Forks, WA",
+      "address": null,
+      "lat": 47.950874,
+      "lon": -124.385966
+    },
+    {
+      "_id": "6",
+      "name": "Tacoma, WA",
+      "address": null,
+      "lat": 47.2528768,
+      "lon": -122.4442906
+    },
+    {
+      "_id": "7",
+      "name": "Boston, MA",
+      "address": null,
+      "lat": 42.3602534,
+      "lon": -71.0582912
+    },
+    {
+      "_id": "8",
+      "name": "Philadelphia, PA",
+      "address": null,
+      "lat": 39.9524152,
+      "lon": -75.1635755
+    }
+  ],
+  "travelers": [
+    {
+      "_id": "0",
+      "username": "user0",
+      "email": "user0@nil.com",
+      "location_ratings": [
+        10,
+        10,
+        10,
+        10,
+        10,
+        10,
+        10,
+        10,
+        10
+      ],
+      "desired_time_in_location": [
+        24,
+        24,
+        24,
+        24,
+        24,
+        24,
+        24,
+        24,
+        24
+      ],
+      "road_travel_threshold": 10,
+      "earliest_acceptable_start": 8,
+      "latest_acceptable_end": 22,
+      "allowed_start_flexibility": 2,
+      "allowed_end_flexibility": 1,
+      "active_stay_start": 8,
+      "active_stay_end": 23
+    },
+    {
+      "_id": "1",
+      "username": "user1",
+      "email": "user1@nil.com",
+      "location_ratings": [
+        10,
+        10,
+        10,
+        10,
+        10,
+        10,
+        10,
+        10,
+        10
+      ],
+      "desired_time_in_location": [
+        24,
+        24,
+        24,
+        24,
+        24,
+        24,
+        24,
+        24,
+        24
+      ],
+      "road_travel_threshold": 10,
+      "earliest_acceptable_start": 8,
+      "latest_acceptable_end": 20,
+      "allowed_start_flexibility": 2,
+      "allowed_end_flexibility": 1,
+      "active_stay_start": 8,
+      "active_stay_end": 22
+    },
+    {
+      "_id": "2",
+      "username": "user2",
+      "email": "user2@nil.com",
+      "location_ratings": [
+        10,
+        10,
+        10,
+        10,
+        10,
+        10,
+        10,
+        10,
+        10
+      ],
+      "desired_time_in_location": [
+        24,
+        24,
+        24,
+        24,
+        24,
+        24,
+        24,
+        24,
+        24
+      ],
+      "road_travel_threshold": 10,
+      "earliest_acceptable_start": 8,
+      "latest_acceptable_end": 21,
+      "allowed_start_flexibility": 2,
+      "allowed_end_flexibility": 1,
+      "active_stay_start": 8,
+      "active_stay_end": 22
+    }
+  ]
+}

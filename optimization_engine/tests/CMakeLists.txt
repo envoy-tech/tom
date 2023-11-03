@@ -2,7 +2,6 @@ set(TEST_OPTIMIZATION test_optimization)
 
 add_executable(
   ${TEST_OPTIMIZATION}
-  test_utils.cpp
   test_optimize.cpp
 )
 
@@ -26,13 +25,7 @@ CONFIGURE_FILE(
   ${CMAKE_CURRENT_BINARY_DIR} COPYONLY
 )
 
-FetchContent_Declare(
-  Catch2
-  GIT_REPOSITORY https://github.com/catchorg/Catch2.git
-  GIT_TAG v3.0.1
-)
-
-FetchContent_MakeAvailable(Catch2)
+find_package(Catch2 REQUIRED)
 
 target_link_libraries(
   ${TEST_OPTIMIZATION}

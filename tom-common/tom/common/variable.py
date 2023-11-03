@@ -1,5 +1,7 @@
 from abc import ABC, abstractmethod
 
+import numpy as np
+
 from tom.common.registry import Registry
 
 
@@ -8,11 +10,16 @@ class Variable(ABC):
     def __init__(self, num_travelers: int, num_locations: int):
         self.num_travelers = num_travelers
         self.num_locations = num_locations
+        self.data = None
 
     @property
     @abstractmethod
     def shape(self) -> tuple[int, ...]:
         pass
+
+    @property
+    def values(self) -> np.ndarray:
+        return np.array(self.data).reshape(self.shape)
 
 
 VARIABLE_REGISTRY = Registry(Variable)

@@ -1,7 +1,6 @@
 from __future__ import annotations
 import datetime as dt
 from typing import Optional, Union
-import json
 
 import numpy as np
 
