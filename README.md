@@ -64,12 +64,21 @@ $ aws s3 ls
 
 Upon successful execution, you should see a list of `adventurus` S3 buckets.
 
+### Logging into AWS SSO
+
+After successfully running the `./bin/setup-aws.sh` command, you can log into the `dev` profile in subsequent sessions
+by running the following command:
+
+```bash
+$ aws sso login
+```
+
 ## Python Environment Setup
 
 TOM is written in Python 3.10.5. To set up the Python environment, run the following commands:
 
 ```bash
-$ ./bin/setup.sh
+$ ./bin/setup-python.sh
 ```
 
 This will install Pyenv, a Python virtual environment manager, and create a virtual environment
