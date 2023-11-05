@@ -21,9 +21,11 @@ PYBIND11_MODULE(optimize_bind, m) {
     .value("MODEL_INVALID", MPSolver::ResultStatus::MODEL_INVALID)
     .value("NOT_SOLVED", MPSolver::ResultStatus::NOT_SOLVED);
   py::class_<MPVariable>(m, "MPVariable")
+    .def("index", &MPVariable::index)
     .def("solution_value", &MPVariable::solution_value);
   py::class_<MPSolver>(m, "MPSolver")
     .def("variables", &MPSolver::variables, py::return_value_policy::reference_internal)
-    .def("NextSolution", &MPSolver::NextSolution);
+    .def("NextSolution", &MPSolver::NextSolution)
+    .def("LookupVariableOrNull", &MPSolver::LookupVariableOrNull, py::return_value_policy::reference_internal);
   m.def("OptimizeMPSData", &OptimizeMPSData, "Optimize data from an MPS file");
 }

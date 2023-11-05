@@ -1,26 +1,21 @@
 from typing import Optional
 
 import boto3
-import botocore
 
 
-class ServiceNames:
-    S3 = "s3"
-    STS = "sts"
+S3_Resource = type(boto3.resource("s3"))
+S3_Object = type(boto3.resource("s3").Object)
 
 
 def connect_to_s3(
         region: str
-):
+) -> S3_Resource:
     """ Generic access to S3 bucket
 
     :param region: Region S3 resources are located
     :return: S3 resource session instance
     """
-    s3 = boto3.resource(
-        service_name=ServiceNames.S3,
-        region_name=region
-    )
+    s3 = boto3.resource("s3", region_name=region)
     return s3
 
 
@@ -31,7 +26,7 @@ def upload_to_s3(
         object_key: str,
         *,
         object_metadata: Optional[dict] = None
-):
+) -> S3_Object:
     """ Save file to generic S3 bucket. File name in S3 bucket will mirror name
         of local file.
 
@@ -43,18 +38,6 @@ def upload_to_s3(
     """
     _object_bytes = bytes(object_string, "utf-8")
     return s3.Bucket(bucket_name).put_object(Body=_object_bytes, Key=object_key, Metadata=object_metadata)
-
-
-def verify_file_in_s3(
-        s3,
-        filename: str,
-        bucket_name: str,
-):
-    try:
-        s3.Object(bucket_name, filename).load()
-        return True
-    except botocore.exceptions.ClientError:
-        return False
 
 
 def delete_file_in_s3(

@@ -3,7 +3,7 @@
 WHEEL_DIR = wheels
 
 COMMON = tom-common
-OPTIMIZATION_ENGINE = optimization-engine
+OPTIMIZATION_ENGINE = optimization_engine
 TRIP_MANAGER = tom-trip-manager
 
 clean:
@@ -12,7 +12,7 @@ clean:
 	$(MAKE) -C $(OPTIMIZATION_ENGINE) clean
 	$(MAKE) -C $(TRIP_MANAGER) clean
 
-install:
+install: wheels
 	$(MAKE) -C $(COMMON) install
 	$(MAKE) -C $(OPTIMIZATION_ENGINE) install
 	$(MAKE) -C $(TRIP_MANAGER) install
@@ -22,7 +22,7 @@ uninstall:
 	$(MAKE) -C $(OPTIMIZATION_ENGINE) uninstall
 	$(MAKE) -C $(TRIP_MANAGER) uninstall
 
-wheels: clean install
+wheels: clean
 	mkdir $(WHEEL_DIR)
 	$(MAKE) -C $(COMMON) wheel
 	$(MAKE) -C $(OPTIMIZATION_ENGINE) wheel

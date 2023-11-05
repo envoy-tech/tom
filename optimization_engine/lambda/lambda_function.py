@@ -1,8 +1,9 @@
 import json
 
-from tom.common import S3Params, VARIABLE_REGISTRY
+from tom.common import S3Params
 from tom.common.cloud_access.aws import s3, sns
 from optimization_engine import *
+from optimization_engine.itinerary import create_itinerary
 
 
 class VarName:
@@ -20,30 +21,29 @@ def handler(event, context):
         Key=object_key
     )
 
-    obj_body = obj_response["Body"].read().decode("utf-8")
-    obj_metadata = json.loads(obj_response["Metadata"])
+    trip_mps_body = obj_response["Body"].read().decode("utf-8")
+    trip_metadata = json.loads(obj_response["Metadata"]["metadata"])
 
     # Optimize MPS file data
-    solver = OptimizeMPSData(obj_body)
+    solver = OptimizeMPSData(trip_mps_body)
 
-    num_locations = obj_metadata["num_locations"]
-    num_travelers = obj_metadata["num_travelers"]
+    num_locations = trip_metadata["num_locations"]
+    num_travelers = trip_metadata["num_travelers"]
 
-    start_location_id = obj_metadata["start_location_id"]
-    end_location_id = obj_metadata["end_location_id"]
+    start_location_id = trip_metadata["start_location_id"]
+    start_date = trip_metadata["start_date"]
 
-    var_idxs = obj_metadata["var_idxs"]
-
-    VARS = {}
-    for var_name in VARIABLE_REGISTRY:
-        setattr(VarName, var_name, var_name)
-        var = VARIABLE_REGISTRY[var_name](num_travelers, num_locations)
-        begin_idx, end_idx = var_idxs[var_name]
-        var.data = [mpvar.solution_value() for mpvar in solver.variables()[begin_idx:end_idx+1]]
-        VARS[var_name] = var
-
-    
-
-
+    itineraries = []
+    next_solution = True
+    while next_solution:
+        itinerary = create_itinerary(
+            solver,
+            num_locations,
+            num_travelers,
+            start_location_id,
+            start_date,
+        )
+        itineraries.append(itinerary)
+        next_solution = solver.NextSolution()
 
     return

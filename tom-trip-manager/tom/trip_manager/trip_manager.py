@@ -208,13 +208,9 @@ class TripManager:
         TIME = solver.NumArray(VARS[VarName.TIME].shape, name=VarName.TIME, ub=self.num_hours)
         STAY = solver.NumArray(VARS[VarName.STAY].shape, name=VarName.STAY, ub=self.num_hours)
 
-        # TODO: Come back and find better way to handle logging these variable indices
         DURATION = solver.NumVar(lb=0, ub=self.num_hours, name="DURATION")
-        solver.var_indices["DURATION"] = (DURATION.index())
         NUM_STOPS = solver.IntVar(lb=0, ub=self.num_locations, name="NUM_STOPS")
-        solver.var_indices["NUM_STOPS"] = (NUM_STOPS.index())
         NUM_TRANSITS = solver.IntVar(lb=0, ub=self.num_locations, name="NUM_TRANSITS")
-        solver.var_indices["NUM_TRANSITS"] = (NUM_TRANSITS.index())
 
         ##### OPTIONAL GOAL VARIABLES #####
 
@@ -559,16 +555,13 @@ class TripManager:
     @property
     def metadata(self):
 
-        json_metadata = {
-            "trip_id": str(self.id),
+        metadata = {
+            "trip_id": self.id,
             "start_date": str(self.start_date),
             "end_date": str(self.end_date),
-            "start_location_id": str(self.start_location_index),
-            "end_location_id": str(self.end_location_index),
-            "num_locations": str(self.num_locations),
-            "location_ids": str([location.id for location in self.locations]),
-            "num_travelers": str(self.num_travelers),
-            "var_idxs": str(self.solver.var_indices)
+            "start_location_id": self.start_location_index,
+            "num_locations": self.num_locations,
+            "num_travelers": self.num_travelers
         }
 
-        return json_metadata
+        return metadata

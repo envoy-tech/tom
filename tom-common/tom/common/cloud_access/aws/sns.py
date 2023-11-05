@@ -12,10 +12,6 @@ _ = load_dotenv()
 AWS_SNS_ARN = os.getenv(Env.AWS_SNS_ARN)
 
 
-class ServiceNames:
-    SNS = "sns"
-
-
 class TopicNames:
     optimization_status = "optimization-status"
 
@@ -32,7 +28,7 @@ class TripStatus(Enum):
 
 
 def get_sns_client():
-    return boto3.client(ServiceNames.SNS)
+    return boto3.client("sns")
 
 
 def publish_to_sns(

@@ -33,13 +33,17 @@ def handler(event, context):
         mps_string = trip.generate_mps_string(trip_params)
         mps_object_key = "{}.mps".format(trip.id)
 
+        metadata = {
+            "metadata": json.dumps(trip.metadata)
+        }
+
         s3_conn = s3.connect_to_s3(S3Params.REGION)
-        response = s3.upload_to_s3(
+        s3_obj = s3.upload_to_s3(
             s3_conn,
             S3Params.BUCKET_NAME,
             mps_string,
             mps_object_key,
-            object_metadata=trip.metadata
+            object_metadata=metadata
         )
         msg = json.dumps({
             "status": sns.TripStatus.TRIP_MANAGER_SUCCESS.value,
@@ -68,4 +72,10 @@ def handler(event, context):
 
         raise e
 
-    return {"status": response.archive_status}
+    success_msg = {
+        "object_key": s3_obj.key,
+        "bucket_name": s3_obj.bucket_name,
+        "creation_date": s3_obj.last_modified.isoformat()
+    }
+
+    return success_msg
