@@ -1,3 +1,4 @@
+ansible
 boto3
 boto3-stubs
 googlemaps

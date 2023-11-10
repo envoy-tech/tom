@@ -13,12 +13,18 @@ def test_create_itinerary(sample_trip_mps, sample_trip_metadata):
     start_location_id = metadata["start_location_id"]
     start_date = metadata["start_date"]
 
-    itinerary = create_itinerary(
-        solver,
-        num_locations,
-        num_travelers,
-        start_location_id,
-        start_date
-    )
+    itineraries = []
+    next_solution = True
+    while next_solution:
+        itineraries.append(
+            create_itinerary(
+                solver,
+                num_locations,
+                num_travelers,
+                start_location_id,
+                start_date
+            )
+        )
+        next_solution = solver.NextSolution()
 
-    assert itinerary
+    assert itineraries

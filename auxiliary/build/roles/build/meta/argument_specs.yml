@@ -1,0 +1,9 @@
+---
+argument_specs:
+  main:
+    short_description: Primary build entry point.
+    options:
+      manylinux_version:
+        type: "str"
+        required: true
+        description: "The Manylinux version to be used for the base container image, e.g. '2014'."

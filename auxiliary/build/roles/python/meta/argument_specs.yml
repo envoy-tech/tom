@@ -1,0 +1,13 @@
+---
+argument_specs:
+  main:
+    short_description: Primary entry point for Python role.
+    options:
+      python_version:
+        type: "str"
+        required: true
+        description: "The Python version to be used for running this playbook, e.g. '3.10.5'."
+      python_short_string:
+        type: "str"
+        required: true
+        description: "The Python short string used to tag container images, e.g. 'py310'."

@@ -1,0 +1,8 @@
+---
+- name: Verify all build requirements
+  hosts: localhost
+  roles:
+    - ansible
+    - build
+    - python
+

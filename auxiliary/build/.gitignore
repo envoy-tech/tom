@@ -1,0 +1,9 @@
+# Terraform
+.terraform/
+.terraform.lock.hcl
+inventory
+terraform.tfstate*
+.terraform.tfstate.lock.info
+
+# Ansible Roles
+!roles/build
