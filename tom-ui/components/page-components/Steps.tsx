@@ -1,5 +1,3 @@
-"use client";
-
 type StepProps = {
   currentStep: number;
   numberOfSteps: number;

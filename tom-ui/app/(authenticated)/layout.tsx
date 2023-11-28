@@ -7,9 +7,9 @@ export default function AuthenticatedLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="min-h-full flex flex-col justify-between">
+    <div className="min-h-screen flex flex-col">
       <Header />
-      {children}
+      <div className="h-full w-full flex flex-1">{children}</div>
       <Footer mode="dark" />
     </div>
   );

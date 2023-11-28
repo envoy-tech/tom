@@ -12,7 +12,7 @@ type Traveler = {
   email: string;
 };
 
-export default function DetailsPageStepOne() {
+export default function TravelersPage() {
   const formRef = useRef(null);
   const [travelers, setTravelers] = useState<Traveler[]>([]);
 
@@ -46,14 +46,14 @@ export default function DetailsPageStepOne() {
 
   return (
     <>
-      <div className="flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8 relative">
-        <div className="w-100 mb-20 flex items-center justify-center">
+      <div className="flex min-h-full w-full flex-1 flex-col justify-center items-center px-6 py-12 lg:px-8 relative">
+        <div className="w-2/5 mb-20 flex items-center justify-center mt-36">
           <MainNavigationSteps currentStep={2} />
         </div>
         <div className="sm:mx-auto sm:w-full sm:max-w-sm flex flex-col items-center justify-center">
           <img
             className="mx-auto h-10 w-auto"
-            src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=600"
+            src="/advus-banner-light.svg"
             alt="Your Company"
           />
           <h2 className="mt-6 text-center text-2xl font-semibold leading-9 tracking-tight text-gray-900">

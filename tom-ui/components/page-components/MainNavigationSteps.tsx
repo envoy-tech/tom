@@ -20,13 +20,16 @@ export default function MainNavigationSteps(props: MainNavigationStepProps) {
   const { currentStep } = props;
 
   return (
-    <nav aria-label="Progress">
-      <ol role="list" className="flex items-center">
+    <nav
+      aria-label="Progress"
+      className="w-full flex items-center justify-center"
+    >
+      <ol role="list" className="flex items-center w-full justify-center">
         {steps.map((step, stepIdx) => (
           <li
             key={step.name}
             className={classNames(
-              stepIdx !== steps.length - 1 ? "pr-8 sm:pr-20" : "",
+              stepIdx !== steps.length - 1 ? "pr-8 sm:pr-20 w-full" : "",
               "relative"
             )}
           >
@@ -36,16 +39,19 @@ export default function MainNavigationSteps(props: MainNavigationStepProps) {
                   className="absolute inset-0 flex items-center"
                   aria-hidden="true"
                 >
-                  <div className="h-0.5 w-full bg-indigo-600" />
+                  <div className="h-0.5 w-full bg-advus-lightblue-500" />
                 </div>
                 <a
                   href="#"
-                  className="relative flex flex-col h-8 w-8 items-center justify-start rounded-full bg-indigo-600 hover:bg-indigo-900"
+                  className="relative flex flex-col h-8 w-8 items-center justify-start rounded-full bg-advus-lightblue-500"
                 >
-                  <span className="text-white mt-1 text-sm" aria-hidden="true">
+                  <span
+                    className="text-white mt-1.5 text-sm text-center"
+                    aria-hidden="true"
+                  >
                     {stepIdx + 1}
                   </span>
-                  <span className="mt-2 text-center text-xs">{step.name}</span>
+                  <span className="mt-3 text-center text-xs">{step.name}</span>
                 </a>
               </>
             ) : currentStep === stepIdx + 1 ? (
@@ -58,13 +64,18 @@ export default function MainNavigationSteps(props: MainNavigationStepProps) {
                 </div>
                 <a
                   href="#"
-                  className="relative flex flex-col h-8 w-8 items-center justify-start rounded-full border-2 bg-indigo-600 border-indigo-600"
+                  className="relative flex flex-col h-8 w-8 items-center justify-start rounded-full border-2 bg-white border-advus-lightblue-500"
                   aria-current="step"
                 >
-                  <span className="text-white mt-1 text-sm" aria-hidden="true">
+                  <span
+                    className="text-advus-lightblue-500 mt-1 text-sm"
+                    aria-hidden="true"
+                  >
                     {stepIdx + 1}
                   </span>
-                  <span className="mt-2 text-center text-xs">{step.name}</span>
+                  <span className="mt-3 text-center text-xs text-advus-lightblue-500">
+                    {step.name}
+                  </span>
                 </a>
               </>
             ) : (
@@ -77,12 +88,15 @@ export default function MainNavigationSteps(props: MainNavigationStepProps) {
                 </div>
                 <a
                   href="#"
-                  className="group relative flex h-8 w-8 items-center justify-start rounded-full border-2 border-gray-300 bg-white hover:border-gray-400 flex-col"
+                  className="group relative flex h-8 w-8 items-center justify-start rounded-full bg-gray-300 flex-col"
                 >
-                  <span className="mt-1 text-sm" aria-hidden="true">
+                  <span
+                    className="mt-1.5 text-sm text-gray-800"
+                    aria-hidden="true"
+                  >
                     {stepIdx + 1}
                   </span>
-                  <span className="mt-2 text-center text-xs">{step.name}</span>
+                  <span className="mt-3 text-center text-xs">{step.name}</span>
                 </a>
               </>
             )}
