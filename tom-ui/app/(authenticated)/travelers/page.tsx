@@ -12,7 +12,7 @@ type Traveler = {
   email: string;
 };
 
-export default function DetailsPageStepOne() {
+export default function TravelersPage() {
   const formRef = useRef(null);
   const [travelers, setTravelers] = useState<Traveler[]>([]);
 

@@ -1,18 +1,15 @@
 "use client";
 import { useMemo, useState } from "react";
 import { useLoadScript, GoogleMap } from "@react-google-maps/api";
-import {
-  MagnifyingGlassIcon,
-  MapIcon,
-  ListBulletIcon,
-} from "@heroicons/react/20/solid";
+import { MagnifyingGlassIcon, ListBulletIcon } from "@heroicons/react/20/solid";
+import { MapIcon } from "@heroicons/react/24/outline";
 import Btn from "@/components/ui-components/Btn";
 import LocationBox from "@/components/ui-components/LocationBox";
 import MainNavigationSteps from "@/components/page-components/MainNavigationSteps";
 import LocationListViewBox from "@/components/ui-components/LocationListViewBox";
 import { DUMMY_LOCATION_DATA } from "@/utils/dummy-data";
 
-export default function ItineraryPage() {
+export default function ItineraryPageStepOne() {
   const libraries = useMemo(() => ["places"], []);
   const mapCenter = useMemo(
     () => ({ lat: 27.672932021393862, lng: 85.31184012689732 }),
@@ -73,7 +70,7 @@ export default function ItineraryPage() {
                 {DUMMY_LOCATION_DATA.map((locationData, index) => (
                   <div className="space-y-3" key={`location-${index}`}>
                     <LocationBox
-                      locationName={locationData.location}
+                      locationName={locationData.name}
                       locationAddress={locationData.address}
                     />
                     {index !== DUMMY_LOCATION_DATA.length - 1 && (
@@ -151,7 +148,7 @@ export default function ItineraryPage() {
                     key={`location-list-${index}`}
                   >
                     <LocationListViewBox
-                      locationName={locationData.location}
+                      locationName={locationData.name}
                       locationAddress={locationData.address}
                       index={index + 1}
                     />

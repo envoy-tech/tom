@@ -1,17 +1,14 @@
 "use client";
 import { useMemo, useState } from "react";
 import { useLoadScript, GoogleMap } from "@react-google-maps/api";
-import {
-  MagnifyingGlassIcon,
-  MapIcon,
-  ListBulletIcon,
-} from "@heroicons/react/20/solid";
 import Btn from "@/components/ui-components/Btn";
 import LocationNoteBox from "@/components/ui-components/LocationNoteBox";
 import MainNavigationSteps from "@/components/page-components/MainNavigationSteps";
 import { DUMMY_LOCATION_DATA } from "@/utils/dummy-data";
+import { useAppSelector, useAppDispatch } from "@/hooks/redux";
+import { addLocation } from "@/redux/slices/tripSlice";
 
-export default function ItineraryPage() {
+export default function ItineraryPageStepTwo() {
   const libraries = useMemo(() => ["places"], []);
   const mapCenter = useMemo(
     () => ({ lat: 27.672932021393862, lng: 85.31184012689732 }),
@@ -25,6 +22,12 @@ export default function ItineraryPage() {
     }),
     []
   );
+  const locations = useAppSelector((state) => state.trip.locations);
+  const dispatch = useAppDispatch();
+
+  if (locations.length === 0) {
+    DUMMY_LOCATION_DATA.map((location) => dispatch(addLocation(location)));
+  }
 
   const { isLoaded } = useLoadScript({
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API as string,
@@ -52,7 +55,7 @@ export default function ItineraryPage() {
                 {DUMMY_LOCATION_DATA.map((locationData, index) => (
                   <div className="space-y-3" key={`location-${index}`}>
                     <LocationNoteBox
-                      locationName={locationData.location}
+                      locationName={locationData.name}
                       locationAddress={locationData.address}
                     />
                     {index !== DUMMY_LOCATION_DATA.length - 1 && (

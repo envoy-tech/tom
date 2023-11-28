@@ -7,10 +7,11 @@ type LinkProps = {
   href: string;
   linkType: "primary" | "secondary" | "tertiary";
   onClick?: MouseEventHandler;
+  className?: string;
 };
 
 export default function Link(props: PropsWithChildren<LinkProps>) {
-  const { href, linkType, children, onClick } = props;
+  const { href, linkType, children, className, onClick } = props;
 
   let typeStyling;
 
@@ -35,7 +36,7 @@ export default function Link(props: PropsWithChildren<LinkProps>) {
   return (
     <NextLink
       href={href}
-      className={typeStyling}
+      className={`${typeStyling} ${className}`}
       onClick={onClick ? onClick : undefined}
     >
       {children}

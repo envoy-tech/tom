@@ -7,7 +7,7 @@ import { Form, Formik } from "formik";
 import { useRef } from "react";
 import * as Yup from "yup";
 
-export default function DetailsPageStepOne() {
+export default function DetailsPageStepTwo() {
   const formRef = useRef(null);
 
   const handleSubmitForm = (

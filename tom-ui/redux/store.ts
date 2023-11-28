@@ -1,6 +1,7 @@
 import { combineReducers, configureStore } from "@reduxjs/toolkit";
 import userReducer from "./slices/userSlice";
 import toastReducer from "./slices/toastSlice";
+import tripReducer from "./slices/tripSlice";
 import createWebStorage from "redux-persist/lib/storage/createWebStorage";
 import { persistReducer } from "redux-persist";
 
@@ -30,6 +31,7 @@ const persistConfig = {
 const rootReducer = combineReducers({
   user: persistReducer(persistConfig, userReducer),
   toast: persistReducer(persistConfig, toastReducer),
+  trip: tripReducer,
 });
 
 // Import your reducers

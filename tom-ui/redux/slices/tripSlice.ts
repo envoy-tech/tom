@@ -17,9 +17,18 @@ const tripSlice = createSlice({
     addLocation(state, action: PayloadAction<Location>) {
       state.locations.push(action.payload);
     },
-    editLocationNote(state, action: PayloadAction<string>) {},
+    setLocationNote(
+      state,
+      action: PayloadAction<{ address: string; notes: string }>
+    ) {
+      const locationIndex = state.locations.findIndex(
+        (location) => location.address === action.payload.address
+      );
+
+      state.locations[locationIndex].notes = action.payload.notes;
+    },
   },
 });
 
-export const { addLocation } = tripSlice.actions;
+export const { addLocation, setLocationNote } = tripSlice.actions;
 export default tripSlice.reducer;
