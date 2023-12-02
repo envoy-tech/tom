@@ -1,6 +1,6 @@
 "use client";
 import Steps from "@/components/page-components/Steps";
-import { useState, useRef, SyntheticEvent } from "react";
+import { useState, useRef, SyntheticEvent, useMemo } from "react";
 import { useAppSelector } from "@/hooks/redux";
 import { useRouter } from "next/navigation";
 import Spinner from "@/components/ui-components/Spinner";
@@ -16,8 +16,11 @@ export default function RegisterStep1() {
   const { push } = useRouter();
   const formRef = useRef(null);
 
-  const handleConfirmation = async (e: SyntheticEvent) => {
-    e.preventDefault();
+  const handleConfirmation = async (e: SyntheticEvent | null) => {
+    if (e) {
+      e.preventDefault();
+    }
+
     setSubmitting(true);
     setError("");
     setVerificationMessage("");
@@ -54,6 +57,12 @@ export default function RegisterStep1() {
       setError("An unexpected error has occurred.");
     }
   };
+
+  useMemo(() => {
+    if (value.length === 6) {
+      handleConfirmation(null);
+    }
+  }, [value]);
 
   return (
     <>

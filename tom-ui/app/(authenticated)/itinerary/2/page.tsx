@@ -35,12 +35,12 @@ export default function ItineraryPageStepTwo() {
   });
 
   return (
-    <div className="flex flex-col items-center justify-center w-full h-full">
-      <div className="w-2/5 mb-20 flex items-center justify-center mt-36">
+    <div className="flex flex-col items-center justify-center w-full h-full px-6 py-12">
+      <div className="w-2/5 mb-20 flex items-center justify-center mt-6">
         <MainNavigationSteps currentStep={3} />
       </div>
-      <div className="w-full h-full flex flex-row justify-center items-center mt-6">
-        <div className="w-1/2 h-full flex flex-col justify-start items-start pl-40 pr-40">
+      <div className="w-full h-full flex flex-row justify-center items-center mt-6 space-x-10">
+        <div className="w-full h-full flex flex-col justify-start items-start">
           <p className="text-xs">STEP 2 OF 2</p>
           <h1 className="text-left font-semibold text-3xl mt-2">
             Add notes to the locations you've added
@@ -75,7 +75,7 @@ export default function ItineraryPageStepTwo() {
             </div>
           </div>
         </div>
-        <div className="h-full w-1/2 flex items-start justify-start pr-40 flex-col">
+        <div className="h-full w-full flex items-start justify-start flex-col">
           <div className="w-full h-full">
             {isLoaded ? (
               <GoogleMap
@@ -84,8 +84,7 @@ export default function ItineraryPageStepTwo() {
                 center={mapCenter}
                 mapTypeId={window.google.maps.MapTypeId.ROADMAP}
                 mapContainerStyle={{
-                  minWidth: "550px",
-                  minHeight: "750px",
+                  minHeight: "650px",
                   width: "100%",
                   height: "100%",
                 }}

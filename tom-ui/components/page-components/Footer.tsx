@@ -13,7 +13,7 @@ export default function Footer(props: FooterProps) {
       }`}
     >
       <Link
-        className={`ml-20 text-sm ${
+        className={`ml-20 lg:ml-10 text-sm ${
           mode === "light" ? "text-advus-lightblue-500" : "text-white"
         } font-semibold`}
         href="#"
@@ -30,7 +30,7 @@ export default function Footer(props: FooterProps) {
           AdventurUs Travel, a product of Envoy Technology, Inc.
         </Link>
         <Link
-          className={`ml-10 mr-20 text-sm ${
+          className={`ml-10 mr-20 lg:mr-10 text-sm ${
             mode === "light" ? "text-black" : "text-white"
           }`}
           href="#"

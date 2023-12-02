@@ -3,7 +3,6 @@ import type { Metadata } from "next";
 import AuthProvider from "@/components/AuthProvider";
 import ReduxProvider from "@/components/ReduxProvider";
 import Toast from "@/components/ui-components/Toast";
-import Footer from "@/components/page-components/Footer";
 import { Poppins } from "next/font/google";
 
 const poppins = Poppins({

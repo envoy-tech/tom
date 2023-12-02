@@ -8,7 +8,7 @@ export default function Steps(props: StepProps) {
 
   return (
     <nav className="flex items-center justify-center" aria-label="Progress">
-      <ol role="list" className="ml-8 flex items-center space-x-5">
+      <ol role="list" className="flex items-center space-x-5">
         {[...Array(numberOfSteps)].map((step, index) => (
           <li key={`step-${index}`}>
             {currentStep > index + 1 ? (

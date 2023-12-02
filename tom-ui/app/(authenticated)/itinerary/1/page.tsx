@@ -31,12 +31,12 @@ export default function ItineraryPageStepOne() {
   });
 
   return (
-    <div className="flex flex-col items-center justify-center w-full h-full">
-      <div className="w-2/5 mb-20 flex items-center justify-center mt-36">
+    <div className="flex flex-col items-center justify-center w-full h-full px-6 py-12 lg:px-8">
+      <div className="w-2/5 mb-20 flex items-center justify-center mt-6">
         <MainNavigationSteps currentStep={3} />
       </div>
-      <div className="w-full h-full flex flex-row justify-center items-center mt-6">
-        <div className="w-1/2 h-full flex flex-col justify-start items-start pl-40 pr-40">
+      <div className="w-full h-full flex flex-row justify-center items-center mt-6 space-x-10">
+        <div className="h-full flex flex-col justify-start items-start">
           <p className="text-xs">STEP 1 OF 2</p>
           <h1 className="text-left font-semibold text-3xl mt-2">
             Add the places you want to visit
@@ -80,7 +80,7 @@ export default function ItineraryPageStepOne() {
                 ))}
               </div>
             </div>
-            <div className="w-full flex flex-row justify-between mt-16">
+            <div className="w-full flex flex-row justify-between mt-3">
               <Btn buttonType="secondary" type="submit" href="/travelers">
                 Back
               </Btn>
@@ -90,7 +90,7 @@ export default function ItineraryPageStepOne() {
             </div>
           </div>
         </div>
-        <div className="h-full w-1/2 flex items-start justify-start pr-40 flex-col">
+        <div className="h-full w-full flex items-start justify-start flex-col">
           <div className="w-full flex flex-row justify-start space-x-3 mb-3 text-xl font-semibold">
             <div
               className={`flex flex-col justify-center items-center hover:cursor-pointer select-none ${
@@ -98,7 +98,7 @@ export default function ItineraryPageStepOne() {
               }`}
               onClick={(e) => setShowMapView(true)}
             >
-              <div className="flex flex-row justify-center items-center">
+              <div className="flex flex-row justify-center items-center md:text-sm">
                 <MapIcon className="h-5 w-5 mr-1" />
                 Map View
               </div>
@@ -113,7 +113,7 @@ export default function ItineraryPageStepOne() {
               }`}
               onClick={(e) => setShowMapView(false)}
             >
-              <div className="flex flex-row justify-center items-center">
+              <div className="flex flex-row justify-center items-center md:text-sm">
                 <ListBulletIcon className="h-5 w-5 mr-1" /> List View
               </div>
 
@@ -131,8 +131,7 @@ export default function ItineraryPageStepOne() {
                   center={mapCenter}
                   mapTypeId={window.google.maps.MapTypeId.ROADMAP}
                   mapContainerStyle={{
-                    minWidth: "550px",
-                    minHeight: "750px",
+                    minHeight: "650px",
                     width: "100%",
                     height: "100%",
                   }}

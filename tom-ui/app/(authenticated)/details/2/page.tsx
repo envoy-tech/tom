@@ -36,7 +36,7 @@ export default function DetailsPageStepTwo() {
   return (
     <>
       <div className="flex min-h-full w-full flex-1 flex-col justify-center items-center px-6 py-12 lg:px-8 relative">
-        <div className="w-2/5 mb-20 flex items-center justify-center mt-36">
+        <div className="w-2/5 mb-20 flex items-center justify-center mt-6">
           <MainNavigationSteps currentStep={1} />
         </div>
         <div className="sm:mx-auto sm:w-full sm:max-w-sm flex flex-col items-center justify-center">

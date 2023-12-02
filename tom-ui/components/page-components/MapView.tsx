@@ -53,7 +53,7 @@ export default function MapView(props: MapViewProps) {
       ) : (
         "Loading..."
       )}
-      <div className="z-10 absolute 2xl:top-36 lg:top-24 2xl:left-36 lg:left-24 border-2 border-advus-brown-500 px-2 py-1 rounded-md bg-white hover:shadow-xl transition-all hover:-translate-y-1 hover:cursor-pointer active:translate-y-0.5">
+      <div className="z-10 absolute top-20 left-8 lg:top-20 lg:left-8 2xl:top-36 2xl:left-36 border-2 border-advus-brown-500 px-2 py-1 rounded-md bg-white hover:shadow-xl transition-all hover:-translate-y-1 hover:cursor-pointer active:translate-y-0.5">
         <Link
           href="/itinerary/2"
           linkType="tertiary"
@@ -64,10 +64,10 @@ export default function MapView(props: MapViewProps) {
         </Link>
       </div>
 
-      <div className="h-max w-4/12 z-10 absolute 2xl:top-56 lg:top-36 2xl:left-36 lg:left-24">
+      <div className="h-max w-1/2 z-10 absolute top-32 left-8 lg:w-5/12 lg:top-32 lg:left-8 xl:w-4/12 2xl:top-56 2xl:left-36">
         <MapViewLocationPreferenceBox />
       </div>
-      <div className="z-10 absolute 2xl:top-36 lg:top-24 2xl:right-24 lg:right-12 shadow-xl flex flex-row text-advus-lightblue-500 border-advus-lightblue-500 border-2 rounded-md bg-white px-3 py-1.5 space-x-3">
+      <div className="z-10 absolute top-20 right-8 lg:top-20 lg:right-8 2xl:top-36 2xl:right-24 shadow-xl flex flex-row text-advus-lightblue-500 border-advus-lightblue-500 border-2 rounded-md bg-white px-3 py-1.5 space-x-3">
         <div className="flex flex-row items-center justify-center font-semibold text-xs space-x-2 hover:cursor-pointer hover:text-advus-navyblue-500">
           <MapIcon className="h-6 w-6" />
           <p>Map View</p>
@@ -81,15 +81,15 @@ export default function MapView(props: MapViewProps) {
         </div>
       </div>
 
-      <div className="z-10 absolute 2xl:bottom-36 lg:bottom-24 2xl:right-24 lg:right-12 space-y-2">
+      <div className="z-10 absolute bottom-24 right-8 lg:bottom-20 lg:right-8 2xl:bottom-36 2xl:right-24 space-y-2">
         <div
-          className="bg-white border-2 border-advus-lightblue-500 text-advus-lightblue-500 rounded-md"
+          className="bg-white border-2 border-advus-lightblue-500 text-advus-lightblue-500 rounded-md hover:shadow-xl transition-all hover:-translate-y-1 hover:cursor-pointer active:translate-y-0.5"
           onClick={() => setZoom(zoom + 1)}
         >
           <PlusIcon className="h-6 w-6" />
         </div>
         <div
-          className="bg-white border-2 border-advus-lightblue-500 text-advus-lightblue-500 rounded-md"
+          className="bg-white border-2 border-advus-lightblue-500 text-advus-lightblue-500 rounded-md hover:shadow-xl transition-all hover:-translate-y-1 hover:cursor-pointer active:translate-y-0.5"
           onClick={() => setZoom(zoom - 1)}
         >
           <MinusIcon className="h-6 w-6" />
