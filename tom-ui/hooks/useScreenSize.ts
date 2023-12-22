@@ -1,12 +1,17 @@
-import { useState, useEffect } from "react";
+import { useState, useLayoutEffect } from "react";
+
+type ElementSize = {
+  width: number | null;
+  height: number | null;
+};
 
 const useScreenSize = () => {
-  const [screenSize, setScreenSize] = useState({
-    width: window.innerWidth,
-    height: window.innerHeight,
+  const [screenSize, setScreenSize] = useState<ElementSize>({
+    width: null,
+    height: null,
   });
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const handleResize = () => {
       setScreenSize({
         width: window.innerWidth,
@@ -14,9 +19,9 @@ const useScreenSize = () => {
       });
     };
 
+    handleResize();
     window.addEventListener("resize", handleResize);
 
-    // Clean up the event listener when the component unmounts
     return () => {
       window.removeEventListener("resize", handleResize);
     };

@@ -1,5 +1,4 @@
 "use client";
-import Link from "next/link";
 import Spinner from "@/components/ui-components/Spinner";
 import FormField from "@/components/ui-components/FormField";
 import Btn from "@/components/ui-components/Btn";
@@ -7,33 +6,39 @@ import MainNavigationSteps from "@/components/page-components/MainNavigationStep
 import { Formik, Form, Field } from "formik";
 import * as Yup from "yup";
 import { useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 
 export default function DetailsPageStepOne() {
   const formRef = useRef(null);
+  const router = useRouter();
   const [isApproxDate, setIsApproxDate] = useState(false);
 
-  const handleSubmitForm = (
-    startdate: string,
-    enddate: string,
-    approxmiatedate: string,
-    setSubmitting: Function
-  ) => {};
+  const handleSubmitForm = async (
+    values: { startdate: string; enddate: string; approximateduration: number },
+    setSubmitting: Function,
+    validateForm: Function
+  ) => {
+    setSubmitting(true);
+    router.push("/details/2");
+    setSubmitting(false);
+  };
 
   const detailsSchema = Yup.object().shape({
     startdate: Yup.date()
-      .typeError("Start Date is required")
-      .required("Start Date is required"),
+      .typeError("Start Date is invalid.")
+      .required("Start Date is required."),
     enddate: Yup.date()
-      .typeError("End Date is required")
-      .required("End Date is required"),
-    // .when("startdate", (startdate) => {
-    //   if (startdate) {
-    //     return Yup.date()
-    //       .min(startdate, "End Date must be after Start Date")
-    //       .typeError("End Date is required");
-    //   }
-    // }),
-    approximatedate: Yup.string().required("This field is required."),
+      .typeError("End Date is invalid.")
+      .required("End Date is required.")
+      .when(
+        "startdate",
+        (startdate, schema) =>
+          startdate &&
+          startdate[0] &&
+          schema.min(startdate, "The end date is invalid.")
+      ),
+    approximate: Yup.boolean().notRequired(),
+    approximateduration: Yup.number().required("This field is required."),
   });
 
   return (
@@ -59,17 +64,11 @@ export default function DetailsPageStepOne() {
             initialValues={{
               startdate: "",
               enddate: "",
-              approximatedate: "",
-              approxmiateduration: "",
+              approximateduration: 0,
             }}
             validationSchema={detailsSchema}
-            onSubmit={(values, { setSubmitting }) =>
-              handleSubmitForm(
-                values.startdate,
-                values.enddate,
-                values.approximatedate,
-                setSubmitting
-              )
+            onSubmit={(values, { setSubmitting, validateForm }) =>
+              handleSubmitForm(values, setSubmitting, validateForm)
             }
           >
             {({
@@ -80,47 +79,42 @@ export default function DetailsPageStepOne() {
               handleBlur,
               handleSubmit,
               isSubmitting,
+              submitForm,
+              setValues,
               /* and other goodies */
             }) => (
-              <Form className="space-y-3">
-                <div className="flex flex-row justify-between items-center">
-                  <div className="relative max-w-sm">
-                    <div className="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none">
-                      <svg
-                        className="w-4 h-4 text-gray-500 dark:text-gray-400"
-                        aria-hidden="true"
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="currentColor"
-                        viewBox="0 0 20 20"
-                      >
-                        <path d="M20 4a2 2 0 0 0-2-2h-2V1a1 1 0 0 0-2 0v1h-3V1a1 1 0 0 0-2 0v1H6V1a1 1 0 0 0-2 0v1H2a2 2 0 0 0-2 2v2h20V4ZM0 18a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8H0v10Zm5-8h10a1 1 0 0 1 0 2H5a1 1 0 0 1 0-2Z" />
-                      </svg>
+              <Form className="space-y-3" ref={formRef}>
+                <div className="flex flex-row justify-between items-start space-x-6">
+                  <div className="flex flex-col flex-grow">
+                    <div className="relative">
+                      <Field
+                        type="date"
+                        className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-advus-lightblue-500 focus:border-advus-lightblue-500 block w-full pl-5 p-2.5"
+                        placeholder="Select date start"
+                        name="startdate"
+                      />
+                      {errors.startdate && touched.startdate && (
+                        <label className="text-xs text-advus-red-500 mt-1">
+                          {errors.startdate}
+                        </label>
+                      )}
                     </div>
-                    <Field
-                      type="date"
-                      className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 p-2.5"
-                      placeholder="Select date start"
-                      name="startdate"
-                    />
                   </div>
-                  <div className="relative max-w-sm">
-                    <div className="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none">
-                      <svg
-                        className="w-4 h-4 text-gray-500 dark:text-gray-400"
-                        aria-hidden="true"
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="currentColor"
-                        viewBox="0 0 20 20"
-                      >
-                        <path d="M20 4a2 2 0 0 0-2-2h-2V1a1 1 0 0 0-2 0v1h-3V1a1 1 0 0 0-2 0v1H6V1a1 1 0 0 0-2 0v1H2a2 2 0 0 0-2 2v2h20V4ZM0 18a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8H0v10Zm5-8h10a1 1 0 0 1 0 2H5a1 1 0 0 1 0-2Z" />
-                      </svg>
+
+                  <div className="flex flex-col flex-grow">
+                    <div className="relative">
+                      <Field
+                        type="date"
+                        className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-advus-lightblue-500 focus:border-advus-lightblue-500 block w-full pl-5 p-2.5"
+                        placeholder="Select date end"
+                        name="enddate"
+                      />
+                      {errors.enddate && touched.enddate && (
+                        <label className="text-xs text-advus-red-500 mt-1">
+                          {errors.enddate}
+                        </label>
+                      )}
                     </div>
-                    <Field
-                      type="date"
-                      className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 p-2.5"
-                      placeholder="Select date end"
-                      name="enddate"
-                    />
                   </div>
                 </div>
                 <div className="relative flex items-start">
@@ -132,7 +126,16 @@ export default function DetailsPageStepOne() {
                       type="checkbox"
                       className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600"
                       checked={isApproxDate}
-                      onChange={() => setIsApproxDate(!isApproxDate)}
+                      onChange={() => {
+                        if (isApproxDate) {
+                          setValues({
+                            startdate: values.startdate,
+                            enddate: values.enddate,
+                            approximateduration: 0,
+                          });
+                        }
+                        setIsApproxDate(!isApproxDate);
+                      }}
                     />
                   </div>
                   <div className="ml-3 text-sm leading-6">
@@ -146,11 +149,11 @@ export default function DetailsPageStepOne() {
                 </div>
                 {isApproxDate && (
                   <FormField
-                    id="approxmiateduration"
-                    name="approxmiateduration"
+                    id="approximateduration"
+                    name="approximateduration"
                     type="text"
-                    fieldError={errors.approxmiateduration}
-                    fieldTouched={touched.approxmiateduration}
+                    fieldError={errors.approximateduration}
+                    fieldTouched={touched.approximateduration}
                     textColor="text-black"
                   >
                     What is the desired duration of your trip (in days)?
@@ -158,11 +161,13 @@ export default function DetailsPageStepOne() {
                 )}
 
                 <div className="flex flex-row justify-end text-center items-center mt-3">
-                  <Link href="/details/2">
-                    <Btn buttonType="primary" type="submit">
-                      Next
-                    </Btn>
-                  </Link>
+                  <Btn
+                    buttonType="primary"
+                    type="submit"
+                    onClickHandler={submitForm}
+                  >
+                    {isSubmitting ? <Spinner /> : "Next"}
+                  </Btn>
                 </div>
               </Form>
             )}

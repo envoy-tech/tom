@@ -89,7 +89,7 @@ export default function OptimizePage() {
         )}
 
         {showDialog && (
-          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex flex-col justify-start w-2/5 bg-white p-6 shadow-lg rounded-md">
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex flex-col justify-start w-2/5 md:w-3/5 bg-white p-6 shadow-lg rounded-md">
             <div className="w-full flex items-center justify-end">
               <XMarkIcon className="h-6 w-6 text-advus-brown-500" />
             </div>

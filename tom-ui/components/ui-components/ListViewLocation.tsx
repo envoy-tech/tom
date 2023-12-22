@@ -17,10 +17,10 @@ export default function ListViewLocation(props: ListViewLocationProps) {
         <p className="font-semibold">{name}</p>
         <p className="text-sm">{address}</p>
       </div>
-      <div className="flex w-2/6 flex-row 2xl:mt-3 lg:mt-1 items-center justify-end">
-        <div className="w-1/5 flex justify-center">
+      <div className="flex w-2/6 flex-row mt-1 mr-3 lg:mt-1 2xl:mt-3 items-center justify-end space-x-3">
+        <div className="flex justify-center">
           <div
-            className={`flex flex-col 2xl:h-8 2xl:w-8 lg:h-4 lg:w-4 items-center justify-start rounded-full ${
+            className={`flex flex-col h-4 w-4 lg:h-4 lg:w-4 2xl:h-8 2xl:w-8 items-center justify-start rounded-full ${
               interest === 0
                 ? "bg-advus-lightblue-500"
                 : "border-2 bg-white border-advus-lightblue-500"
@@ -29,9 +29,9 @@ export default function ListViewLocation(props: ListViewLocationProps) {
           ></div>
         </div>
 
-        <div className="w-1/5 flex justify-center">
+        <div className="flex justify-center">
           <div
-            className={`flex flex-col 2xl:h-8 2xl:w-8 lg:h-4 lg:w-4 items-center justify-start rounded-full ${
+            className={`flex flex-col h-4 w-4 lg:h-4 lg:w-4 2xl:h-8 2xl:w-8 items-center justify-start rounded-full ${
               interest === 1
                 ? "bg-advus-lightblue-500"
                 : "border-2 bg-white border-advus-lightblue-500"
@@ -39,9 +39,9 @@ export default function ListViewLocation(props: ListViewLocationProps) {
             onClick={() => setInterest(1)}
           ></div>
         </div>
-        <div className="w-1/5 flex justify-center">
+        <div className="flex justify-center">
           <div
-            className={`flex flex-col 2xl:h-8 2xl:w-8 lg:h-4 lg:w-4 items-center justify-start rounded-full ${
+            className={`flex flex-col h-4 w-4 lg:h-4 lg:w-4 2xl:h-8 2xl:w-8 items-center justify-start rounded-full ${
               interest === 2
                 ? "bg-advus-lightblue-500"
                 : "border-2 bg-white border-advus-lightblue-500"
@@ -49,9 +49,9 @@ export default function ListViewLocation(props: ListViewLocationProps) {
             onClick={() => setInterest(2)}
           ></div>
         </div>
-        <div className="w-1/5 flex justify-center">
+        <div className="flex justify-center">
           <div
-            className={`flex flex-col 2xl:h-8 2xl:w-8 lg:h-4 lg:w-4 items-center justify-start rounded-full ${
+            className={`flex flex-col h-4 w-4 lg:h-4 lg:w-4 2xl:h-8 2xl:w-8 items-center justify-start rounded-full ${
               interest === 3
                 ? "bg-advus-lightblue-500"
                 : "border-2 bg-white border-advus-lightblue-500"
@@ -60,9 +60,9 @@ export default function ListViewLocation(props: ListViewLocationProps) {
           ></div>
         </div>
 
-        <div className="w-1/5 flex justify-center">
+        <div className="flex justify-center">
           <div
-            className={`flex flex-col 2xl:h-8 2xl:w-8 lg:h-4 lg:w-4 items-center justify-start rounded-full ${
+            className={`flex flex-col h-4 w-4 lg:h-4 lg:w-4 2xl:h-8 2xl:w-84 items-center justify-start rounded-full ${
               interest === 4
                 ? "bg-advus-lightblue-500"
                 : "border-2 bg-white border-advus-lightblue-500"

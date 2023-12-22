@@ -12,7 +12,7 @@ export default function AuthenticatedLayout({
 
   return (
     <div className="min-h-full flex flex-col justify-between">
-      {width >= 768 ? children : <Mobile />}
+      {width && width >= 768 ? children : <Mobile />}
       <Footer mode="light" />
     </div>
   );
