@@ -7,11 +7,21 @@ import { Formik, Form, Field } from "formik";
 import * as Yup from "yup";
 import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useAppDispatch, useAppSelector } from "@/hooks/redux";
+import {
+  setStartDate,
+  setEndDate,
+  setApproximateDuration,
+} from "@/redux/slices/tripSlice";
 
 export default function DetailsPageStepOne() {
   const formRef = useRef(null);
   const router = useRouter();
+  const dispatch = useAppDispatch();
   const [isApproxDate, setIsApproxDate] = useState(false);
+  const { startDate, endDate, approximateDuration } = useAppSelector(
+    (state) => state.trip
+  );
 
   const handleSubmitForm = async (
     values: { startdate: string; enddate: string; approximateduration: number },
@@ -19,6 +29,9 @@ export default function DetailsPageStepOne() {
     validateForm: Function
   ) => {
     setSubmitting(true);
+    dispatch(setStartDate(values.startdate));
+    dispatch(setEndDate(values.enddate));
+    dispatch(setApproximateDuration(values.approximateduration));
     router.push("/details/2");
     setSubmitting(false);
   };
@@ -62,9 +75,9 @@ export default function DetailsPageStepOne() {
         <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-md">
           <Formik
             initialValues={{
-              startdate: "",
-              enddate: "",
-              approximateduration: 0,
+              startdate: startDate ?? "",
+              enddate: endDate ?? "",
+              approximateduration: approximateDuration ?? 0,
             }}
             validationSchema={detailsSchema}
             onSubmit={(values, { setSubmitting, validateForm }) =>
@@ -75,9 +88,6 @@ export default function DetailsPageStepOne() {
               values,
               errors,
               touched,
-              handleChange,
-              handleBlur,
-              handleSubmit,
               isSubmitting,
               submitForm,
               setValues,
