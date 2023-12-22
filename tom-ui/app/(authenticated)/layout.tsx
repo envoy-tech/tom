@@ -15,7 +15,7 @@ export default function AuthenticatedLayout({
     <div className="min-h-screen flex flex-col">
       <Header />
       <div className="h-full w-full flex flex-1 justify-center">
-        {width && width >= 768 ? children : <Mobile />}
+        {!width || width >= 768 ? children : <Mobile />}
       </div>
       <Footer mode="dark" />
     </div>

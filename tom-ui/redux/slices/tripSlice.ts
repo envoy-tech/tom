@@ -4,10 +4,16 @@ import { Location } from "typings/Location";
 
 interface TripState {
   locations: Location[];
+  startDate: Date | null;
+  endDate: Date | null;
+  approximateDuration: number;
 }
 
 const initialState = {
   locations: [],
+  startDate: null,
+  endDate: null,
+  approximateDuration: 0,
 } as TripState;
 
 const tripSlice = createSlice({
