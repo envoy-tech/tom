@@ -25,7 +25,7 @@ def upload_to_s3(
         object_string: str,
         object_key: str,
         *,
-        object_metadata: Optional[dict] = None
+        object_metadata: Optional[dict[str, str]] = None
 ) -> S3_Object:
     """ Save file to generic S3 bucket. File name in S3 bucket will mirror name
         of local file.

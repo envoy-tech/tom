@@ -39,13 +39,13 @@ def create_itinerary(
         departures.append(str(start_date_dttm + dt.timedelta(days=depart_day, hours=depart_hour)))
 
     itinerary = {
-        "going_to_city": VARS[VarName.GO].data,
-        "route": route,
-        "num_stops": sum(VARS[VarName.GO].data),
+        "going_to_city": [bool(v) for v in VARS[VarName.GO].data],
+        "route": [int(r) for r in route],
+        "num_stops": int(sum(VARS[VarName.GO].data)),
         "arrival_timestamp": arrivals,
         "departure_timestamp": departures,
-        "stay_hours": VARS[VarName.STAY].data,
-        "trip_duration_hours": sum(VARS[VarName.TIME].data)
+        "stay_hours": [float(v) for v in VARS[VarName.STAY].data],
+        "trip_duration_hours": float(sum(VARS[VarName.TIME].data))
     }
 
     return itinerary

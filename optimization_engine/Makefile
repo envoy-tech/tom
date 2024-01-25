@@ -5,7 +5,7 @@ TOM_BUILD_TYPE ?= Release
 WHEEL_DIR = ../wheels
 
 wheel:
-	python setup.py --build-type=$(TOM_BUILD_TYPE) bdist_wheel -d $(WHEEL_DIR)
+	python setup.py bdist_wheel --build-type=$(TOM_BUILD_TYPE) -d $(WHEEL_DIR)
 
 clean:
 	rm -rf _skbuild/ src/$(PYTHON_PACKAGE).egg-info/ .pytest_cache/ _build_lint/
@@ -19,3 +19,15 @@ uninstall:
 
 test:
 	CTEST_OUTPUT_ON_FAILURE=1 ctest --test-dir $(CURDIR)/_skbuild/**/cmake-build
+
+lambda-image:
+	./lambda/build-image.sh
+
+lambda-image-push:
+	./lambda/push-image.sh
+
+test-lambda-image:
+	./tests/test-lambda-image.sh
+
+lambda-publish:
+	./lambda/publish-lambda.sh

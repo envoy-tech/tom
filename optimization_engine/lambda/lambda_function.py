@@ -1,9 +1,13 @@
 import json
+import logging
+from datetime import datetime
 
 from tom.common import S3Params
 from tom.common.cloud_access.aws import s3, sns
 from optimization_engine import *
 from optimization_engine.itinerary import create_itinerary
+
+logger = logging.getLogger(__name__)
 
 
 class VarName:
@@ -12,21 +16,54 @@ class VarName:
 
 def handler(event, context):
 
+    logger.info("Received event:", extra={**event})
+
     bucket_name, object_key = s3.parse_s3_event(event)
+    logger.info("Optimizing S3 object:", extra={"bucket_name": bucket_name, "object_key": object_key})
 
     # Get the uploaded object from S3
     s3_client = s3.connect_to_s3(S3Params.REGION)
-    obj_response = s3_client.get_object(
-        Bucket=bucket_name,
-        Key=object_key
-    )
+    obj_response = s3_client.Object(bucket_name, object_key).get()
 
     trip_mps_body = obj_response["Body"].read().decode("utf-8")
-    trip_metadata = json.loads(obj_response["Metadata"]["metadata"])
+    trip_metadata = json.loads(obj_response["Metadata"])
+    logger.info("Trip metadata:", extra={**trip_metadata})
+
+    msg = json.dumps({
+        "status": {
+            "code": sns.TripStatus.OPTIMIZATION_ENGINE_BEGIN.value,
+            "msg": sns.TripStatus.OPTIMIZATION_ENGINE_BEGIN.name
+        },
+        "trip_id": trip_metadata["trip_id"],
+        "traveler_ids": trip_metadata["traveler_ids"],
+        "timestamp": datetime.now().isoformat()
+    })
+
+    sns_client = sns.get_sns_client()
+    sns.publish_to_sns(sns_client, sns.TopicNames.optimization_status, msg)
 
     # Optimize MPS file data
-    solver = OptimizeMPSData(trip_mps_body)
+    try:
+        begin_time = datetime.now()
+        logger.info("Beginning optimization...")
+        # TODO: Add return of solver status here
+        solver = OptimizeMPSData(trip_mps_body)
+    except Exception as e:
+        logger.error("Error encountered during optimization.")
+        error_msg = json.dumps({
+            "status": {
+                "code": sns.TripStatus.OPTIMIZATION_ENGINE_FAILURE.value,
+                "name": sns.TripStatus.OPTIMIZATION_ENGINE_FAILURE.name
+            },
+            "trip_id": trip_metadata["trip_id"],
+            "traveler_ids": trip_metadata["traveler_ids"],
+            "timestamp": datetime.now().isoformat(),
+            "error": str(e)
+        })
+        sns.publish_to_sns(sns_client, sns.TopicNames.optimization_status, error_msg)
+        raise e
 
+    logger.info("Optimization complete.", extra={"duration": datetime.now() - begin_time})
     num_locations = trip_metadata["num_locations"]
     num_travelers = trip_metadata["num_travelers"]
 
@@ -36,14 +73,27 @@ def handler(event, context):
     itineraries = []
     next_solution = True
     while next_solution:
-        itinerary = create_itinerary(
+        _itinerary = create_itinerary(
             solver,
             num_locations,
             num_travelers,
             start_location_id,
             start_date,
         )
-        itineraries.append(itinerary)
+        itineraries.append(_itinerary)
         next_solution = solver.NextSolution()
 
+    logging.info("Successfully created itineraries:", extra={"num_itineraries": len(itineraries)})
+    # TODO: Update trip entry in postgres with itineraries
+
+    msg = json.dumps({
+        "status": {
+            "code": sns.TripStatus.OPTIMIZATION_ENGINE_SUCCESS.value,
+            "msg": sns.TripStatus.OPTIMIZATION_ENGINE_SUCCESS.name
+        },
+        "trip_id": trip_metadata["trip_id"],
+        "traveler_ids": trip_metadata["traveler_ids"],
+        "timestamp": datetime.now().isoformat()
+    })
+    sns.publish_to_sns(sns_client, sns.TopicNames.optimization_status, msg)
     return

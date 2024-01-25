@@ -74,9 +74,7 @@
   ],
   "travelers": [
     {
-      "_id": "0",
-      "username": "user0",
-      "email": "user0@nil.com",
+      "_id": "1",
       "location_ratings": [
         5,
         10,
@@ -108,9 +106,7 @@
       "active_stay_end": 23
     },
     {
-      "_id": "1",
-      "username": "user1",
-      "email": "user1@nil.com",
+      "_id": "2",
       "location_ratings": [
         5,
         6.5,
@@ -142,9 +138,7 @@
       "active_stay_end": 21
     },
     {
-      "_id": "2",
-      "username": "user2",
-      "email": "user2@nil.com",
+      "_id": "3",
       "location_ratings": [
         2,
         3.6,

@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from dataclasses import dataclass
 
 
@@ -29,3 +31,6 @@ class Traveler:
     @property
     def abs_latest_end(self) -> int:
         return self.latest_acceptable_end + self.allowed_end_flexibility
+
+    def encode(self):
+        return self.__dict__

@@ -1,4 +1,6 @@
 from __future__ import annotations
+
+import logging
 import datetime as dt
 from typing import Optional, Union
 
@@ -7,6 +9,8 @@ import numpy as np
 from tom.common import Location, Traveler, VARIABLE_REGISTRY
 from tom.common.cloud_access import gmaps
 from tom.trip_manager.solver import TripSolver
+
+logger = logging.getLogger(__name__)
 
 
 class VarName:
@@ -26,6 +30,18 @@ class TripManager:
         self._parse_locations(locations, start_location_id, end_location_id)
         self._parse_travelers(travelers, trip_owner_id)
         self.solver: Optional[TripSolver] = None
+
+    def encode(self):
+        _dict = {
+            "id": self.id,
+            "start_date": self.start_date.isoformat(),
+            "end_date": self.end_date.isoformat(),
+            "start_location": self.start_location.encode(),
+            "end_location": self.end_location.encode(),
+            "locations": [location.encode() for location in self.locations],
+            "travelers": [traveler.encode() for traveler in self.travelers]
+        }
+        return _dict
 
     def _parse_trip(
             self,
@@ -51,6 +67,10 @@ class TripManager:
         self.start_location = loc_dict[start_location_id]
         self.end_location = loc_dict[end_location_id]
         self.locations = list(loc_dict.values())
+        logging.info(
+            "Parsed following locations:",
+            extra={**loc_dict}
+        )
 
     def _parse_travelers(
             self,
@@ -60,6 +80,10 @@ class TripManager:
         trav_dict = {traveler["_id"]: Traveler(**traveler) for traveler in travelers}
         self.trip_owner = trav_dict[trip_owner_id]
         self.travelers = list(trav_dict.values())
+        logging.info(
+            "Parsed following travelers:",
+            extra={**trav_dict}
+        )
 
     @property
     def start_location_index(self) -> int:
@@ -153,7 +177,6 @@ class TripManager:
             VARS[var_name] = VARIABLE_REGISTRY[var_name](self.num_travelers, self.num_locations)
 
         ##### Prepare input variables #####
-
         travel_matrix = gmaps.create_duration_matrix(self.location_lat_lons, self.start_date, distance_matrix_params)
         timezone_offsets = gmaps.create_timezone_matrix(self.location_lat_lons, self.start_date)
         max_travel: float = np.max(travel_matrix)
@@ -181,12 +204,11 @@ class TripManager:
         location_min_stay = np.min(traveler_stay_matrix, axis=0)
 
         ##### Instantiate Model #####
-
         solver = TripSolver()
         self.solver = solver
+        logger.info("TripSolver instantiated.")
 
         ##### REQUIRED DECISION VARIABLES #####
-
         GO = solver.BoolArray(VARS[VarName.GO].shape, name=VarName.GO)
         FROM = solver.BoolArray(VARS[VarName.FROM].shape, name=VarName.FROM)
         INTER_DEPART_DAY = solver.IntArray(
@@ -233,9 +255,9 @@ class TripManager:
             ub=max_travel,
             return_bools=True
         )
+        logger.info("Decision variables instantiated.")
 
         ##### LOCATION CONSTRAINTS #####
-
         solver.AddConstraint(GO[start_idx] == 1, name="Must go to start_location")
         solver.AddConstraint(GO.sum() == NUM_STOPS, name="Sum of GO must equal NUM_STOPS")
         solver.AddConstraint(FROM.sum() == NUM_TRANSITS, name="Sum of FROM must equal NUM_TRANSITS")
@@ -457,9 +479,9 @@ class TripManager:
             ),
             name_prefix="Departure-arrival equivalence"
         )
+        logger.info("Location constraints set.")
 
         ##### TRAVELER CONSTRAINTS #####
-
         solver.ArrayConstraint(
             np.equal(
                 INTER_R.sum(axis=1),
@@ -540,6 +562,7 @@ class TripManager:
             ),
             name_prefix="I deviational equivalence"
         )
+        logger.info("Traveler constraints set.")
 
         ##### OBJECTIVE FUNCTION #####
         # Trim start location from S_DEV_* matrices
@@ -548,20 +571,20 @@ class TripManager:
         solver.Minimize(
             S_DEV_Neg_sliced.sum() + R_DEV_Neg.sum() + I_DEV_Pos.sum()
         )
+        logger.info("Objective function set.")
 
         mps_string = solver.ExportModelAsMpsFormat()
         return mps_string
 
     @property
     def metadata(self):
-
         metadata = {
             "trip_id": self.id,
             "start_date": str(self.start_date),
             "end_date": str(self.end_date),
-            "start_location_id": self.start_location_index,
-            "num_locations": self.num_locations,
-            "num_travelers": self.num_travelers
+            "start_location_id": str(self.start_location_index),
+            "num_locations": str(self.num_locations),
+            "num_travelers": str(self.num_travelers),
+            "traveler_ids": str([str(traveler.id) for traveler in self.travelers])
         }
-
         return metadata

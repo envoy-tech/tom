@@ -1,10 +1,13 @@
 import os
+import logging
 from enum import Enum, auto
 
 import boto3
 from dotenv import load_dotenv
 
 from tom.common import Env
+
+logger = logging.getLogger(__name__)
 
 # Environment variables are set by AWS Lambda function in prod
 # or local .env file for development
@@ -43,7 +46,9 @@ def publish_to_sns(
     :param message: the message to publish
     """
     sns_arn = f"{AWS_SNS_ARN}:{topic_name}"
-    return sns_client.publish(
+    response = sns_client.publish(
         TopicArn=sns_arn,
         Message=message
     )
+    logger.info("Response from SNS:", extra={"arn": sns_arn, **response})
+    return

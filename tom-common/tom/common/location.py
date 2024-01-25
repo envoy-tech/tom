@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from dataclasses import dataclass
 
 
@@ -17,3 +19,6 @@ class Location:
     @property
     def lat_lon(self) -> tuple[float, float]:
         return self.lat, self.lon
+
+    def encode(self):
+        return self.__dict__
