@@ -3,6 +3,8 @@
 PYTHON_PACKAGE = tom-trip-manager
 WHEEL_DIR = ../wheels
 
+PYTEST_LOGLEVEL ?= info
+
 wheel:
 	pip wheel . -w $(WHEEL_DIR) --no-deps
 

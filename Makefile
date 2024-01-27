@@ -1,4 +1,4 @@
-.PHONY: clean install uninstall wheels
+.PHONY: clean install uninstall wheels test
 
 WHEEL_DIR = wheels
 
@@ -27,6 +27,15 @@ wheels: clean
 	$(MAKE) -C $(COMMON) wheel
 	$(MAKE) -C $(OPTIMIZATION_ENGINE) wheel
 	$(MAKE) -C $(TRIP_MANAGER) wheel
+
+# TODO: Figure out why pytest can't load or-tools package
+# test:
+# 	pytest -v \
+# 		-s \
+# 		--log-cli-level=$(PYTEST_LOGLEVEL) \
+# 		--log-cli-format="%(levelname)-10s [%(asctime)s] %(message)s (%(name)s:%(lineno)s)" \
+# 		--log-cli-date-format="%Y-%m-%d %H:%M:%S" \
+# 		--ignore=optimization_engine/_skbuild
 
 lambda_images:
 	# $(MAKE) -C $(OPTIMIZATION_ENGINE) lambda_image

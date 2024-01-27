@@ -6,12 +6,12 @@ add_executable(
 )
 
 CONFIGURE_FILE(
-  ${CMAKE_CURRENT_SOURCE_DIR}/test.mps
+  ${CMAKE_CURRENT_SOURCE_DIR}/small_trip_circular.mps
   ${CMAKE_CURRENT_BINARY_DIR} COPYONLY
 )
 
 CONFIGURE_FILE(
-  ${CMAKE_CURRENT_SOURCE_DIR}/test_large.mps
+  ${CMAKE_CURRENT_SOURCE_DIR}/small_trip_sequential.mps
   ${CMAKE_CURRENT_BINARY_DIR} COPYONLY
 )
 

@@ -1,9 +1,19 @@
 import json
 
+import pytest
+
 from optimization_engine import *
 
 
-def test_create_itinerary(sample_trip_mps, sample_trip_metadata):
+@pytest.mark.parametrize("test_circular", [True, False])
+def test_create_itinerary(
+        small_trip_circular_mps,
+        small_trip_sequential_mps,
+        sample_trip_metadata,
+        test_circular
+):
+
+    sample_trip_mps = small_trip_circular_mps if test_circular else small_trip_sequential_mps
 
     solver = OptimizeMPSData(sample_trip_mps)
     metadata = json.loads(sample_trip_metadata["metadata"])

@@ -3,17 +3,17 @@ import json
 from pathlib import Path
 from functools import cache
 
-
+import boto3
 import pytest
 import googlemaps
 from dotenv import load_dotenv
 
 from tom.common import S3Params
-from tom.common.cloud_access import aws
+from tom.common.cloud_access.aws import s3
 
 
 def _get_absolute_path(relative_path: str) -> Path:
-    return(Path(__file__).parent / relative_path).resolve()
+    return (Path(__file__).parent / relative_path).resolve()
 
 
 @cache
@@ -33,10 +33,24 @@ def mps_folder() -> Path:
 
 
 @pytest.fixture(scope="package")
-def sample_trip() -> dict:
-    with open(_get_absolute_path("tests/subtour_trip.json"), "r") as f:
+def small_trip() -> dict:
+    with open(_get_absolute_path("tests/small_trip.json"), "r") as f:
         sample_trip = json.load(f)
     return sample_trip
+
+
+@pytest.fixture(scope="package")
+def large_trip() -> dict:
+    with open(_get_absolute_path("tests/large_trip.json"), "r") as f:
+        sample_trip = json.load(f)
+    return sample_trip
+
+
+@pytest.fixture(scope="package")
+def subtour_trip() -> dict:
+    with open(_get_absolute_path("tests/subtour_trip.json"), "r") as f:
+        subtour_trip = json.load(f)
+    return subtour_trip
 
 
 @pytest.fixture(scope="package")
@@ -56,5 +70,10 @@ def gmaps_client():
 
 
 @pytest.fixture(scope="package")
-def s3():
-    return aws.s3.connect_to_s3(S3Params.REGION)
+def boto3_dev_session(env):
+    boto3.setup_default_session(profile_name=os.getenv("AWS_PROFILE"))
+
+
+@pytest.fixture(scope="package")
+def s3_conn():
+    return s3.connect_to_s3(S3Params.REGION)

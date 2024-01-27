@@ -12,6 +12,11 @@ from tom.trip_manager.solver import TripSolver
 
 logger = logging.getLogger(__name__)
 
+MIN_LOCATIONS = 2
+MAX_LOCATIONS = 25
+MIN_TRAVELERS = 1
+MAX_TRAVELERS = 5
+
 
 class VarName:
     pass
@@ -26,9 +31,9 @@ class TripManager:
             locations: list[dict[str, Union[str, float, int]]],
             travelers: list[dict[str, Union[str, float, int]]]
     ):
-        start_location_id, end_location_id, trip_owner_id = self._parse_trip(**trip)
-        self._parse_locations(locations, start_location_id, end_location_id)
-        self._parse_travelers(travelers, trip_owner_id)
+        self._parse_trip(**trip)
+        self._parse_locations(locations)
+        self._parse_travelers(travelers)
         self.solver: Optional[TripSolver] = None
 
     def encode(self):
@@ -36,8 +41,8 @@ class TripManager:
             "id": self.id,
             "start_date": self.start_date.isoformat(),
             "end_date": self.end_date.isoformat(),
-            "start_location": self.start_location.encode(),
-            "end_location": self.end_location.encode(),
+            "start_location_index": self.start_location_index,
+            "end_location_index": self.end_location_index,
             "locations": [location.encode() for location in self.locations],
             "travelers": [traveler.encode() for traveler in self.travelers]
         }
@@ -45,77 +50,75 @@ class TripManager:
 
     def _parse_trip(
             self,
-            _id: str,
+            *,
+            id: str,
             start_date: str,
             end_date: str,
-            start_location_id: str,
-            end_location_id: str,
+            start_location_index: int,
+            end_location_index: int,
             trip_owner_id: str,
     ):
-        self.id = _id
-        self.start_date = self.parse_date_input(start_date)
-        self.end_date = self.parse_date_input(end_date)
-        return start_location_id, end_location_id, trip_owner_id
+        self.id = id
+        self.start_date = dt.datetime.fromisoformat(start_date)
+        self.end_date = dt.datetime.fromisoformat(end_date)
+        self.start_location_index = start_location_index
+        self.end_location_index = end_location_index
+        self.trip_owner_id = trip_owner_id
+        self.is_circular = self.start_location_index == self.end_location_index
+        self.trip_time_delta = self.end_date - self.start_date
+        self.num_days = self.total_trip_duration(unit="days")
+        self.num_hours = self.total_trip_duration(unit="hours")
 
     def _parse_locations(
             self,
-            locations: list[dict[str, Union[str, float, int]]],
-            start_location_id: str,
-            end_location_id: str
+            locations: list[dict[str, float]]
     ):
-        loc_dict = {location["_id"]: Location(**location) for location in locations}
-        self.start_location = loc_dict[start_location_id]
-        self.end_location = loc_dict[end_location_id]
-        self.locations = list(loc_dict.values())
+        if not (MIN_LOCATIONS <= len(locations) <= MAX_LOCATIONS):
+            raise ValueError(f"Number of locations outside acceptable range of {(MIN_LOCATIONS, MAX_LOCATIONS)}.")
+
+        self.locations = [Location(**location) for location in locations]
+        self.num_locations = len(self.locations)
+
+        if self.start_location_index not in range(self.num_locations) or isinstance(self.start_location_index, bool):
+            raise IndexError("Start location index outside range of locations.")
+
+        if self.end_location_index not in range(self.num_locations) or isinstance(self.end_location_index, bool):
+            raise IndexError("End location index outside range of locations.")
+
+        self.start_location = self.locations[self.start_location_index]
+        self.end_location = self.locations[self.end_location_index]
         logging.info(
             "Parsed following locations:",
-            extra={**loc_dict}
+            extra={"locations": locations}
         )
 
     def _parse_travelers(
             self,
-            travelers: list[dict[str, Union[str, float, int]]],
-            trip_owner_id: str
+            travelers: list[dict[str, Union[str, float, int]]]
     ):
-        trav_dict = {traveler["_id"]: Traveler(**traveler) for traveler in travelers}
-        self.trip_owner = trav_dict[trip_owner_id]
+        if not (MIN_TRAVELERS <= len(travelers) <= MAX_TRAVELERS):
+            raise ValueError(f"Number of travelers outside acceptable range of {(MIN_TRAVELERS, MAX_TRAVELERS)}.")
+
+        trav_dict = {traveler["id"]: Traveler(**traveler) for traveler in travelers}
+        self.trip_owner = trav_dict[self.trip_owner_id]
         self.travelers = list(trav_dict.values())
+        self.num_travelers = len(self.travelers)
+
+        rating_lens, desired_time_lens = set(), set()
+        for traveler in self.travelers:
+            rating_lens.add(len(traveler.location_ratings))
+            desired_time_lens.add(len(traveler.desired_time_in_location))
+
+        if rating_lens != {self.num_locations}:
+            raise ValueError("Number of location ratings does not match number of locations.")
+
+        if desired_time_lens != {self.num_locations}:
+            raise ValueError("Number of desired times does not match number of locations.")
+
         logging.info(
             "Parsed following travelers:",
-            extra={**trav_dict}
+            extra={"travelers": travelers}
         )
-
-    @property
-    def start_location_index(self) -> int:
-        return self.locations.index(self.start_location)
-
-    @property
-    def end_location_index(self) -> int:
-        return self.locations.index(self.end_location)
-    
-    @property
-    def is_circular(self) -> bool:
-        return self.start_location_index == self.end_location_index
-
-    @property
-    def num_locations(self) -> int:
-        return len(self.locations)
-    
-    @property
-    def num_travelers(self) -> int:
-        return len(self.travelers)
-
-    @property
-    def trip_time_delta(self) -> dt.timedelta:
-        return self.end_date - self.start_date
-
-    @property
-    def num_days(self) -> float:
-        return self.total_trip_duration(unit="days")
-
-    @property
-    def num_hours(self) -> float:
-        return self.total_trip_duration(unit="hours")
 
     def total_trip_duration(self, *, unit: str = "seconds") -> float:
         match unit:
@@ -159,12 +162,6 @@ class TripManager:
         active_start = np.mean([traveler.active_stay_start for traveler in self.travelers])
         active_end = np.mean([traveler.active_stay_end for traveler in self.travelers])
         return active_start, active_end
-
-    @staticmethod
-    def parse_date_input(date_input):
-        if isinstance(date_input, str):
-            return dt.datetime.strptime(date_input, "%m/%d/%Y")
-        return date_input
 
     def generate_mps_string(
         self,
@@ -439,29 +436,32 @@ class TripManager:
             name="DURATION must be <= total trip hours"
         )
 
-        middle_FROM = np.delete(FROM, [start_idx, end_idx], axis=1)
+        middle_FROM = np.delete(FROM, [start_idx, end_idx], axis=0)
+        middle_FROM = np.delete(middle_FROM, [start_idx, end_idx], axis=1)
         middle_GO = np.delete(GO, [start_idx, end_idx])
 
         if self.is_circular:
             middle_FROM = FROM
             middle_GO = GO
+
         else:
             solver.AddConstraint(
                 FROM[:, start_idx].sum() == 0,
                 name="Start location that is not also end location cannot be traveled to"
             )
             solver.AddConstraint(
-                FROM[start_idx, :].sum() == 1,
-                name="Trip must depart start location for another location."
-            )
-            solver.AddConstraint(
                 FROM[:, end_idx].sum() == 1,
                 name="End location that is not also start location cannot be departed from."
             )
-            solver.AddConstraint(
-                FROM[end_idx, :].sum() == 0,
-                name="Trip must arrive in end location."
-            )
+
+        solver.AddConstraint(
+            FROM[start_idx, :].sum() == 1,
+            name="Trip must depart start location for another location."
+        )
+        solver.AddConstraint(
+            FROM[end_idx, :].sum() == 0,
+            name="Trip must arrive in end location."
+        )
 
         solver.ArrayConstraint(
             np.equal(
@@ -580,8 +580,8 @@ class TripManager:
     def metadata(self):
         metadata = {
             "trip_id": self.id,
-            "start_date": str(self.start_date),
-            "end_date": str(self.end_date),
+            "start_date": self.start_date.isoformat(),
+            "end_date": self.end_date.isoformat(),
             "start_location_id": str(self.start_location_index),
             "num_locations": str(self.num_locations),
             "num_travelers": str(self.num_travelers),
