@@ -21,7 +21,7 @@ namespace optimization_engine {
 
     auto model_proto = glop::MpsDataToMPModelProto(mps_data);
 
-    std::string error_message = "an error message";
+    std::string error_message;
     MPSolverResponseStatus solver_response = solver->LoadModelFromProtoWithUniqueNamesOrDie(
       *model_proto,
       &error_message

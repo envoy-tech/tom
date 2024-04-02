@@ -28,9 +28,9 @@ TEST_CASE("Test OptimizeMPSData on circular trip", "[test_optimize.cpp]") {
   REQUIRE(status == MPSolver::ResultStatus::OPTIMAL);
 }
 
-TEST_CASE("Test OptimizeMPSData on sequential trip", "[test_optimize.cpp]") {
+TEST_CASE("Test OptimizeMPSData on linear trip", "[test_optimize.cpp]") {
 
-  std::ifstream mps_file ("small_trip_sequential.mps");
+  std::ifstream mps_file ("small_trip_linear.mps");
   std::stringstream buffer;
   buffer << mps_file.rdbuf();
 

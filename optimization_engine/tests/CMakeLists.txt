@@ -11,7 +11,7 @@ CONFIGURE_FILE(
 )
 
 CONFIGURE_FILE(
-  ${CMAKE_CURRENT_SOURCE_DIR}/small_trip_sequential.mps
+  ${CMAKE_CURRENT_SOURCE_DIR}/small_trip_linear.mps
   ${CMAKE_CURRENT_BINARY_DIR} COPYONLY
 )
 

@@ -65,6 +65,7 @@ class TripManager:
         self.end_location_index = end_location_index
         self.trip_owner_id = trip_owner_id
         self.is_circular = self.start_location_index == self.end_location_index
+        self.is_linear = not self.is_circular
         self.trip_time_delta = self.end_date - self.start_date
         self.num_days = self.total_trip_duration(unit="days")
         self.num_hours = self.total_trip_duration(unit="hours")
@@ -167,25 +168,36 @@ class TripManager:
         self,
         distance_matrix_params: dict
     ):
+
+        buffered_num_locations = self.num_locations + self.is_linear
         ##### Prepare Variable classes #####
         VARS = {}
         for var_name in VARIABLE_REGISTRY:
             setattr(VarName, var_name, var_name)
-            VARS[var_name] = VARIABLE_REGISTRY[var_name](self.num_travelers, self.num_locations)
+            VARS[var_name] = VARIABLE_REGISTRY[var_name](self.num_travelers, buffered_num_locations)
 
         ##### Prepare input variables #####
-        travel_matrix = gmaps.create_duration_matrix(self.location_lat_lons, self.start_date, distance_matrix_params)
-        timezone_offsets = gmaps.create_timezone_matrix(self.location_lat_lons, self.start_date)
+        travel_matrix = np.zeros((buffered_num_locations, buffered_num_locations))
+        _travel_matrix = gmaps.create_duration_matrix(self.location_lat_lons, self.start_date, distance_matrix_params)
+        travel_matrix[:self.num_locations, :self.num_locations] = _travel_matrix
+
+        timezone_offsets = np.zeros((buffered_num_locations, buffered_num_locations))
+        _timezone_offsets = gmaps.create_timezone_matrix(self.location_lat_lons, self.start_date)
+        timezone_offsets[:self.num_locations, :self.num_locations] = _timezone_offsets
+
         max_travel: float = np.max(travel_matrix)
         np.fill_diagonal(travel_matrix, 2 * max_travel)
 
-        start_idx: int = self.start_location_index
-        end_idx: int = self.end_location_index
+        root_node_idx = self.start_location_index if self.is_circular else self.num_locations
 
-        traveler_rating_matrix: np.ndarray = self.traveler_location_ratings
-        traveler_mean_rating: np.ndarray = np.mean(traveler_rating_matrix, axis=1)
+        traveler_rating_matrix = np.zeros((self.num_travelers, buffered_num_locations))
+        _traveler_rating_matrix: np.ndarray = self.traveler_location_ratings
+        traveler_mean_rating: np.ndarray = np.mean(_traveler_rating_matrix, axis=1)
+        traveler_rating_matrix[:, :self.num_locations] = _traveler_rating_matrix
 
-        traveler_time_matrix: np.ndarray = self.traveler_desired_time_in_location
+        traveler_time_matrix = np.zeros((self.num_travelers, buffered_num_locations))
+        _traveler_time_matrix: np.ndarray = self.traveler_desired_time_in_location
+        traveler_time_matrix[:, :self.num_locations] = _traveler_time_matrix
         location_min_time = np.min(traveler_time_matrix, axis=0)
 
         travel_thresh: np.ndarray = self.traveler_travel_thresholds
@@ -199,6 +211,9 @@ class TripManager:
 
         traveler_stay_matrix = (traveler_time_matrix / 24) * active_hours
         location_min_stay = np.min(traveler_stay_matrix, axis=0)
+
+        start_idx = self.start_location_index
+        end_idx = self.end_location_index
 
         ##### Instantiate Model #####
         solver = TripSolver()
@@ -255,14 +270,17 @@ class TripManager:
         logger.info("Decision variables instantiated.")
 
         ##### LOCATION CONSTRAINTS #####
-        solver.AddConstraint(GO[start_idx] == 1, name="Must go to start_location")
+        solver.AddConstraint(GO[root_node_idx] == 1, name="Must go to start_location")
+        if self.is_linear:
+            solver.AddConstraint(
+                FROM[root_node_idx, start_idx] == 1, name="Must depart root node for start location"
+            )
+            solver.AddConstraint(
+                FROM[end_idx, root_node_idx] == 1, name="Must depart end location for root node"
+            )
+
         solver.AddConstraint(GO.sum() == NUM_STOPS, name="Sum of GO must equal NUM_STOPS")
         solver.AddConstraint(FROM.sum() == NUM_TRANSITS, name="Sum of FROM must equal NUM_TRANSITS")
-
-        constraint_name = "If start and end locations are different, NUM_TRANSITS must equal NUM_STOPS - 1"
-        if start_idx != end_idx:
-            solver.AddConstraint(NUM_TRANSITS == NUM_STOPS - 1, name=constraint_name)
-            solver.AddConstraint(GO[end_idx] == 1, name="Must go to end_location")
 
         solver.ArrayConstraint(
             np.less_equal(travel_matrix * FROM, abs_travel_thresh, dtype=object),
@@ -274,9 +292,20 @@ class TripManager:
             name="Sum of TIME and selected travel times must equal DURATION"
         )
 
+        if self.is_linear:
+            solver.AddConstraint(TIME[root_node_idx] == 0, name="Time in root node must be 0.")
+            solver.AddConstraint(STAY[root_node_idx] == 0, name="Stay in root node must be 0.")
+            solver.AddConstraint(DEPART_DAY[root_node_idx] == 0, name="Depart root node on day 0")
+
+            solver.AddConstraint(
+                DEPART_HOUR[root_node_idx] == earliest_start,
+                name=f"Depart start location at hour {earliest_start}"
+            )
+
         solver.AddConstraint(TIME[start_idx] == 0, name="Time in start_location must be 0.")
         solver.AddConstraint(STAY[start_idx] == 0, name="Stay in start_location must be 0.")
         solver.AddConstraint(DEPART_DAY[start_idx] == 0, name="Depart start location on day 0")
+
         solver.AddConstraint(
             DEPART_HOUR[start_idx] == earliest_start,
             name=f"Depart start location at hour {earliest_start}"
@@ -332,68 +361,69 @@ class TripManager:
             np.greater_equal(ARRIVE_HOUR, earliest_start * GO, dtype=object),
             name_prefix="Set floor for ARRIVE_HOUR"
         )
+        start_idxs = [start_idx] if self.is_circular else [start_idx, root_node_idx]
         solver.ArrayConstraint(
             np.less_equal(
-                np.delete(TIME, start_idx),
-                np.delete(self.num_hours * GO, start_idx),
+                np.delete(TIME, start_idxs),
+                np.delete(self.num_hours * GO, start_idxs),
                 dtype=object
             ),
             name_prefix="Set ceiling for TIME"
         )
         solver.ArrayConstraint(
             np.greater_equal(
-                np.delete(TIME, start_idx),
-                np.delete(location_min_time * GO, start_idx),
+                np.delete(TIME, start_idxs),
+                np.delete(location_min_time * GO, start_idxs),
                 dtype=object
             ),
             name_prefix="Set floor for TIME"
         )
         solver.ArrayConstraint(
             np.less_equal(
-                np.delete(STAY, start_idx),
-                np.delete(self.num_hours * GO, start_idx),
+                np.delete(STAY, start_idxs),
+                np.delete(self.num_hours * GO, start_idxs),
                 dtype=object
             ),
             name_prefix="Set ceiling for STAY"
         )
         solver.ArrayConstraint(
             np.greater_equal(
-                np.delete(STAY, start_idx),
-                np.delete(location_min_stay * GO, start_idx),
+                np.delete(STAY, start_idxs),
+                np.delete(location_min_stay * GO, start_idxs),
                 dtype=object
             ),
             name_prefix="Set floor for STAY"
         )
-        time_expr = (24 * DEPART_DAY + DEPART_HOUR) - (24 * ARRIVE_DAY + ARRIVE_HOUR)
-
+        time_expr = 24 * (DEPART_DAY - ARRIVE_DAY) + DEPART_HOUR - ARRIVE_HOUR
         stay_expr = active_hours * (DEPART_DAY - ARRIVE_DAY) \
             + (DEPART_HOUR - (active_start * GO)) \
             + ((active_end * GO) - ARRIVE_HOUR)
 
         solver.ArrayConstraint(
             np.equal(
-                np.delete(TIME, start_idx),
-                np.delete(time_expr, start_idx),
+                np.delete(TIME, start_idxs),
+                np.delete(time_expr, start_idxs),
                 dtype=object
             ),
             name_prefix="TIME must equal (departure date - arrival date)"
         )
         solver.ArrayConstraint(
             np.less_equal(
-                np.delete(STAY, start_idx),
-                np.delete(stay_expr, start_idx),
+                np.delete(STAY, start_idxs),
+                np.delete(stay_expr, start_idxs),
                 dtype=object
             ),
             name_prefix="Set target for STAY"
         )
         solver.ArrayConstraint(
             np.greater_equal(
-                np.delete(STAY, start_idx),
-                np.delete(stay_expr, start_idx) - (1 - np.delete(GO, start_idx)) * self.num_hours,
+                np.delete(STAY, start_idxs),
+                np.delete(stay_expr, start_idxs) - (1 - np.delete(GO, start_idxs)) * self.num_hours,
                 dtype=object
             ),
             name_prefix="Set target floor for STAY"
         )
+
         solver.ArrayConstraint(
             np.less_equal(INTER_DEPART_DAY, self.num_days * FROM, dtype=object),
             name_prefix="Set ceiling for INTER_DEPART_DAY"
@@ -410,6 +440,7 @@ class TripManager:
             ),
             name_prefix="Set floor for INTER_DEPART_DAY"
         )
+
         solver.ArrayConstraint(
             np.less_equal(INTER_DEPART_HOUR, latest_end * FROM, dtype=object),
             name_prefix="Set ceiling for INTER_DEPART_HOUR"
@@ -436,49 +467,34 @@ class TripManager:
             name="DURATION must be <= total trip hours"
         )
 
-        middle_FROM = np.delete(FROM, [start_idx, end_idx], axis=0)
-        middle_FROM = np.delete(middle_FROM, [start_idx, end_idx], axis=1)
-        middle_GO = np.delete(GO, [start_idx, end_idx])
-
-        if self.is_circular:
-            middle_FROM = FROM
-            middle_GO = GO
-
-        else:
-            solver.AddConstraint(
-                FROM[:, start_idx].sum() == 0,
-                name="Start location that is not also end location cannot be traveled to"
-            )
-            solver.AddConstraint(
-                FROM[:, end_idx].sum() == 1,
-                name="End location that is not also start location cannot be departed from."
-            )
-
         solver.AddConstraint(
             FROM[start_idx, :].sum() == 1,
             name="Trip must depart start location for another location."
         )
+
         solver.AddConstraint(
-            FROM[end_idx, :].sum() == 0,
-            name="Trip must arrive in end location."
+            FROM[:, end_idx].sum() == 1,
+            name="Trip must depart some location for end location"
         )
 
+        # FROM indices follow [depart_from, arrive_in] convention
         solver.ArrayConstraint(
             np.equal(
-                middle_FROM.sum(axis=0),
-                middle_GO,
+                FROM.sum(axis=0),
+                GO,
                 dtype=object
             ),
-            name_prefix="Arrival-departure equivalence"
+            name_prefix="Circular trip arrival-departure equivalence"
         )
         solver.ArrayConstraint(
             np.equal(
-                middle_FROM.sum(axis=1),
-                middle_GO,
+                FROM.sum(axis=1),
+                GO,
                 dtype=object
             ),
-            name_prefix="Departure-arrival equivalence"
+            name_prefix="Circular departure-arrival equivalence"
         )
+
         logger.info("Location constraints set.")
 
         ##### TRAVELER CONSTRAINTS #####
@@ -566,7 +582,7 @@ class TripManager:
 
         ##### OBJECTIVE FUNCTION #####
         # Trim start location from S_DEV_* matrices
-        S_DEV_Neg_sliced = np.delete(S_DEV_Neg, start_idx, axis=1)
+        S_DEV_Neg_sliced = np.delete(S_DEV_Neg, start_idxs, axis=1)
 
         solver.Minimize(
             S_DEV_Neg_sliced.sum() + R_DEV_Neg.sum() + I_DEV_Pos.sum()
@@ -583,6 +599,7 @@ class TripManager:
             "start_date": self.start_date.isoformat(),
             "end_date": self.end_date.isoformat(),
             "start_location_id": str(self.start_location_index),
+            "end_location_id": str(self.end_location_index),
             "num_locations": str(self.num_locations),
             "num_travelers": str(self.num_travelers),
             "traveler_ids": str([str(traveler.id) for traveler in self.travelers])

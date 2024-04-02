@@ -56,12 +56,13 @@ class FROM(Variable):
     def shape(self) -> tuple[int, ...]:
         return self.num_locations, self.num_locations
 
-    def to_route(self, start_idx: int) -> list[int]:
+    def to_route(self, start_idx: int, end_idx: int) -> list[int]:
         res = np.array(self.data).reshape(self.shape)
         transits = dict(zip(*res.nonzero()))
+        del transits[end_idx]
         route = [start_idx]
         next_idx = transits.get(start_idx)
-        while (next_idx is not None) and (next_idx != start_idx):
+        while next_idx is not None:
             route.append(next_idx)
             next_idx = transits.get(next_idx)
         return route

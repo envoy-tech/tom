@@ -8,8 +8,11 @@ def create_itinerary(
         num_locations: int,
         num_travelers: int,
         start_location_id: int,
+        end_location_id: int,
         start_date: str
 ):
+    is_linear = start_location_id != end_location_id
+    buffed_num_locations = num_locations + is_linear
 
     class VarName:
         pass
@@ -19,15 +22,15 @@ def create_itinerary(
         if "DEV" in var_name:
             continue
         setattr(VarName, var_name, var_name)
-        var = VARIABLE_REGISTRY[var_name](num_travelers, num_locations)
+        var = VARIABLE_REGISTRY[var_name](num_travelers, buffed_num_locations)
         start_idx = solver.LookupVariableOrNull(var.first_var_name).index()
         end_idx = var.end_idx(start_idx)
         var.data = [mpvar.solution_value() for mpvar in solver.variables()[start_idx:end_idx]]
         VARS[var_name] = var
 
-    start_date_dttm = dt.datetime.strptime(start_date, "%Y-%m-%d %H:%M:%S")
+    start_date_dttm = dt.datetime.fromisoformat(start_date)
 
-    route = VARS[VarName.FROM].to_route(start_location_id)
+    route = VARS[VarName.FROM].to_route(start_location_id, end_location_id)
     arrivals, departures = [], []
     for location_idx in route:
         arrive_day = VARS[VarName.ARRIVE_DAY].data[location_idx]
@@ -39,13 +42,13 @@ def create_itinerary(
         departures.append(str(start_date_dttm + dt.timedelta(days=depart_day, hours=depart_hour)))
 
     itinerary = {
-        "going_to_city": [bool(v) for v in VARS[VarName.GO].data],
+        "going_to_city": [bool(v) for v in VARS[VarName.GO].data[:num_locations]],
         "route": [int(r) for r in route],
-        "num_stops": int(sum(VARS[VarName.GO].data)),
+        "num_stops": int(sum(VARS[VarName.GO].data[:num_locations])),
         "arrival_timestamp": arrivals,
         "departure_timestamp": departures,
-        "stay_hours": [float(v) for v in VARS[VarName.STAY].data],
-        "trip_duration_hours": float(sum(VARS[VarName.TIME].data))
+        "stay_hours": [float(v) for v in VARS[VarName.STAY].data[:num_locations]],
+        "trip_duration_hours": float(sum(VARS[VarName.TIME].data[:num_locations])),
     }
 
     return itinerary

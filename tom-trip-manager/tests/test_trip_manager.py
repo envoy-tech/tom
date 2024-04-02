@@ -7,15 +7,15 @@ from tom.common import S3Params
 from tom.common.cloud_access.aws import s3
 
 
-@pytest.mark.parametrize("make_circular", [True, False])
+@pytest.mark.parametrize("make_linear", [False, True])
 def test_generate_mps_string(
         small_trip,
         sample_trip_params,
-        make_circular
+        make_linear
 ):
-    if not make_circular:
+    if make_linear:
         num_locations = len(small_trip["locations"])
-        small_trip["trip"]["start_location_index"] = random.randint(0, num_locations)
+        small_trip["trip"]["start_location_index"] = random.randint(1, num_locations - 1)
     trip_manager = TripManager(**small_trip)
     mps_string = trip_manager.generate_mps_string(sample_trip_params)
     assert mps_string is not None

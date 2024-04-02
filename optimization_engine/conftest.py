@@ -9,21 +9,20 @@ def _get_absolute_path(relative_path: str) -> Path:
 
 
 @pytest.fixture(scope="package")
-def small_trip_circular_mps() -> str:
+def small_trip_circular_mps() -> tuple[str, dict]:
     with open(_get_absolute_path("tests/small_trip_circular.mps"), "r") as f:
         sample_mps = f.read()
-    return sample_mps
-
-
-@pytest.fixture(scope="package")
-def small_trip_sequential_mps() -> str:
-    with open(_get_absolute_path("tests/small_trip_sequential.mps"), "r") as f:
-        sample_mps = f.read()
-    return sample_mps
-
-
-@pytest.fixture(scope="package")
-def sample_trip_metadata() -> dict:
-    with open(_get_absolute_path("tests/test_meta.json"), "r") as f:
+    with open(_get_absolute_path("tests/small_trip_circular_metadata.json"), "r") as f:
         sample_trip_metadata = json.load(f)
-    return sample_trip_metadata
+
+    return sample_mps, sample_trip_metadata
+
+
+@pytest.fixture(scope="package")
+def small_trip_linear_mps() -> tuple[str, dict]:
+    with open(_get_absolute_path("tests/small_trip_linear.mps"), "r") as f:
+        sample_mps = f.read()
+    with open(_get_absolute_path("tests/small_trip_linear_metadata.json"), "r") as f:
+        sample_trip_metadata = json.load(f)
+
+    return sample_mps, sample_trip_metadata
