@@ -28,15 +28,9 @@ wheels: clean
 	$(MAKE) -C $(OPTIMIZATION_ENGINE) wheel
 	$(MAKE) -C $(TRIP_MANAGER) wheel
 
+# TODO: Figure out how to incorporate the optimization engine tests
 test:
-	pytest -v \
-		-s \
-		-n $(shell nproc) \
-		--import-mode=append \
-		--log-cli-level=$(PYTEST_LOGLEVEL) \
-		--log-cli-format="%(levelname)-10s [%(asctime)s] %(message)s (%(name)s:%(lineno)s)" \
-		--log-cli-date-format="%Y-%m-%d %H:%M:%S" \
-		--ignore=optimization_engine
+	pytest -v -s -n $(shell nproc) --ignore=optimization_engine
 
 lambda_images:
 	# $(MAKE) -C $(OPTIMIZATION_ENGINE) lambda_image
