@@ -1,6 +1,7 @@
 import random
 
 import pytest
+from ortools.linear_solver import pywraplp
 
 from tom.trip_manager import TripManager
 from tom.common import S3Params
@@ -8,7 +9,7 @@ from tom.common.cloud_access.aws import s3
 
 
 @pytest.mark.parametrize("make_linear", [False, True])
-def test_generate_mps_string(
+def test_generate_mps_string_and_solve(
         small_trip,
         sample_trip_params,
         make_linear
@@ -19,6 +20,9 @@ def test_generate_mps_string(
     trip_manager = TripManager(**small_trip)
     mps_string = trip_manager.generate_mps_string(sample_trip_params)
     assert mps_string is not None
+
+    solve_status = trip_manager.solver.solver.Solve()
+    assert solve_status == pywraplp.Solver.OPTIMAL
 
 
 def test_save_mps_metadata_to_s3(

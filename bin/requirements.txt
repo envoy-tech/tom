@@ -1,11 +1,13 @@
 ansible
 boto3
 boto3-stubs
+cmake
 googlemaps
 ortools
 pybind11
 pytest
 pytest-mock
+pytest-xdist
 python-dotenv
 scikit-build
 wheel

@@ -1,166 +1,101 @@
 {
   "trip": {
-    "_id": "1",
-    "start_date": "05/01/2024",
-    "end_date": "05/30/2024",
-    "start_location_id": "0",
-    "end_location_id": "0",
+    "id": "sample_trip",
+    "start_date": "2025-05-01T00:00:00",
+    "end_date": "2025-05-30T00:00:00",
+    "start_location_id": 0,
+    "end_location_id": 0,
     "trip_owner_id": "1"
   },
   "locations": [
     {
-      "_id": "0",
-      "name": "Washington, DC",
-      "address": null,
       "lat": 38.91189364837332,
       "lon": -77.03758144791001
     },
     {
-      "_id": "1",
-      "name": "Sedona, AZ",
-      "address": null,
       "lat": 34.87393680716479,
       "lon": -111.76064925895676
     },
     {
-      "_id": "2",
-      "name": "Olympic National Forest, WA",
-      "address": null,
       "lat": 47.47015263683316,
       "lon": -123.47691934708226
     },
     {
-      "_id": "3",
-      "name": "Glacier National Park, MT",
-      "address": null,
       "lat": 48.764788639710865,
       "lon": -113.78771152055074
     },
     {
-      "_id": "4",
-      "name": "Seattle, WA",
-      "address": null,
       "lat": 47.609652021431685,
       "lon": -122.33241655405163
     },
     {
-      "_id": "5",
-      "name": "Zion National Park, UT",
-      "address": null,
       "lat": 37.30254328345872,
       "lon": -113.0269900330321
     },
     {
-      "_id": "6",
-      "name": "Grand Canyon, AZ",
-      "address": null,
       "lat": 36.05916711224705,
       "lon": -112.10920413163066
     },
     {
-      "_id": "7",
-      "name": "Toronto, ON",
-      "address": null,
       "lat": 43.6594062042469,
       "lon": -79.38284359371795
     },
     {
-      "_id": "8",
-      "name": "Palm Springs, CA",
-      "address": null,
       "lat": 33.830583,
       "lon": -116.545293
     },
     {
-      "_id": "9",
-      "name": "Mount Rushmore/Crazy Horse, SD",
-      "address": null,
       "lat": 43.878876,
       "lon": -103.459067
     },
     {
-      "_id": "10",
-      "name": "Portland, OR",
-      "address": null,
       "lat": 45.520247,
       "lon": -122.674195
     },
     {
-      "_id": "11",
-      "name": "New Orleans, LA",
-      "address": null,
       "lat": 29.951065,
       "lon": -90.071533
     },
     {
-      "_id": "12",
-      "name": "White Sands National Park, NM",
-      "address": null,
       "lat": 32.77976611979581,
       "lon": -106.17248718941849
     },
     {
-      "_id": "13",
-      "name": "Austin, TX",
-      "address": null,
       "lat": 30.267153,
       "lon": -97.743057
     },
     {
-      "_id": "14",
-      "name": "San Francisco, CA",
-      "address": null,
       "lat": 37.774929,
       "lon": -122.419418
     },
     {
-      "_id": "15",
-      "name": "Chicago, IL",
-      "address": null,
       "lat": 41.878113,
       "lon": -87.629799
     },
     {
-      "_id": "16",
-      "name": "Asheville, NC",
-      "address": null,
       "lat": 35.595058,
       "lon": -82.551487
     },
     {
-      "_id": "17",
-      "name": "Atlanta, GA",
-      "address": null,
       "lat": 33.748997,
       "lon": -84.387985
     },
     {
-      "_id": "18",
-      "name": "Boston, MA",
-      "address": null,
       "lat": 42.360082,
       "lon": -71.05888
     },
     {
-      "_id": "19",
-      "name": "Orlando, FL",
-      "address": null,
       "lat": 28.538336,
       "lon": -81.379234
     },
     {
-      "_id": "20",
-      "name": "Philadelphia, PA",
-      "address": null,
       "lat": 39.952584,
       "lon": -75.165222
     }
   ],
   "travelers": [
     {
-      "_id": "0",
-      "username": "Kyle",
-      "email": "user0@nil.com",
+      "id": "0",
       "location_ratings": [
         8,
         10,
@@ -216,9 +151,7 @@
       "active_stay_end": 21
     },
     {
-      "_id": "1",
-      "username": "Soula",
-      "email": "user1@nil.com",
+      "id": "1",
       "location_ratings": [
         5,
         8,
@@ -274,9 +207,7 @@
       "active_stay_end": 21
     },
     {
-      "_id": "2",
-      "username": "Nicole",
-      "email": "user2@nil.com",
+      "id": "2",
       "location_ratings": [
         2,
         10,
@@ -332,9 +263,7 @@
       "active_stay_end": 21
     },
     {
-      "_id": "3",
-      "username": "Guillermo",
-      "email": "user2@nil.com",
+      "id": "3",
       "location_ratings": [
         5,
         10,
