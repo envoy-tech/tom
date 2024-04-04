@@ -1,10 +1,10 @@
 import optimization_engine
-import optimization_engine as oe
+from optimization_engine import *
 
 
-def test_optimization_binding(sample_trip_mps):
-
-    solver = oe.OptimizeMPSData(sample_trip_mps)
+def test_optimization_binding(small_trip_linear_mps):
+    mps_file, _ = small_trip_linear_mps
+    solver = OptimizeMPSData(mps_file)
 
     assert isinstance(solver, optimization_engine.MPSolver)
     assert isinstance(solver.variables()[0], optimization_engine.MPVariable)

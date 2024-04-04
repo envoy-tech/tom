@@ -19,6 +19,7 @@ uninstall:
 
 test:
 	CTEST_OUTPUT_ON_FAILURE=1 ctest --test-dir $(CURDIR)/_skbuild/**/cmake-build
+	pytest -v -s tests/test_*.py
 
 lambda-image:
 	./lambda/build-image.sh
