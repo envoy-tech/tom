@@ -31,7 +31,7 @@ const persistConfig = {
 const rootReducer = combineReducers({
   user: persistReducer(persistConfig, userReducer),
   toast: persistReducer(persistConfig, toastReducer),
-  trip: tripReducer,
+  trip: persistReducer(persistConfig, tripReducer),
 });
 
 // Import your reducers

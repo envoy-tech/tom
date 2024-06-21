@@ -7,10 +7,11 @@ import { setLocationNote } from "@/redux/slices/tripSlice";
 type LocationNoteBoxProps = {
   locationName: string;
   locationAddress: string;
+  setSelectedMarker: Function;
 };
 
 export default function LocationNoteBox(props: LocationNoteBoxProps) {
-  const { locationName, locationAddress } = props;
+  const { locationName, locationAddress, setSelectedMarker } = props;
   const locationState = useAppSelector((state) =>
     state.trip.locations.find(
       (location) => location.address === locationAddress
@@ -24,6 +25,7 @@ export default function LocationNoteBox(props: LocationNoteBoxProps) {
 
   const handleSaveNote = () => {
     dispatch(setLocationNote({ address: locationAddress, notes: noteText }));
+    setSelectedMarker(locationAddress);
     setEdit(false);
   };
 

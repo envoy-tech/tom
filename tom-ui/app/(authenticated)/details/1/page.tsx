@@ -5,7 +5,7 @@ import Btn from "@/components/ui-components/Btn";
 import MainNavigationSteps from "@/components/page-components/MainNavigationSteps";
 import { Formik, Form, Field } from "formik";
 import * as Yup from "yup";
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAppDispatch, useAppSelector } from "@/hooks/redux";
 import {
@@ -15,7 +15,6 @@ import {
 } from "@/redux/slices/tripSlice";
 
 export default function DetailsPageStepOne() {
-  const formRef = useRef(null);
   const router = useRouter();
   const dispatch = useAppDispatch();
   const [isApproxDate, setIsApproxDate] = useState(false);
@@ -93,7 +92,7 @@ export default function DetailsPageStepOne() {
               setValues,
               /* and other goodies */
             }) => (
-              <Form className="space-y-3" ref={formRef}>
+              <Form className="space-y-3">
                 <div className="flex flex-row justify-between items-start space-x-6">
                   <div className="flex flex-col flex-grow">
                     <div className="relative">

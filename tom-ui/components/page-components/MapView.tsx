@@ -1,6 +1,6 @@
 "use client";
-import { useMemo, useState } from "react";
-import { useLoadScript, GoogleMap } from "@react-google-maps/api";
+import { useState, useEffect, useRef } from "react";
+import { useLoadScript, GoogleMap, Marker } from "@react-google-maps/api";
 import Link from "../ui-components/Link";
 import {
   ArrowLeftIcon,
@@ -8,34 +8,56 @@ import {
   PlusIcon,
   MinusIcon,
 } from "@heroicons/react/20/solid";
+import dynamic from "next/dynamic";
 import { MapIcon } from "@heroicons/react/24/outline";
-import MapViewLocationPreferenceBox from "../ui-components/MapViewLocationPreferenceBox";
+import { useAppSelector } from "@/hooks/redux";
+import { useAppDispatch } from "@/hooks/redux";
+
+const MapViewLocationPreferenceBox = dynamic(
+  () => import("../ui-components/MapViewLocationPreferenceBox"),
+  { ssr: false }
+);
 
 type MapViewProps = {
   showMapView: Function;
 };
 
+const libraries = ["places"];
+const mapOptions = {
+  disableDefaultUI: true,
+  clickableIcons: true,
+  scrollwheel: true,
+};
+const mapCenter = { lat: 27.672932021393862, lng: 85.31184012689732 };
+
 export default function MapView(props: MapViewProps) {
   const { showMapView } = props;
-  const libraries = useMemo(() => ["places"], []);
-  const mapCenter = useMemo(
-    () => ({ lat: 27.672932021393862, lng: 85.31184012689732 }),
-    []
-  );
-  const mapOptions = useMemo(
-    () => ({
-      disableDefaultUI: true,
-      clickableIcons: true,
-      scrollwheel: false,
-    }),
-    []
-  );
   const [zoom, setZoom] = useState(14);
+  const dispatch = useAppDispatch();
+  const { locations } = useAppSelector((state) => state.trip);
+  const [center, setCenter] = useState(mapCenter);
+  const mapRef = useRef(null);
 
   const { isLoaded } = useLoadScript({
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API as string,
     libraries: libraries as any,
   });
+
+  useEffect(() => {
+    if (isLoaded && mapRef.current && locations.length) {
+      const bounds = new window.google.maps.LatLngBounds();
+      locations.map((location) =>
+        bounds.extend(
+          new window.google.maps.LatLng({
+            lat: location.lat,
+            lng: location.long,
+          })
+        )
+      );
+
+      setCenter(bounds.getCenter());
+    }
+  }, [isLoaded]);
 
   return (
     <>
@@ -43,13 +65,21 @@ export default function MapView(props: MapViewProps) {
         <GoogleMap
           options={mapOptions}
           zoom={zoom}
-          center={mapCenter}
+          center={center}
           mapTypeId={window.google.maps.MapTypeId.ROADMAP}
           mapContainerStyle={{
             minHeight: "100%",
             minWidth: "100%",
           }}
-        />
+        >
+          {locations.length &&
+            locations.map((location) => (
+              <Marker
+                key={`${location.name}-${location.address}`}
+                position={{ lat: location.lat, lng: location.long }}
+              />
+            ))}
+        </GoogleMap>
       ) : (
         "Loading..."
       )}

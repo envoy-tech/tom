@@ -1,38 +1,51 @@
 "use client";
-import { useMemo, useState } from "react";
-import { useLoadScript, GoogleMap } from "@react-google-maps/api";
+import { useState, useRef, useEffect } from "react";
+import {
+  useLoadScript,
+  GoogleMap,
+  Marker,
+  InfoWindow,
+  InfoBox,
+} from "@react-google-maps/api";
 import Btn from "@/components/ui-components/Btn";
 import LocationNoteBox from "@/components/ui-components/LocationNoteBox";
 import MainNavigationSteps from "@/components/page-components/MainNavigationSteps";
-import { DUMMY_LOCATION_DATA } from "@/utils/dummy-data";
-import { useAppSelector, useAppDispatch } from "@/hooks/redux";
-import { addLocation } from "@/redux/slices/tripSlice";
+import { useAppSelector } from "@/hooks/redux";
+
+const libraries = ["places"];
+const mapOptions = {
+  disableDefaultUI: true,
+  clickableIcons: true,
+  scrollwheel: true,
+};
+const mapCenter = { lat: 27.672932021393862, lng: 85.31184012689732 };
 
 export default function ItineraryPageStepTwo() {
-  const libraries = useMemo(() => ["places"], []);
-  const mapCenter = useMemo(
-    () => ({ lat: 27.672932021393862, lng: 85.31184012689732 }),
-    []
-  );
-  const mapOptions = useMemo(
-    () => ({
-      disableDefaultUI: true,
-      clickableIcons: true,
-      scrollwheel: false,
-    }),
-    []
-  );
   const locations = useAppSelector((state) => state.trip.locations);
-  const dispatch = useAppDispatch();
-
-  if (locations.length === 0) {
-    DUMMY_LOCATION_DATA.map((location) => dispatch(addLocation(location)));
-  }
+  const mapRef = useRef(null);
+  const [center, setCenter] = useState(mapCenter);
+  const [selectedMarker, setSelectedMarker] = useState<string>("");
 
   const { isLoaded } = useLoadScript({
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API as string,
     libraries: libraries as any,
   });
+
+  useEffect(() => {
+    if (isLoaded && mapRef.current && locations.length) {
+      const bounds = new window.google.maps.LatLngBounds();
+      locations.map((location) =>
+        bounds.extend(
+          new window.google.maps.LatLng({
+            lat: location.lat,
+            lng: location.long,
+          })
+        )
+      );
+
+      setCenter(bounds.getCenter());
+    }
+  }, [isLoaded]);
 
   return (
     <div className="flex flex-col items-center justify-center w-full h-full px-6 py-12">
@@ -51,14 +64,15 @@ export default function ItineraryPageStepTwo() {
           </p>
           <div className="w-full flex flex-col justify-start mt-3">
             <div className="w-full flex flex-col mt-3 border-b-2 bordery-gray-400 pb-3">
-              <div className="overflow-y-scroll max-h-96 space-y-4 pr-3">
-                {DUMMY_LOCATION_DATA.map((locationData, index) => (
+              <div className="overflow-y-scroll h-96 space-y-4 pr-3">
+                {locations.map((locationData, index) => (
                   <div className="space-y-3" key={`location-${index}`}>
                     <LocationNoteBox
                       locationName={locationData.name}
                       locationAddress={locationData.address}
+                      setSelectedMarker={setSelectedMarker}
                     />
-                    {index !== DUMMY_LOCATION_DATA.length - 1 && (
+                    {index !== locations.length - 1 && (
                       <div className="border-gray-400 border-b-2 w-full"></div>
                     )}
                   </div>
@@ -80,15 +94,43 @@ export default function ItineraryPageStepTwo() {
             {isLoaded ? (
               <GoogleMap
                 options={mapOptions}
-                zoom={14}
-                center={mapCenter}
+                zoom={5}
+                center={center}
                 mapTypeId={window.google.maps.MapTypeId.ROADMAP}
                 mapContainerStyle={{
                   minHeight: "650px",
                   width: "100%",
                   height: "100%",
                 }}
-              />
+                ref={mapRef}
+              >
+                {locations.length &&
+                  locations.map((location) => (
+                    <Marker
+                      key={`${location.name}-${location.address}`}
+                      position={{ lat: location.lat, lng: location.long }}
+                      onClick={() => setSelectedMarker(location.address)}
+                    >
+                      {location.address === selectedMarker && (
+                        <InfoBox
+                          options={{
+                            pixelOffset: new window.google.maps.Size(20, -40),
+                            closeBoxMargin: "10px 10px 2px 2px",
+                            infoBoxClearance: new google.maps.Size(1, 1),
+                            closeBoxURL: "",
+                          }}
+                        >
+                          <div className="h-fit w-32 shadow-md text-black bg-white rounded-md p-3 text-balance break-words">
+                            <h1 className="font-bold text-md">
+                              {location.name}
+                            </h1>
+                            <p>{location.notes}</p>
+                          </div>
+                        </InfoBox>
+                      )}
+                    </Marker>
+                  ))}
+              </GoogleMap>
             ) : (
               "Loading..."
             )}

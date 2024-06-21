@@ -31,6 +31,11 @@ const tripSlice = createSlice({
     addLocation(state, action: PayloadAction<Location>) {
       state.locations.push(action.payload);
     },
+    removeLocation(state, action: PayloadAction<string>) {
+      state.locations = state.locations.filter(
+        (location) => location.address !== action.payload
+      );
+    },
     setLocationNote(
       state,
       action: PayloadAction<{ address: string; notes: string }>
@@ -40,6 +45,27 @@ const tripSlice = createSlice({
       );
 
       state.locations[locationIndex].notes = action.payload.notes;
+    },
+    setLocationInterest(
+      state,
+      action: PayloadAction<{ address: string; interest: number }>
+    ) {
+      const locationIndex = state.locations.findIndex(
+        (location) => location.address === action.payload.address
+      );
+
+      state.locations[locationIndex].interest = action.payload.interest;
+    },
+    setLocationTime(
+      state,
+      action: PayloadAction<{ address: string; timeAllocated: number }>
+    ) {
+      const locationIndex = state.locations.findIndex(
+        (location) => location.address === action.payload.address
+      );
+
+      state.locations[locationIndex].timeAllocated =
+        action.payload.timeAllocated;
     },
     setStartDate(state, action: PayloadAction<string>) {
       state.startDate = action.payload;
@@ -59,6 +85,9 @@ const tripSlice = createSlice({
     setTripName(state, action: PayloadAction<string>) {
       state.tripName = action.payload;
     },
+    setTravelers(state, action: PayloadAction<Traveler[]>) {
+      state.travelers = action.payload;
+    },
     addTraveler(state, action: PayloadAction<Traveler>) {
       state.travelers.push(action.payload);
     },
@@ -67,7 +96,10 @@ const tripSlice = createSlice({
 
 export const {
   addLocation,
+  removeLocation,
   setLocationNote,
+  setLocationInterest,
+  setLocationTime,
   setStartDate,
   setEndDate,
   setApproximateDuration,
@@ -75,5 +107,6 @@ export const {
   setEndingLocation,
   setTripName,
   addTraveler,
+  setTravelers,
 } = tripSlice.actions;
 export default tripSlice.reducer;

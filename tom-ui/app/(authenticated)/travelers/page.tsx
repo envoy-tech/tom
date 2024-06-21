@@ -6,21 +6,25 @@ import Link from "@/components/ui-components/Link";
 import { Form, Formik } from "formik";
 import { useRef, useState } from "react";
 import * as Yup from "yup";
-
-type Traveler = {
-  name: string;
-  email: string;
-};
+import { Traveler } from "typings";
+import { useAppDispatch, useAppSelector } from "@/hooks/redux";
+import { setTravelers as setSavedTravelers } from "@/redux/slices/tripSlice";
+import { useRouter } from "next/navigation";
 
 export default function TravelersPage() {
   const formRef = useRef(null);
-  const [travelers, setTravelers] = useState<Traveler[]>([]);
+  const dispatch = useAppDispatch();
+  const { travelers: savedTravelers } = useAppSelector((state) => state.trip);
+  const router = useRouter();
 
-  const handleSubmitForm = (
-    name: string,
-    email: string,
-    setSubmitting: Function
-  ) => {};
+  const [travelers, setTravelers] = useState<Traveler[]>(savedTravelers);
+
+  const handleSubmitForm = (setSubmitting: Function) => {
+    setSubmitting(true);
+    dispatch(setSavedTravelers(travelers));
+    router.push("/itinerary/1");
+    setSubmitting(false);
+  };
 
   const handleAddTraveler = () => {
     const name = formRef.current.elements.name.value;
@@ -29,8 +33,8 @@ export default function TravelersPage() {
     const traveler: Traveler = { name, email };
 
     setTravelers([...travelers, traveler]);
-
-    console.log(travelers);
+    formRef.current.elements.name.value = "";
+    formRef.current.elements.email.value = "";
   };
 
   const handleRemoveTraveler = (travelerIdx: number) => {
@@ -41,7 +45,10 @@ export default function TravelersPage() {
     name: Yup.string()
       .typeError("Name is required")
       .required("Name is required"),
-    approximatedate: Yup.string().required("This field is required."),
+    email: Yup.string()
+      .email()
+      .typeError("A valid email is required")
+      .required("Email is required"),
   });
 
   return (
@@ -111,7 +118,7 @@ export default function TravelersPage() {
             }}
             validationSchema={detailsSchema}
             onSubmit={(values, { setSubmitting }) =>
-              handleSubmitForm(values.name, values.email, setSubmitting)
+              handleSubmitForm(setSubmitting)
             }
           >
             {({
@@ -122,6 +129,7 @@ export default function TravelersPage() {
               handleBlur,
               handleSubmit,
               isSubmitting,
+              submitForm,
               /* and other goodies */
             }) => (
               <Form ref={formRef}>
@@ -172,7 +180,11 @@ export default function TravelersPage() {
                     <Link href="/itinerary/1" linkType="secondary">
                       Skip
                     </Link>
-                    <Btn buttonType="primary" type="submit" href="/itinerary/1">
+                    <Btn
+                      buttonType="primary"
+                      type="submit"
+                      onClickHandler={submitForm}
+                    >
                       Next
                     </Btn>
                   </div>

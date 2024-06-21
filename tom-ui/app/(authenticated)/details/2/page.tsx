@@ -1,20 +1,36 @@
 "use client";
 import Link from "next/link";
+import Spinner from "@/components/ui-components/Spinner";
 import MainNavigationSteps from "@/components/page-components/MainNavigationSteps";
 import Btn from "@/components/ui-components/Btn";
 import FormField from "@/components/ui-components/FormField";
 import { Form, Formik } from "formik";
-import { useRef } from "react";
 import * as Yup from "yup";
+import { useAppDispatch, useAppSelector } from "@/hooks/redux";
+import {
+  setStartingLocation,
+  setEndingLocation,
+} from "@/redux/slices/tripSlice";
+import { useRouter } from "next/navigation";
 
 export default function DetailsPageStepTwo() {
-  const formRef = useRef(null);
+  const router = useRouter();
+  const dispatch = useAppDispatch();
+  const { startingLocation, endingLocation } = useAppSelector(
+    (state) => state.trip
+  );
 
   const handleSubmitForm = (
-    startdate: string,
-    enddate: string,
+    startlocation: string,
+    endlocation: string,
     setSubmitting: Function
-  ) => {};
+  ) => {
+    setSubmitting(true);
+    dispatch(setStartingLocation(startlocation));
+    dispatch(setEndingLocation(endlocation));
+    router.push("/details/3");
+    setSubmitting(false);
+  };
 
   const detailsSchema = Yup.object().shape({
     startlocation: Yup.string()
@@ -23,14 +39,6 @@ export default function DetailsPageStepTwo() {
     endlocation: Yup.string()
       .typeError("End Location is required")
       .required("End Location is required"),
-    // .when("startdate", (startdate) => {
-    //   if (startdate) {
-    //     return Yup.date()
-    //       .min(startdate, "End Date must be after Start Date")
-    //       .typeError("End Date is required");
-    //   }
-    // }),
-    approximatedate: Yup.string().required("This field is required."),
   });
 
   return (
@@ -58,8 +66,8 @@ export default function DetailsPageStepTwo() {
         <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-md">
           <Formik
             initialValues={{
-              startlocation: "",
-              endlocation: "",
+              startlocation: startingLocation ?? "",
+              endlocation: endingLocation ?? "",
             }}
             validationSchema={detailsSchema}
             onSubmit={(values, { setSubmitting }) =>
@@ -78,6 +86,7 @@ export default function DetailsPageStepTwo() {
               handleBlur,
               handleSubmit,
               isSubmitting,
+              submitForm,
               /* and other goodies */
             }) => (
               <Form className="space-y-3">
@@ -114,8 +123,12 @@ export default function DetailsPageStepTwo() {
                   <Btn buttonType="secondary" type="submit" href="/details/1">
                     Back
                   </Btn>
-                  <Btn buttonType="primary" type="submit" href="/details/3">
-                    Next
+                  <Btn
+                    buttonType="primary"
+                    type="submit"
+                    onClickHandler={submitForm}
+                  >
+                    {isSubmitting ? <Spinner /> : "Next"}
                   </Btn>
                 </div>
               </Form>

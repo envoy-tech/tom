@@ -6,17 +6,27 @@ import FormField from "@/components/ui-components/FormField";
 import { Form, Formik } from "formik";
 import { useRef } from "react";
 import * as Yup from "yup";
+import { useAppDispatch, useAppSelector } from "@/hooks/redux";
+import { setTripName } from "@/redux/slices/tripSlice";
+import { useRouter } from "next/navigation";
 
 export default function DetailsPageStepThree() {
   const formRef = useRef(null);
+  const dispatch = useAppDispatch();
+  const { tripName } = useAppSelector((state) => state.trip);
+  const router = useRouter();
 
-  const handleSubmitForm = (tripname: string, setSubmitting: Function) => {};
+  const handleSubmitForm = (tripname: string, setSubmitting: Function) => {
+    setSubmitting(true);
+    dispatch(setTripName(tripname));
+    router.push("/travelers");
+    setSubmitting(false);
+  };
 
   const detailsSchema = Yup.object().shape({
     tripname: Yup.string()
       .typeError("Trip Name is required")
       .required("Trip Name is required"),
-    approximatedate: Yup.string().required("This field is required."),
   });
 
   return (
@@ -40,7 +50,7 @@ export default function DetailsPageStepThree() {
         <div className="mt-6 sm:mx-auto sm:w-full sm:max-w-md">
           <Formik
             initialValues={{
-              tripname: "",
+              tripname: tripName ?? "",
             }}
             validationSchema={detailsSchema}
             onSubmit={(values, { setSubmitting }) =>
@@ -55,6 +65,7 @@ export default function DetailsPageStepThree() {
               handleBlur,
               handleSubmit,
               isSubmitting,
+              submitForm,
               /* and other goodies */
             }) => (
               <Form>
@@ -79,7 +90,11 @@ export default function DetailsPageStepThree() {
                   <Btn buttonType="secondary" type="submit" href="/details/2">
                     Back
                   </Btn>
-                  <Btn buttonType="primary" type="submit" href="/travelers">
+                  <Btn
+                    buttonType="primary"
+                    type="submit"
+                    onClickHandler={submitForm}
+                  >
                     Next
                   </Btn>
                 </div>

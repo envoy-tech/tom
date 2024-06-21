@@ -1,34 +1,60 @@
 "use client";
-import { useMemo, useState } from "react";
-import { useLoadScript, GoogleMap } from "@react-google-maps/api";
-import { MagnifyingGlassIcon, ListBulletIcon } from "@heroicons/react/20/solid";
+import { useRef, useState, useCallback, useEffect } from "react";
+import { useLoadScript, GoogleMap, Marker } from "@react-google-maps/api";
+import { ListBulletIcon } from "@heroicons/react/20/solid";
 import { MapIcon } from "@heroicons/react/24/outline";
 import Btn from "@/components/ui-components/Btn";
 import LocationBox from "@/components/ui-components/LocationBox";
 import MainNavigationSteps from "@/components/page-components/MainNavigationSteps";
 import LocationListViewBox from "@/components/ui-components/LocationListViewBox";
-import { DUMMY_LOCATION_DATA } from "@/utils/dummy-data";
+import GooglePlacesSearchField from "@/components/ui-components/GooglePlacesSearchField";
+import { type Suggestions } from "use-places-autocomplete";
+import { useAppSelector } from "@/hooks/redux";
+
+const libraries = ["places"];
+const mapOptions = {
+  disableDefaultUI: true,
+  clickableIcons: true,
+  scrollwheel: true,
+};
+const mapCenter = { lat: 27.672932021393862, lng: 85.31184012689732 };
+
+const mapMarker = `
+<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+  <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+  <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" />
+</svg>
+`;
 
 export default function ItineraryPageStepOne() {
-  const libraries = useMemo(() => ["places"], []);
-  const mapCenter = useMemo(
-    () => ({ lat: 27.672932021393862, lng: 85.31184012689732 }),
-    []
-  );
-  const mapOptions = useMemo(
-    () => ({
-      disableDefaultUI: true,
-      clickableIcons: true,
-      scrollwheel: false,
-    }),
-    []
-  );
+  const onMapLoad = useCallback((map) => {
+    mapRef.current = map;
+  }, []);
+  const mapRef = useRef(null);
   const [showMapView, setShowMapView] = useState(true);
-
   const { isLoaded } = useLoadScript({
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API as string,
     libraries: libraries as any,
   });
+  const [suggestions, setSuggestions] = useState<Suggestions | null>(null);
+  const { locations } = useAppSelector((state) => state.trip);
+  const [center, setCenter] = useState(mapCenter);
+
+  useEffect(() => {
+    if (locations.length && mapRef.current && isLoaded) {
+      const bounds = new window.google.maps.LatLngBounds();
+      locations.map((location) =>
+        bounds.extend(
+          new window.google.maps.LatLng({
+            lat: location.lat,
+            lng: location.long,
+          })
+        )
+      );
+
+      setCenter(bounds.getCenter());
+    }
+  }, [locations, isLoaded]);
 
   return (
     <div className="flex flex-col items-center justify-center w-full h-full px-6 py-12 lg:px-8">
@@ -46,38 +72,30 @@ export default function ItineraryPageStepOne() {
             to the trip
           </p>
           <div className="w-full mt-6">
-            <div className="relative mt-2 rounded-md shadow-sm">
-              <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                <MagnifyingGlassIcon
-                  className="h-5 w-5 text-gray-400"
-                  aria-hidden="true"
-                />
-              </div>
-              <input
-                type="location"
-                name="location"
-                id="location"
-                className="block w-full rounded-md border-0 py-1.5 pl-10 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-advus-navyblue-500 sm:text-sm sm:leading-6"
-                placeholder="Search for a location..."
-              />
-            </div>
+            {isLoaded && (
+              <GooglePlacesSearchField setSuggestions={setSuggestions} />
+            )}
           </div>
 
           <div className="w-full flex flex-col justify-start mt-3">
             <p className="text-xs text-gray-400">SEARCH RESULTS</p>
             <div className="w-full flex flex-col mt-3 border-b-2 bordery-gray-400 pb-3">
-              <div className="overflow-y-scroll max-h-96 space-y-4 pr-3">
-                {DUMMY_LOCATION_DATA.map((locationData, index) => (
-                  <div className="space-y-3" key={`location-${index}`}>
-                    <LocationBox
-                      locationName={locationData.name}
-                      locationAddress={locationData.address}
-                    />
-                    {index !== DUMMY_LOCATION_DATA.length - 1 && (
-                      <div className="border-gray-400 border-b-2 w-full"></div>
-                    )}
-                  </div>
-                ))}
+              <div className="overflow-y-scroll h-96 space-y-4 pr-3">
+                {suggestions &&
+                  suggestions.data.map((location, index) => (
+                    <div className="space-y-3" key={`location-${index}`}>
+                      <LocationBox
+                        locationName={location.structured_formatting.main_text}
+                        locationAddress={
+                          location.structured_formatting.secondary_text
+                        }
+                        locationDescription={location.description}
+                      />
+                      {index !== suggestions.data.length - 1 && (
+                        <div className="border-gray-400 border-b-2 w-full"></div>
+                      )}
+                    </div>
+                  ))}
               </div>
             </div>
             <div className="w-full flex flex-row justify-between mt-3">
@@ -127,35 +145,46 @@ export default function ItineraryPageStepOne() {
               isLoaded ? (
                 <GoogleMap
                   options={mapOptions}
-                  zoom={14}
-                  center={mapCenter}
+                  zoom={6}
+                  center={center}
                   mapTypeId={window.google.maps.MapTypeId.ROADMAP}
                   mapContainerStyle={{
                     minHeight: "650px",
                     width: "100%",
                     height: "100%",
                   }}
-                />
+                  ref={mapRef}
+                  onLoad={onMapLoad}
+                >
+                  {locations.length &&
+                    locations.map((location) => (
+                      <Marker
+                        key={`${location.name}-${location.address}`}
+                        position={{ lat: location.lat, lng: location.long }}
+                      />
+                    ))}
+                </GoogleMap>
               ) : (
                 "Loading..."
               )
             ) : (
-              <div className="border-gray-400 border-2 w-full h-full flex flex-col justify-center items-center space-y-3 p-6">
-                {DUMMY_LOCATION_DATA.map((locationData, index) => (
-                  <div
-                    className="w-full h-full space-y-3"
-                    key={`location-list-${index}`}
-                  >
-                    <LocationListViewBox
-                      locationName={locationData.name}
-                      locationAddress={locationData.address}
-                      index={index + 1}
-                    />
-                    {index !== DUMMY_LOCATION_DATA.length - 1 && (
-                      <div className="border-gray-400 border-b-2 w-full"></div>
-                    )}
-                  </div>
-                ))}
+              <div className="border-gray-400 border-2 w-full h-96 flex flex-col justify-center items-center space-y-3 p-6 overflow-y-scroll">
+                {locations &&
+                  locations.map((location, index) => (
+                    <div
+                      className="w-full h-full space-y-3"
+                      key={`location-list-${index}`}
+                    >
+                      <LocationListViewBox
+                        locationName={location.name}
+                        locationAddress={location.address}
+                        index={index + 1}
+                      />
+                      {index !== locations.length - 1 && (
+                        <div className="border-gray-400 border-b-2 w-full"></div>
+                      )}
+                    </div>
+                  ))}
               </div>
             )}
           </div>

@@ -1,10 +1,82 @@
 "use client";
 import { XMarkIcon } from "@heroicons/react/20/solid";
 import Btn from "./Btn";
-import { useState } from "react";
+import { useState, useMemo, useRef } from "react";
+import { useAppSelector } from "@/hooks/redux";
+import { setLocationInterest, setLocationTime } from "@/redux/slices/tripSlice";
+import { useAppDispatch } from "@/hooks/redux";
+import { useRouter } from "next/navigation";
+
+function minToDays(mins: number) {
+  let days = Math.floor(mins / 1440);
+  let remainingTime = mins - Math.floor(days * 1440);
+  let hours = Math.floor(remainingTime / 60);
+  let remainingMin = Math.floor(remainingTime - hours * 60);
+  return `${days} day(s) and ${hours} hour(s) and ${remainingMin} minutes(s).`;
+}
 
 export default function MapViewLocationPreferenceBox() {
   const [interest, setInterest] = useState(0);
+  const { locations, startDate, endDate } = useAppSelector(
+    (state) => state.trip
+  );
+  const [currentLocation, setCurrentLocation] = useState(0);
+  const formRef = useRef(null);
+  const dispatch = useAppDispatch();
+  const router = useRouter();
+  const timeRemaining = useMemo(() => {
+    if (locations.length) {
+      const start = new Date(startDate);
+      const end = new Date(endDate);
+      const diff = Math.abs(start.getTime() - end.getTime());
+      const minutes = diff / 1000 / 60;
+      const totalUsedTime = locations.reduce(
+        (acc, curr) => acc + curr.timeAllocated,
+        0
+      );
+
+      return minutes - totalUsedTime;
+    }
+  }, [locations]);
+
+  const handleSave = () => {};
+
+  const turnLocation = (index: number, newIndex: number) => {
+    const days = formRef.current.elements.days.value;
+    const hours = formRef.current.elements.days.value;
+    const mins = formRef.current.elements.minutes.value;
+
+    let timeAllocated = 0;
+
+    if (days) {
+      timeAllocated += days * 24 * 60;
+    }
+
+    if (hours) {
+      timeAllocated += hours * 60;
+    }
+
+    if (mins) {
+      timeAllocated += mins;
+    }
+
+    console.log(timeAllocated);
+
+    dispatch(
+      setLocationInterest({ address: locations[index].address, interest })
+    );
+    dispatch(
+      setLocationTime({
+        address: locations[index].address,
+        timeAllocated: timeAllocated,
+      })
+    );
+    setCurrentLocation(newIndex);
+
+    formRef.current.elements.days.value = 0;
+    formRef.current.elements.hours.value = 0;
+    formRef.current.elements.minutes.value = 0;
+  };
 
   return (
     <div className="h-full w-full bg-gray-100 rounded-md shadow-lg border-gray-400 border-2 flex flex-col md:p-3 lg:p-3 2xl:p-9">
@@ -21,12 +93,14 @@ export default function MapViewLocationPreferenceBox() {
       </p>
       <div className="mt-2 p-3 lg:mt-2 lg:p-3 2xl:mt-6 2xl:p-6 h-full w-full bg-advus-lightblue-100 rounded-md flex flex-col">
         <p className="text-advus-navyblue-500 text-xs lg:text-xs">
-          Location 1 of 21
+          Location {currentLocation + 1} of {locations.length}
         </p>
         <h1 className="font-semibold text-sm lg:text-sm lg:mt-1 2xl:text-2xl 2xl:mt-6">
-          Location A
+          {locations[currentLocation]?.name}
         </h1>
-        <p className="text-md lg:text-md 2xl:text-xl">Address example 1</p>
+        <p className="text-md lg:text-md 2xl:text-xl">
+          {locations[currentLocation]?.address}
+        </p>
         <p className="text-sm lg:text-sm lg:mt-1 2xl:text-xl 2xl:mt-6">
           Q1. How interested are you in visiting this location?
         </p>
@@ -89,40 +163,74 @@ export default function MapViewLocationPreferenceBox() {
           Q2. How long would you like to stay at this location?
         </p>
         <div className="lg:mt-1 flex flex-col justify-center items-center w-full">
-          <div className="flex flex-row items-center text-sm">
-            <input
-              id="days"
-              name="days"
-              type="text"
-              autoComplete="days"
-              className="block w-8 h-6 mr-2 rounded-md border-0 px-2 py-1.5 text-md text-black shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-advus-lightblue-500 sm:text-xs sm:leading-6"
-            />
-            days
-            <input
-              id="hours"
-              name="hours"
-              type="text"
-              autoComplete="hours"
-              className="block w-8 h-6 ml-2 mr-2 rounded-md border-0 px-2 py-1.5 text-md text-black shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-advus-lightblue-500 sm:text-xs sm:leading-6"
-            />
-            hrs
-            <input
-              id="minutes"
-              name="minutes"
-              type="text"
-              autoComplete="minutes"
-              className="block w-8 h-6 ml-2 mr-2 rounded-md border-0 px-2 py-1.5 text-md text-black shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-advus-lightblue-500 sm:text-xs sm:leading-6"
-            />
-            min
-          </div>
+          <form ref={formRef}>
+            <div className="flex flex-row items-center text-sm">
+              <input
+                id="days"
+                name="days"
+                type="text"
+                autoComplete="days"
+                className="block w-8 h-6 mr-2 rounded-md border-0 px-2 py-1.5 text-md text-black shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-advus-lightblue-500 sm:text-xs sm:leading-6"
+              />
+              days
+              <input
+                id="hours"
+                name="hours"
+                type="text"
+                autoComplete="hours"
+                className="block w-8 h-6 ml-2 mr-2 rounded-md border-0 px-2 py-1.5 text-md text-black shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-advus-lightblue-500 sm:text-xs sm:leading-6"
+              />
+              hrs
+              <input
+                id="minutes"
+                name="minutes"
+                type="text"
+                autoComplete="minutes"
+                className="block w-8 h-6 ml-2 mr-2 rounded-md border-0 px-2 py-1.5 text-md text-black shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-advus-lightblue-500 sm:text-xs sm:leading-6"
+              />
+              min
+            </div>
+          </form>
+
           <p className="italic text-xs lg:text-xs mt-1">
             Time remaining to allocate:{" "}
-            <strong className="font-semibold">8 days 2 hrs 45 min</strong>
+            <strong className="font-semibold">
+              {minToDays(timeRemaining)}
+            </strong>
           </p>
         </div>
       </div>
-      <div className="h-9 w-full flex justify-end mt-3 lg:mt-3 2xl:mt-9">
-        <Btn buttonType="primary" type="button" length="long">
+      <div className="h-9 w-full flex justify-between mt-3 lg:mt-3 2xl:mt-9">
+        <div className="flex flex-row space-x-5">
+          <Btn
+            buttonType="secondary"
+            type="button"
+            length="short"
+            disabled={currentLocation === 0}
+            onClickHandler={() =>
+              turnLocation(currentLocation, currentLocation - 1)
+            }
+          >
+            Previous
+          </Btn>
+          <Btn
+            buttonType="primary"
+            type="button"
+            length="short"
+            disabled={currentLocation === locations.length - 1}
+            onClickHandler={() =>
+              turnLocation(currentLocation, currentLocation + 1)
+            }
+          >
+            Next
+          </Btn>
+        </div>
+        <Btn
+          buttonType="primary"
+          type="button"
+          length="long"
+          onClickHandler={handleSave}
+        >
           Save
         </Btn>
       </div>

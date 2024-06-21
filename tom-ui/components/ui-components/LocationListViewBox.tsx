@@ -1,4 +1,6 @@
 import { XMarkIcon } from "@heroicons/react/20/solid";
+import { useAppDispatch } from "@/hooks/redux";
+import { removeLocation } from "@/redux/slices/tripSlice";
 
 type LocationListViewBoxProps = {
   locationName: string;
@@ -8,6 +10,7 @@ type LocationListViewBoxProps = {
 
 export default function LocationListViewBox(props: LocationListViewBoxProps) {
   const { locationName, locationAddress, index } = props;
+  const dispatch = useAppDispatch();
 
   return (
     <div className="flex justify-between w-full flex-row">
@@ -21,7 +24,10 @@ export default function LocationListViewBox(props: LocationListViewBoxProps) {
         </div>
       </div>
 
-      <div className="flex flex-row justify-center items-center text-advus-brown-500">
+      <div
+        className="flex flex-row justify-center items-center text-advus-brown-500 cursor-pointer"
+        onClick={() => dispatch(removeLocation(locationAddress))}
+      >
         <XMarkIcon className="h-5 w-5 mr-2" />
       </div>
     </div>
