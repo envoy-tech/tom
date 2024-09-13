@@ -1,23 +1,33 @@
 "use client";
 import { MagnifyingGlassIcon } from "@heroicons/react/20/solid";
-import usePlacesAutocomplete from "use-places-autocomplete";
+import usePlacesAutocomplete, {
+  RequestOptions,
+  Suggestions,
+} from "use-places-autocomplete";
 import { useEffect } from "react";
 
-export default function GooglePlacesSearchField({ setSuggestions }) {
+type GooglePlacesSearchFieldProps = {
+  setSuggestions: React.Dispatch<React.SetStateAction<Suggestions | undefined>>;
+  options?: RequestOptions;
+};
+
+export default function GooglePlacesSearchField({
+  setSuggestions,
+  options = {},
+}: GooglePlacesSearchFieldProps) {
   // https://developers.google.com/maps/documentation/javascript/reference/places-autocomplete-service#AutocompletionRequest
   const { suggestions, ready, setValue, clearSuggestions } =
     usePlacesAutocomplete({
       requestOptions: {
         location: { lat: () => 38, lng: () => 97 },
         radius: 100 * 1000,
+        ...options,
       },
     });
 
   const handleOnKeyDown = (e) => {
-    if (e.key === "Enter") {
-      clearSuggestions();
-      setValue(e.target.value);
-    }
+    clearSuggestions();
+    setValue(e.target.value);
   };
 
   useEffect(() => {

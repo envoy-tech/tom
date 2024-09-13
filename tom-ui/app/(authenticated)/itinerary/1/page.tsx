@@ -36,7 +36,9 @@ export default function ItineraryPageStepOne() {
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API as string,
     libraries: libraries as any,
   });
-  const [suggestions, setSuggestions] = useState<Suggestions | null>(null);
+  const [suggestions, setSuggestions] = useState<Suggestions | undefined>(
+    undefined
+  );
   const { locations } = useAppSelector((state) => state.trip);
   const [center, setCenter] = useState(mapCenter);
 

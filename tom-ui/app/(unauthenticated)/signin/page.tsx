@@ -3,7 +3,8 @@
 import { useSession, signIn, signOut } from "next-auth/react";
 import { Formik, Form, Field } from "formik";
 import { useSearchParams, useRouter } from "next/navigation";
-import { useState, useMemo, Suspense } from "react";
+import { useState, useMemo } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import Btn from "@/components/ui-components/Btn";
 import Spinner from "@/components/ui-components/Spinner";
 import Link from "@/components/ui-components/Link";
@@ -129,11 +130,18 @@ export default function SignIn() {
                       }`}
                     />
                   </div>
-                  {errors.password && touched.password ? (
-                    <label className="text-xs text-advus-red-500 mt-1">
-                      {errors.password}
-                    </label>
-                  ) : null}
+                  <AnimatePresence>
+                    {errors.password && touched.password ? (
+                      <motion.label
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="text-xs text-advus-red-500 mt-1"
+                      >
+                        {errors.password}
+                      </motion.label>
+                    ) : null}
+                  </AnimatePresence>
                 </div>
                 <div className="text-sm">
                   <Link href="#" linkType="primary">
