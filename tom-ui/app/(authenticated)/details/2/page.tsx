@@ -1,10 +1,8 @@
 "use client";
-import { useState } from "react";
 import Spinner from "@/components/ui-components/Spinner";
 import MainNavigationSteps from "@/components/page-components/MainNavigationSteps";
 import Btn from "@/components/ui-components/Btn";
 import FormField from "@/components/ui-components/FormField";
-import GooglePlacesSearchField from "@/components/ui-components/GooglePlacesSearchField";
 import { Form, Formik } from "formik";
 import * as Yup from "yup";
 import { useAppDispatch, useAppSelector } from "@/hooks/redux";
@@ -13,10 +11,6 @@ import {
   setEndingLocation,
 } from "@/redux/slices/tripSlice";
 import { useRouter } from "next/navigation";
-import { Suggestions } from "use-places-autocomplete";
-import { useLoadScript } from "@react-google-maps/api";
-
-const libraries = ["places"];
 
 export default function DetailsPageStepTwo() {
   const router = useRouter();
@@ -24,15 +18,6 @@ export default function DetailsPageStepTwo() {
   const { startingLocation, endingLocation } = useAppSelector(
     (state) => state.trip
   );
-  const { isLoaded } = useLoadScript({
-    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API as string,
-    libraries: libraries as any,
-  });
-  const [startLocationSuggestions, setStartLocationSuggestions] =
-    useState<Suggestions>();
-  const [endLocationSuggestions, setEndLocationSuggestions] =
-    useState<Suggestions>();
-
   const handleSubmitForm = (
     startlocation: string,
     endlocation: string,
@@ -106,17 +91,7 @@ export default function DetailsPageStepTwo() {
                 <div className="flex flex-row justify-between items-center">
                   <div className="flex flex-grow flex-col">
                     <div>
-                      {isLoaded && (
-                        <GooglePlacesSearchField
-                          setSuggestions={setStartLocationSuggestions}
-                          options={{
-                            types: ["(cities)"],
-                            componentRestrictions: { country: "us" },
-                          }}
-                        />
-                      )}
-
-                      {/* <FormField
+                      <FormField
                         id="startlocation"
                         name="startlocation"
                         type="text"
@@ -125,7 +100,7 @@ export default function DetailsPageStepTwo() {
                         textColor="text-black"
                       >
                         Starting location (minimum: City, State)
-                      </FormField> */}
+                      </FormField>
                     </div>
                     <div className="mt-6">
                       <FormField

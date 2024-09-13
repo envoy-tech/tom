@@ -10,6 +10,7 @@ import { Traveler } from "typings";
 import { useAppDispatch, useAppSelector } from "@/hooks/redux";
 import { setTravelers as setSavedTravelers } from "@/redux/slices/tripSlice";
 import { useRouter } from "next/navigation";
+import Spinner from "@/components/ui-components/Spinner";
 
 export default function TravelersPage() {
   const formRef = useRef(null);
@@ -132,7 +133,7 @@ export default function TravelersPage() {
               submitForm,
               /* and other goodies */
             }) => (
-              <Form ref={formRef}>
+              <Form ref={formRef} onSubmit={handleSubmit}>
                 <div className="flex flex-row justify-between items-center space-x-6">
                   <div className="flex flex-grow flex-col">
                     <div>
@@ -185,7 +186,7 @@ export default function TravelersPage() {
                       type="submit"
                       onClickHandler={submitForm}
                     >
-                      Next
+                      {isSubmitting ? <Spinner /> : "Next"}
                     </Btn>
                   </div>
                 </div>

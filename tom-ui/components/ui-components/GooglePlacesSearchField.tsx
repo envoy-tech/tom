@@ -1,9 +1,10 @@
 "use client";
 import { MagnifyingGlassIcon } from "@heroicons/react/20/solid";
-import usePlacesAutocomplete, {
+import usePlacesAutocomplete from "@/hooks/usePlacesAutocomplete";
+import {
   RequestOptions,
   Suggestions,
-} from "use-places-autocomplete";
+} from "@/hooks/usePlacesAutocompleteTypes";
 import { useEffect } from "react";
 
 type GooglePlacesSearchFieldProps = {
