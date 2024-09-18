@@ -18,3 +18,7 @@
   background: #214d63;
   border-radius: 20px;
 }
+
+.gm-style iframe + div {
+  border: none !important;
+}

@@ -1,16 +1,14 @@
 "use client";
 import { useState, useRef, useEffect } from "react";
-import {
-  useLoadScript,
-  GoogleMap,
-  Marker,
-  InfoWindow,
-  InfoBox,
-} from "@react-google-maps/api";
+import { useLoadScript, GoogleMap, OverlayView } from "@react-google-maps/api";
 import Btn from "@/components/ui-components/Btn";
 import LocationNoteBox from "@/components/ui-components/LocationNoteBox";
 import MainNavigationSteps from "@/components/page-components/MainNavigationSteps";
 import { useAppSelector } from "@/hooks/redux";
+import { getZoom } from "@/utils/google-maps";
+import Marker from "@/components/ui-components/Marker";
+import SelectedMarker from "@/components/ui-components/SelectedMarker";
+import { XMarkIcon } from "@heroicons/react/20/solid";
 
 const libraries = ["places"];
 const mapOptions = {
@@ -24,11 +22,13 @@ export default function ItineraryPageStepTwo() {
   const locations = useAppSelector((state) => state.trip.locations);
   const mapRef = useRef(null);
   const [center, setCenter] = useState(mapCenter);
+  const [zoom, setZoom] = useState(5);
   const [selectedMarker, setSelectedMarker] = useState<string>("");
 
   const { isLoaded } = useLoadScript({
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API as string,
     libraries: libraries as any,
+    version: "3.55",
   });
 
   useEffect(() => {
@@ -43,7 +43,17 @@ export default function ItineraryPageStepTwo() {
         )
       );
 
-      setCenter(bounds.getCenter());
+      setCenter({
+        lat: bounds.getCenter().lat(),
+        lng: bounds.getCenter().lng(),
+      });
+      setZoom(
+        getZoom(
+          bounds.getSouthWest(),
+          bounds.getNorthEast(),
+          mapRef.current.getInstance().getDiv().offsetWidth
+        ) - 1
+      );
     }
   }, [isLoaded]);
 
@@ -94,7 +104,7 @@ export default function ItineraryPageStepTwo() {
             {isLoaded ? (
               <GoogleMap
                 options={mapOptions}
-                zoom={5}
+                zoom={zoom}
                 center={center}
                 mapTypeId={window.google.maps.MapTypeId.ROADMAP}
                 mapContainerStyle={{
@@ -106,29 +116,36 @@ export default function ItineraryPageStepTwo() {
               >
                 {locations.length &&
                   locations.map((location) => (
-                    <Marker
+                    <OverlayView
                       key={`${location.name}-${location.address}`}
                       position={{ lat: location.lat, lng: location.long }}
-                      onClick={() => setSelectedMarker(location.address)}
+                      mapPaneName={OverlayView.OVERLAY_MOUSE_TARGET}
                     >
-                      {location.address === selectedMarker && (
-                        <InfoBox
-                          options={{
-                            pixelOffset: new window.google.maps.Size(20, -40),
-                            closeBoxMargin: "10px 10px 2px 2px",
-                            infoBoxClearance: new google.maps.Size(1, 1),
-                            closeBoxURL: "",
-                          }}
+                      <>
+                        <div
+                          className="absolute -translate-x-1/2 -translate-y-1/2 cursor-pointer"
+                          onClick={() => setSelectedMarker(location.address)}
                         >
-                          <div className="h-fit w-32 shadow-md text-black bg-white rounded-md p-3 text-balance break-words">
+                          {location.address === selectedMarker ? (
+                            <SelectedMarker />
+                          ) : (
+                            <Marker />
+                          )}
+                        </div>
+                        {location.address === selectedMarker && (
+                          <div className="h-fit w-32 shadow-md text-black bg-white rounded-md p-3 ml-5 -mt-5 text-balance break-words relative">
                             <h1 className="font-bold text-md">
                               {location.name}
                             </h1>
                             <p>{location.notes}</p>
+                            <XMarkIcon
+                              className="h-4 w-4 absolute top-1 right-1 cursor-pointer text-advus-brown-500"
+                              onClick={() => setSelectedMarker("")}
+                            />
                           </div>
-                        </InfoBox>
-                      )}
-                    </Marker>
+                        )}
+                      </>
+                    </OverlayView>
                   ))}
               </GoogleMap>
             ) : (

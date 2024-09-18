@@ -1,9 +1,9 @@
 import MainNavigationSteps from "./MainNavigationSteps";
 import { MapIcon } from "@heroicons/react/24/outline";
 import { ListBulletIcon } from "@heroicons/react/20/solid";
-import { DUMMY_LOCATION_DATA } from "@/utils/dummy-data";
 import ListViewLocation from "../ui-components/ListViewLocation";
 import Btn from "../ui-components/Btn";
+import { useAppSelector } from "@/hooks/redux";
 
 type ListViewProps = {
   showMapView: Function;
@@ -11,6 +11,7 @@ type ListViewProps = {
 
 export default function ListView(props: ListViewProps) {
   const { showMapView } = props;
+  const { locations } = useAppSelector((state) => state.trip);
 
   return (
     <div className="flex min-h-full w-full flex-1 flex-col justify-start items-center px-6 py-6 lg:px-8 relative">
@@ -55,13 +56,13 @@ export default function ListView(props: ListViewProps) {
           </div>
         </div>
         <div className="overflow-y-scroll max-h-72 space-y-4 pr-3">
-          {DUMMY_LOCATION_DATA.map((location, index) => (
+          {locations.map((location, index) => (
             <div className="space-y-3" key={`location-${index}`}>
               <ListViewLocation
                 name={location.name}
                 address={location.address}
               />
-              {index !== DUMMY_LOCATION_DATA.length - 1 && (
+              {index !== locations.length - 1 && (
                 <div className="border-gray-400 border-b-2 w-full"></div>
               )}
             </div>

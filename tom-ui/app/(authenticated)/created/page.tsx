@@ -2,7 +2,6 @@
 import { useMemo, useState } from "react";
 import { useLoadScript, GoogleMap } from "@react-google-maps/api";
 import RouteCreatedBox from "@/components/ui-components/RouteCreatedBox";
-import { DUMMY_LOCATION_DATA } from "@/utils/dummy-data";
 import { useAppSelector, useAppDispatch } from "@/hooks/redux";
 import { addLocation } from "@/redux/slices/tripSlice";
 import { ArrowUpTrayIcon } from "@heroicons/react/20/solid";
@@ -23,11 +22,6 @@ export default function RoutesCreatedPage() {
   );
   const locations = useAppSelector((state) => state.trip.locations);
   const dispatch = useAppDispatch();
-
-  if (locations.length === 0) {
-    DUMMY_LOCATION_DATA.map((location) => dispatch(addLocation(location)));
-  }
-
   const { isLoaded } = useLoadScript({
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API as string,
     libraries: libraries as any,
@@ -59,7 +53,7 @@ export default function RoutesCreatedPage() {
         <div className="w-1/2 h-full flex flex-col justify-start items-start">
           <div className="h-full w-full flex flex-col border-2 border-gray-400 p-3 rounded-md">
             <div className="overflow-y-scroll space-y-4 pr-3">
-              {DUMMY_LOCATION_DATA.map((locationData, index) => (
+              {locations.map((locationData, index) => (
                 <div className="flex flex-row" key={`location-${index}`}>
                   <div className="rounded-full bg-advus-brown-500 w-10 h-10 relative flex justify-center items-center p-5 mr-3">
                     <div className="text-white font-semibold">{index + 1}</div>

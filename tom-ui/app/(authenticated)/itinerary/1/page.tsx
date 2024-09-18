@@ -1,6 +1,6 @@
 "use client";
 import { useRef, useState, useCallback, useEffect } from "react";
-import { useLoadScript, GoogleMap, Marker } from "@react-google-maps/api";
+import { useLoadScript, GoogleMap, OverlayView } from "@react-google-maps/api";
 import { ListBulletIcon } from "@heroicons/react/20/solid";
 import { MapIcon } from "@heroicons/react/24/outline";
 import Btn from "@/components/ui-components/Btn";
@@ -9,7 +9,12 @@ import MainNavigationSteps from "@/components/page-components/MainNavigationStep
 import LocationListViewBox from "@/components/ui-components/LocationListViewBox";
 import GooglePlacesSearchField from "@/components/ui-components/GooglePlacesSearchField";
 import { type Suggestions } from "use-places-autocomplete";
-import { useAppSelector } from "@/hooks/redux";
+import { useAppSelector, useAppDispatch } from "@/hooks/redux";
+import { getZoom } from "@/utils/google-maps";
+import Marker from "@/components/ui-components/Marker";
+import SelectedMarker from "@/components/ui-components/SelectedMarker";
+import { XMarkIcon, TrashIcon } from "@heroicons/react/20/solid";
+import { removeLocation } from "@/redux/slices/tripSlice";
 
 const libraries = ["places"];
 const mapOptions = {
@@ -19,28 +24,24 @@ const mapOptions = {
 };
 const mapCenter = { lat: 27.672932021393862, lng: 85.31184012689732 };
 
-const mapMarker = `
-<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-  <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
-  <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" />
-</svg>
-`;
-
 export default function ItineraryPageStepOne() {
   const onMapLoad = useCallback((map) => {
     mapRef.current = map;
   }, []);
   const mapRef = useRef(null);
-  const [showMapView, setShowMapView] = useState(true);
   const { isLoaded } = useLoadScript({
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API as string,
     libraries: libraries as any,
   });
+  const { locations } = useAppSelector((state) => state.trip);
+  const dispatch = useAppDispatch();
   const [suggestions, setSuggestions] = useState<Suggestions | undefined>(
     undefined
   );
-  const { locations } = useAppSelector((state) => state.trip);
+  const [selectedMarker, setSelectedMarker] = useState<string>("");
+  const [showMapView, setShowMapView] = useState(true);
   const [center, setCenter] = useState(mapCenter);
+  const [zoom, setZoom] = useState(5);
 
   useEffect(() => {
     if (locations.length && mapRef.current && isLoaded) {
@@ -54,9 +55,27 @@ export default function ItineraryPageStepOne() {
         )
       );
 
-      setCenter(bounds.getCenter());
+      console.log(mapRef.current);
+
+      setCenter({
+        lat: bounds.getCenter().lat(),
+        lng: bounds.getCenter().lng(),
+      });
+      // TODO: Figure out why this is erroring
+      // setZoom(
+      //   getZoom(
+      //     bounds.getSouthWest(),
+      //     bounds.getNorthEast(),
+      //     mapRef.current.getInstance().getDiv().offsetWidth
+      //   ) - 1
+      // );
     }
-  }, [locations, isLoaded]);
+  }, [locations, isLoaded, mapRef]);
+
+  const handleRemoveLocation = (location) => {
+    setSelectedMarker("");
+    dispatch(removeLocation(location.address));
+  };
 
   return (
     <div className="flex flex-col items-center justify-center w-full h-full px-6 py-12 lg:px-8">
@@ -147,7 +166,7 @@ export default function ItineraryPageStepOne() {
               isLoaded ? (
                 <GoogleMap
                   options={mapOptions}
-                  zoom={6}
+                  zoom={zoom}
                   center={center}
                   mapTypeId={window.google.maps.MapTypeId.ROADMAP}
                   mapContainerStyle={{
@@ -160,10 +179,42 @@ export default function ItineraryPageStepOne() {
                 >
                   {locations.length &&
                     locations.map((location) => (
-                      <Marker
+                      <OverlayView
                         key={`${location.name}-${location.address}`}
                         position={{ lat: location.lat, lng: location.long }}
-                      />
+                        mapPaneName={OverlayView.OVERLAY_MOUSE_TARGET}
+                      >
+                        <>
+                          <div
+                            className="absolute -translate-x-1/2 -translate-y-1/2"
+                            onClick={() => setSelectedMarker(location.address)}
+                          >
+                            {location.address === selectedMarker ? (
+                              <SelectedMarker />
+                            ) : (
+                              <Marker />
+                            )}
+                          </div>
+                          {location.address === selectedMarker && (
+                            <div className="h-fit w-32 shadow-md text-black bg-white rounded-md p-3 ml-5 -mt-5 text-balance break-words relative">
+                              <h1 className="font-bold text-md">
+                                {location.name}
+                              </h1>
+                              <XMarkIcon
+                                className="h-4 w-4 absolute top-1 right-1 cursor-pointer text-advus-brown-500"
+                                onClick={() => setSelectedMarker("")}
+                              />
+                              <div
+                                className="flex flex-row justify-start items-center hover:cursor-pointer select-none text-advus-brown-500 mt-2"
+                                onClick={() => handleRemoveLocation(location)}
+                              >
+                                <TrashIcon className="h-3 w-3 mr-1 text-advus-brown-500" />
+                                Remove
+                              </div>
+                            </div>
+                          )}
+                        </>
+                      </OverlayView>
                     ))}
                 </GoogleMap>
               ) : (

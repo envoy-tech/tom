@@ -23,9 +23,12 @@ const getLatLong = async (address: string) => {
 export default function LocationBox(props: LocationBoxProps) {
   const { locationName, locationAddress, locationDescription } = props;
   const { clearSuggestions } = usePlacesAutocomplete();
-  const [added, setAdded] = useState(false);
   const dispatch = useAppDispatch();
   const { locations } = useAppSelector((state) => state.trip);
+  const [added, setAdded] = useState(
+    locations.findIndex((location) => location.address === locationAddress) !==
+      -1
+  );
 
   const handleAddLocation = async () => {
     const { lat, long } = await getLatLong(locationDescription);

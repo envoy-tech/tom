@@ -117,7 +117,7 @@ export default function TravelersPage() {
               name: "",
               email: "",
             }}
-            validationSchema={detailsSchema}
+            {...(!travelers.length && { validationSchema: detailsSchema })}
             onSubmit={(values, { setSubmitting }) =>
               handleSubmitForm(setSubmitting)
             }

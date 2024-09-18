@@ -22,6 +22,7 @@ export default function GooglePlacesSearchField({
       requestOptions: {
         location: { lat: () => 38, lng: () => 97 },
         radius: 100 * 1000,
+        componentRestrictions: { country: "us" },
         ...options,
       },
     });
