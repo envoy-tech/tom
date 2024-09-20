@@ -12,6 +12,8 @@ import { setTravelers as setSavedTravelers } from "@/redux/slices/tripSlice";
 import { useRouter } from "next/navigation";
 import Spinner from "@/components/ui-components/Spinner";
 
+//TODO: clear the name and email address field when added.
+
 export default function TravelersPage() {
   const formRef = useRef(null);
   const dispatch = useAppDispatch();

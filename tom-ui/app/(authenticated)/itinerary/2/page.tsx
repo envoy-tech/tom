@@ -7,7 +7,6 @@ import MainNavigationSteps from "@/components/page-components/MainNavigationStep
 import { useAppSelector } from "@/hooks/redux";
 import { getZoom } from "@/utils/google-maps";
 import Marker from "@/components/ui-components/Marker";
-import SelectedMarker from "@/components/ui-components/SelectedMarker";
 import { XMarkIcon } from "@heroicons/react/20/solid";
 
 const libraries = ["places"];
@@ -126,11 +125,9 @@ export default function ItineraryPageStepTwo() {
                           className="absolute -translate-x-1/2 -translate-y-1/2 cursor-pointer"
                           onClick={() => setSelectedMarker(location.address)}
                         >
-                          {location.address === selectedMarker ? (
-                            <SelectedMarker />
-                          ) : (
-                            <Marker />
-                          )}
+                          <Marker
+                            selected={location.address === selectedMarker}
+                          />
                         </div>
                         {location.address === selectedMarker && (
                           <div className="h-fit w-32 shadow-md text-black bg-white rounded-md p-3 ml-5 -mt-5 text-balance break-words relative">

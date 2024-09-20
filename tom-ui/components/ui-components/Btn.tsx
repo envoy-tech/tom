@@ -46,7 +46,7 @@ export default function Btn(props: PropsWithChildren<BtnProps>) {
 
   const btnComponent = (
     <button
-      className={`flex justify-center rounded-md px-3 py-1.5 text-sm font-semibold leading-6 shadow-sm outline disabled:pointer-events-none disabled:bg-gray-300 disabled:text-gray-500 disabled:outline-none outline-2 transition-all ${typeStyling} ${lengthStyling}`}
+      className={`flex justify-center rounded-md px-3 py-1.5 text-sm font-semibold leading-6 shadow-sm outline disabled:pointer-events-none disabled:bg-gray-300 disabled:text-gray-500 disabled:outline-none outline-2 transition-all select-none ${typeStyling} ${lengthStyling}`}
       onClick={onClickHandler}
       disabled={disabled}
       type={type}

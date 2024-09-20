@@ -12,7 +12,6 @@ import { type Suggestions } from "use-places-autocomplete";
 import { useAppSelector, useAppDispatch } from "@/hooks/redux";
 import { getZoom } from "@/utils/google-maps";
 import Marker from "@/components/ui-components/Marker";
-import SelectedMarker from "@/components/ui-components/SelectedMarker";
 import { XMarkIcon, TrashIcon } from "@heroicons/react/20/solid";
 import { removeLocation } from "@/redux/slices/tripSlice";
 
@@ -71,6 +70,8 @@ export default function ItineraryPageStepOne() {
       // );
     }
   }, [locations, isLoaded, mapRef]);
+
+  // TODO: Add animation for pin drop, also zoom first, then do the pin drop, can prob use framer-motion for pin drop animation.
 
   const handleRemoveLocation = (location) => {
     setSelectedMarker("");
@@ -189,11 +190,9 @@ export default function ItineraryPageStepOne() {
                             className="absolute -translate-x-1/2 -translate-y-1/2"
                             onClick={() => setSelectedMarker(location.address)}
                           >
-                            {location.address === selectedMarker ? (
-                              <SelectedMarker />
-                            ) : (
-                              <Marker />
-                            )}
+                            <Marker
+                              selected={location.address === selectedMarker}
+                            />
                           </div>
                           {location.address === selectedMarker && (
                             <div className="h-fit w-32 shadow-md text-black bg-white rounded-md p-3 ml-5 -mt-5 text-balance break-words relative">

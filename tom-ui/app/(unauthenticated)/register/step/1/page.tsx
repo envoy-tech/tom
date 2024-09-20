@@ -68,6 +68,9 @@ export default function RegisterStep1() {
       .oneOf([Yup.ref("password"), ""], "Passwords must match"),
   });
 
+  // TODO: Add eye icon for seeing the password
+  // TODO: make sure the confirm password is the same password as password
+
   return (
     <>
       <div className="sm:mx-auto sm:w-full sm:max-w-sm">

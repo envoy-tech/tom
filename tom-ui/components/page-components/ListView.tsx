@@ -4,6 +4,8 @@ import { ListBulletIcon } from "@heroicons/react/20/solid";
 import ListViewLocation from "../ui-components/ListViewLocation";
 import Btn from "../ui-components/Btn";
 import { useAppSelector } from "@/hooks/redux";
+import { useMemo } from "react";
+import { minToDays } from "@/utils/time";
 
 type ListViewProps = {
   showMapView: Function;
@@ -11,7 +13,24 @@ type ListViewProps = {
 
 export default function ListView(props: ListViewProps) {
   const { showMapView } = props;
-  const { locations } = useAppSelector((state) => state.trip);
+  const { locations, startDate, endDate } = useAppSelector(
+    (state) => state.trip
+  );
+
+  const timeRemaining = useMemo(() => {
+    if (locations.length) {
+      const start = new Date(startDate);
+      const end = new Date(endDate);
+      const diff = Math.abs(start.getTime() - end.getTime());
+      const minutes = diff / 1000 / 60;
+      const totalUsedTime = locations.reduce(
+        (acc, curr) => acc + curr.timeAllocated,
+        0
+      );
+
+      return minutes - totalUsedTime;
+    }
+  }, [locations]);
 
   return (
     <div className="flex min-h-full w-full flex-1 flex-col justify-start items-center px-6 py-6 lg:px-8 relative">
@@ -48,19 +67,21 @@ export default function ListView(props: ListViewProps) {
           </div>
         </div>
         <div className="flex justify-end">
-          <div className="flex flex-col justify-center items-center">
+          <div className="flex flex-col justify-start items-start">
             <p className="text-sm">Time remaining to allocate</p>
             <p className="text-md text-advus-lightblue-500">
-              3 days 2 hrs 45 min
+              {minToDays(timeRemaining, true)}
             </p>
           </div>
         </div>
-        <div className="overflow-y-scroll max-h-72 space-y-4 pr-3">
+        <div className="overflow-y-scroll max-h-72 mt-3 space-y-4 pr-3">
           {locations.map((location, index) => (
             <div className="space-y-3" key={`location-${index}`}>
               <ListViewLocation
                 name={location.name}
                 address={location.address}
+                interest={location.interest}
+                timeAllocated={location.timeAllocated}
               />
               {index !== locations.length - 1 && (
                 <div className="border-gray-400 border-b-2 w-full"></div>

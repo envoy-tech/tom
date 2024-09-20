@@ -11,11 +11,10 @@ import {
 import dynamic from "next/dynamic";
 import { MapIcon } from "@heroicons/react/24/outline";
 import { useAppSelector } from "@/hooks/redux";
-import { useAppDispatch } from "@/hooks/redux";
 import { getZoom } from "@/utils/google-maps";
 import Marker from "../ui-components/Marker";
-import SelectedMarker from "../ui-components/SelectedMarker";
-import { XMarkIcon } from "@heroicons/react/20/solid";
+import { XMarkIcon, ArrowDownRightIcon } from "@heroicons/react/20/solid";
+import { motion } from "framer-motion";
 
 const MapViewLocationPreferenceBox = dynamic(
   () => import("../ui-components/MapViewLocationPreferenceBox"),
@@ -37,9 +36,9 @@ const mapCenter = { lat: 27.672932021393862, lng: 85.31184012689732 };
 export default function MapView(props: MapViewProps) {
   const { showMapView } = props;
   const [zoom, setZoom] = useState(14);
-  const dispatch = useAppDispatch();
   const { locations } = useAppSelector((state) => state.trip);
   const [center, setCenter] = useState(mapCenter);
+  const [open, setOpen] = useState(true);
   const [selectedMarker, setSelectedMarker] = useState("");
   const mapRef = useRef(null);
 
@@ -101,11 +100,7 @@ export default function MapView(props: MapViewProps) {
                     className="absolute -translate-x-1/2 -translate-y-1/2 cursor-pointer"
                     onClick={() => setSelectedMarker(location.address)}
                   >
-                    {location.address === selectedMarker ? (
-                      <SelectedMarker />
-                    ) : (
-                      <Marker />
-                    )}
+                    <Marker selected={location.address === selectedMarker} />
                   </div>
                   {location.address === selectedMarker && (
                     <div className="h-fit w-32 shadow-md text-black bg-white rounded-md p-3 ml-5 -mt-5 text-balance break-words relative">
@@ -135,12 +130,22 @@ export default function MapView(props: MapViewProps) {
         </Link>
       </div>
 
-      <div className="h-max w-1/2 z-10 absolute top-32 left-8 lg:w-5/12 lg:top-32 lg:left-8 xl:w-4/12 2xl:top-36 2xl:left-10">
-        <MapViewLocationPreferenceBox
-          selectedMarker={selectedMarker}
-          setSelectedMarker={setSelectedMarker}
-        />
-      </div>
+      <motion.div className="h-max w-1/2 z-10 absolute top-32 left-8 lg:w-5/12 lg:top-32 lg:left-8 xl:w-4/12 2xl:top-36 2xl:left-10">
+        {open ? (
+          <MapViewLocationPreferenceBox
+            selectedMarker={selectedMarker}
+            setSelectedMarker={setSelectedMarker}
+            setOpen={setOpen}
+          />
+        ) : (
+          <div className="w-8 h-8 border-2 border-advus-lightblue-500 rounded-md bg-white flex justify-center items-center">
+            <ArrowDownRightIcon
+              className="h-5 w-5 text-advus-lightblue-500 cursor-pointer"
+              onClick={() => setOpen(true)}
+            />
+          </div>
+        )}
+      </motion.div>
       <div className="z-10 absolute top-20 right-8 lg:top-20 lg:right-8 2xl:top-24 2xl:right-10 drop-shadow-lg flex flex-row text-advus-lightblue-500 border-advus-lightblue-500 border-2 rounded-md bg-white px-3 py-1.5 space-x-3">
         <div className="flex flex-row items-center justify-center font-semibold text-xs space-x-2 hover:cursor-pointer hover:text-advus-navyblue-500 transition-colors">
           <MapIcon className="h-6 w-6" />

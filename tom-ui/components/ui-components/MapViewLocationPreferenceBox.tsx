@@ -1,36 +1,39 @@
 "use client";
 import { XMarkIcon } from "@heroicons/react/20/solid";
 import Btn from "./Btn";
-import { useState, useMemo, useRef, useEffect } from "react";
+import {
+  useState,
+  useMemo,
+  useRef,
+  useEffect,
+  Dispatch,
+  SetStateAction,
+} from "react";
 import { useAppSelector } from "@/hooks/redux";
 import { setLocationInterest, setLocationTime } from "@/redux/slices/tripSlice";
 import { useAppDispatch } from "@/hooks/redux";
 import { useRouter } from "next/navigation";
-
-function minToDays(mins: number) {
-  let days = Math.floor(mins / 1440);
-  let remainingTime = mins - Math.floor(days * 1440);
-  let hours = Math.floor(remainingTime / 60);
-  let remainingMin = Math.floor(remainingTime - hours * 60);
-  return `${days} day(s) and ${hours} hour(s) and ${remainingMin} minutes(s).`;
-}
+import { minToDays } from "@/utils/time";
+import Spinner from "./Spinner";
 
 type MapViewLocationPreferenceBoxProps = {
   selectedMarker: string;
-  setSelectedMarker: Function;
+  setSelectedMarker: Dispatch<SetStateAction<string>>;
+  setOpen: Dispatch<SetStateAction<boolean>>;
 };
 
 export default function MapViewLocationPreferenceBox(
   props: MapViewLocationPreferenceBoxProps
 ) {
-  const { selectedMarker, setSelectedMarker } = props;
-  const [interest, setInterest] = useState(0);
+  const { selectedMarker, setSelectedMarker, setOpen } = props;
   const { locations, startDate, endDate } = useAppSelector(
     (state) => state.trip
   );
   const [currentLocation, setCurrentLocation] = useState(0);
+  const [submitting, setSubmitting] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
   const dispatch = useAppDispatch();
+  const router = useRouter();
   const timeRemaining = useMemo(() => {
     if (locations.length) {
       const start = new Date(startDate);
@@ -46,9 +49,14 @@ export default function MapViewLocationPreferenceBox(
     }
   }, [locations]);
 
-  const handleSave = () => {};
+  const handleNext = () => {
+    //TODO: Check all locations to make sure that the user has set time and interest for each location
+    setSubmitting(true);
+    router.push("/optimize");
+    setSubmitting(false);
+  };
 
-  const turnLocation = (index: number, newIndex: number) => {
+  const handleTime = (address: string) => {
     const days = Number(formRef.current.elements.days.value);
     const hours = Number(formRef.current.elements.hours.value);
     const mins = Number(formRef.current.elements.minutes.value);
@@ -67,17 +75,15 @@ export default function MapViewLocationPreferenceBox(
       timeAllocated += mins;
     }
 
-    dispatch(
-      setLocationInterest({ address: locations[index].address, interest })
-    );
-    dispatch(
-      setLocationTime({
-        address: locations[index].address,
-        timeAllocated: timeAllocated,
-      })
-    );
-    setCurrentLocation(newIndex);
+    dispatch(setLocationTime({ address, timeAllocated }));
+  };
 
+  const handleInterest = (address: string, interest: number) => {
+    dispatch(setLocationInterest({ address, interest }));
+  };
+
+  const handleTurnLocation = (locationIndex: number) => {
+    setCurrentLocation(locationIndex);
     formRef.current.elements.days.value = 0;
     formRef.current.elements.hours.value = 0;
     formRef.current.elements.minutes.value = 0;
@@ -97,10 +103,30 @@ export default function MapViewLocationPreferenceBox(
     setSelectedMarker(locations[currentLocation].address);
   }, [currentLocation]);
 
+  useEffect(() => {
+    if (locations[currentLocation].timeAllocated) {
+      const { days, hours, minutes } = minToDays(
+        locations[currentLocation].timeAllocated,
+        false
+      ) as {
+        days: number;
+        hours: number;
+        minutes: number;
+      };
+
+      formRef.current.elements.days.value = days;
+      formRef.current.elements.hours.value = hours;
+      formRef.current.elements.minutes.value = minutes;
+    }
+  }, [currentLocation]);
+
   return (
     <div className="h-full w-full bg-gray-100 rounded-md drop-shadow-lg border-gray-400 border-2 flex flex-col md:p-3 lg:p-3 2xl:p-3">
       <div className="w-full flex justify-end">
-        <XMarkIcon className="w-6 h-6 lg:h-6 lg:w-6 2xl:h-8 2xl:w-8 text-advus-brown-500" />
+        <XMarkIcon
+          className="w-6 h-6 lg:h-6 lg:w-6 2xl:h-8 2xl:w-8 text-advus-brown-500 cursor-pointer"
+          onClick={() => setOpen(false)}
+        />
       </div>
 
       <h1 className="font-semibold text-md lg:text-2xl 2xl:text-3xl">
@@ -128,41 +154,49 @@ export default function MapViewLocationPreferenceBox(
             <p className="italic text-xs lg:text-xs">Not interested</p>
             <div
               className={`flex flex-col h-4 w-4 lg:h-4 lg:w-4 2xl:h-6 2xl:w-6 items-center justify-start rounded-full cursor-pointer transition-colors hover:bg-advus-lightblue-300 ${
-                interest === 0
+                locations[currentLocation].interest === 0
                   ? "bg-advus-lightblue-500"
                   : "border-2 bg-white border-advus-lightblue-500"
               }`}
-              onClick={() => setInterest(0)}
+              onClick={() =>
+                handleInterest(locations[currentLocation].address, 0)
+              }
             ></div>
           </div>
           <div className="w-1/5 flex justify-center">
             <div
               className={`flex flex-col h-4 w-4 lg:h-4 lg:w-4 2xl:h-6 2xl:w-6 items-center justify-start rounded-full cursor-pointer transition-colors hover:bg-advus-lightblue-300 ${
-                interest === 1
+                locations[currentLocation].interest === 1
                   ? "bg-advus-lightblue-500"
                   : "border-2 bg-white border-advus-lightblue-500"
               }`}
-              onClick={() => setInterest(1)}
+              onClick={() =>
+                handleInterest(locations[currentLocation].address, 1)
+              }
             ></div>
           </div>
           <div className="w-1/5 flex justify-center">
             <div
               className={`flex flex-col h-4 w-4 lg:h-4 lg:w-4 2xl:h-6 2xl:w-6 items-center justify-start rounded-full cursor-pointer transition-colors hover:bg-advus-lightblue-300 ${
-                interest === 2
+                locations[currentLocation].interest === 2
                   ? "bg-advus-lightblue-500"
                   : "border-2 bg-white border-advus-lightblue-500"
               }`}
-              onClick={() => setInterest(2)}
+              onClick={() =>
+                handleInterest(locations[currentLocation].address, 2)
+              }
             ></div>
           </div>
           <div className="w-1/5 flex justify-center">
             <div
               className={`flex flex-col h-4 w-4 lg:h-4 lg:w-4 2xl:h-6 2xl:w-6 items-center justify-start rounded-full cursor-pointer transition-colors hover:bg-advus-lightblue-300 ${
-                interest === 3
+                locations[currentLocation].interest === 3
                   ? "bg-advus-lightblue-500"
                   : "border-2 bg-white border-advus-lightblue-500"
               }`}
-              onClick={() => setInterest(3)}
+              onClick={() =>
+                handleInterest(locations[currentLocation].address, 3)
+              }
             ></div>
           </div>
 
@@ -170,11 +204,13 @@ export default function MapViewLocationPreferenceBox(
             <p className="italic text-xs lg:text-xs">Very interested</p>
             <div
               className={`flex flex-col h-4 w-4 lg:h-4 lg:w-4 2xl:h-6 2xl:w-6 items-center justify-start rounded-full cursor-pointer transition-colors hover:bg-advus-lightblue-300 ${
-                interest === 4
+                locations[currentLocation].interest === 4
                   ? "bg-advus-lightblue-500"
                   : "border-2 bg-white border-advus-lightblue-500"
               }`}
-              onClick={() => setInterest(4)}
+              onClick={() =>
+                handleInterest(locations[currentLocation].address, 4)
+              }
             ></div>
           </div>
         </div>
@@ -187,24 +223,27 @@ export default function MapViewLocationPreferenceBox(
               <input
                 id="days"
                 name="days"
-                type="text"
+                type="number"
                 autoComplete="days"
+                onChange={() => handleTime(locations[currentLocation].address)}
                 className="block w-8 h-6 mr-2 rounded-md border-0 px-2 py-1.5 text-md text-black shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-advus-lightblue-500 sm:text-xs sm:leading-6"
               />
               days
               <input
                 id="hours"
                 name="hours"
-                type="text"
+                type="number"
                 autoComplete="hours"
+                onChange={() => handleTime(locations[currentLocation].address)}
                 className="block w-8 h-6 ml-2 mr-2 rounded-md border-0 px-2 py-1.5 text-md text-black shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-advus-lightblue-500 sm:text-xs sm:leading-6 border-none"
               />
               hrs
               <input
                 id="minutes"
                 name="minutes"
-                type="text"
+                type="number"
                 autoComplete="minutes"
+                onChange={() => handleTime(locations[currentLocation].address)}
                 className="block w-8 h-6 ml-2 mr-2 rounded-md border-0 px-2 py-1.5 text-md text-black shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-advus-lightblue-500 sm:text-xs sm:leading-6"
               />
               min
@@ -214,7 +253,7 @@ export default function MapViewLocationPreferenceBox(
           <p className="italic text-xs lg:text-xs mt-1">
             Time remaining to allocate:{" "}
             <strong className="font-semibold">
-              {minToDays(timeRemaining)}
+              {minToDays(timeRemaining as number, true) as string}
             </strong>
           </p>
         </div>
@@ -226,31 +265,27 @@ export default function MapViewLocationPreferenceBox(
             type="button"
             length="short"
             disabled={currentLocation === 0}
-            onClickHandler={() =>
-              turnLocation(currentLocation, currentLocation - 1)
-            }
+            onClickHandler={() => handleTurnLocation(currentLocation - 1)}
           >
             Previous
           </Btn>
           <Btn
             buttonType="primary"
             type="button"
-            length="short"
+            length="default"
             disabled={currentLocation === locations.length - 1}
-            onClickHandler={() =>
-              turnLocation(currentLocation, currentLocation + 1)
-            }
+            onClickHandler={() => handleTurnLocation(currentLocation + 1)}
           >
-            Next
+            Next Location
           </Btn>
         </div>
         <Btn
           buttonType="primary"
           type="button"
           length="long"
-          onClickHandler={handleSave}
+          onClickHandler={handleNext}
         >
-          Save
+          {submitting ? <Spinner /> : "Next"}
         </Btn>
       </div>
     </div>
