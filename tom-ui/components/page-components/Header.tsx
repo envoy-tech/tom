@@ -13,7 +13,12 @@ export default function Header() {
         <Btn href="/details/1" buttonType="primary" type="button">
           Plan a trip
         </Btn>
-        <UserCircleIcon className="h-10 w-10 text-white" aria-hidden="true" />
+        <Link linkType="primary" href="/home">
+          <UserCircleIcon
+            className="h-10 w-10 text-white cursor-pointer"
+            aria-hidden="true"
+          />
+        </Link>
       </div>
     </div>
   );

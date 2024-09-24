@@ -33,11 +33,13 @@ export default function LocationBox(props: LocationBoxProps) {
   const handleAddLocation = async () => {
     const { lat, long } = await getLatLong(locationDescription);
 
+    // TODO: Handle adding a duplicate location
+
     dispatch(
       addLocation({
         notes: "",
-        timeAllocated: 0,
-        interest: 0,
+        timeAllocated: undefined,
+        interest: undefined,
         name: locationName,
         lat,
         long,

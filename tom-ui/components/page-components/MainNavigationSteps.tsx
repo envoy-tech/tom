@@ -1,11 +1,11 @@
 import { CheckIcon } from "@heroicons/react/20/solid";
 
 const steps = [
-  { name: "Provide Trip Details", href: "#" },
-  { name: "Add Travelers", href: "#" },
-  { name: "Create your Itinerary", href: "#" },
-  { name: "Finalize your Itinerary", href: "#" },
-  { name: "Optimize", href: "#" },
+  { name: "Provide Trip Details", href: "/details/1" },
+  { name: "Add Travelers", href: "/travelers" },
+  { name: "Create your Itinerary", href: "/itinerary/1" },
+  { name: "Finalize your Itinerary", href: "/finalize" },
+  { name: "Optimize", href: "/optimize" },
 ];
 
 function classNames(...classes: any[]) {
@@ -42,8 +42,8 @@ export default function MainNavigationSteps(props: MainNavigationStepProps) {
                   <div className="h-0.5 w-full bg-advus-lightblue-500" />
                 </div>
                 <a
-                  href="#"
-                  className="relative flex flex-col h-8 w-8 items-center justify-start rounded-full bg-advus-lightblue-500"
+                  href={step.href}
+                  className="relative flex flex-col h-8 w-8 items-center justify-start rounded-full bg-advus-lightblue-500 hover:border-advus-navyblue-500 hover:bg-advus-navyblue-500 hover:text-white transition-color"
                 >
                   <span
                     className="text-white mt-1.5 text-sm text-center"
@@ -51,7 +51,9 @@ export default function MainNavigationSteps(props: MainNavigationStepProps) {
                   >
                     {stepIdx + 1}
                   </span>
-                  <span className="mt-3 text-center text-xs">{step.name}</span>
+                  <span className="mt-3 text-center text-xs text-black">
+                    {step.name}
+                  </span>
                 </a>
               </>
             ) : currentStep === stepIdx + 1 ? (
@@ -63,14 +65,11 @@ export default function MainNavigationSteps(props: MainNavigationStepProps) {
                   <div className="h-0.5 w-full bg-gray-200" />
                 </div>
                 <a
-                  href="#"
-                  className="relative flex flex-col h-8 w-8 items-center justify-start rounded-full border-2 bg-white border-advus-lightblue-500"
+                  href={step.href}
+                  className="relative flex flex-col h-8 w-8 items-center justify-start rounded-full border-2 bg-white border-advus-lightblue-500 text-advus-lightblue-500 hover:border-advus-navyblue-500 hover:bg-advus-navyblue-500 hover:text-white transition-colors"
                   aria-current="step"
                 >
-                  <span
-                    className="text-advus-lightblue-500 mt-1 text-sm"
-                    aria-hidden="true"
-                  >
+                  <span className="mt-1 text-sm" aria-hidden="true">
                     {stepIdx + 1}
                   </span>
                   <span className="mt-3 text-center text-xs text-advus-lightblue-500">
@@ -87,16 +86,15 @@ export default function MainNavigationSteps(props: MainNavigationStepProps) {
                   <div className="h-0.5 w-full bg-gray-200" />
                 </div>
                 <a
-                  href="#"
-                  className="group relative flex h-8 w-8 items-center justify-start rounded-full bg-gray-300 flex-col"
+                  href={step.href}
+                  className="group relative flex h-8 w-8 items-center justify-start rounded-full bg-gray-300 flex-col hover:border-advus-navyblue-500 hover:bg-advus-navyblue-500 hover:text-white transition-color text-gray-800"
                 >
-                  <span
-                    className="mt-1.5 text-sm text-gray-800"
-                    aria-hidden="true"
-                  >
+                  <span className="mt-1.5 text-sm" aria-hidden="true">
                     {stepIdx + 1}
                   </span>
-                  <span className="mt-3 text-center text-xs">{step.name}</span>
+                  <span className="mt-3 text-center text-xs text-gray-800">
+                    {step.name}
+                  </span>
                 </a>
               </>
             )}

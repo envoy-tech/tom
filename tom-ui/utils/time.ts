@@ -1,6 +1,11 @@
 export function minToDays(mins: number, toString: boolean) {
-  let days = Math.floor(mins / 1440);
-  let remainingTime = mins - Math.floor(days * 1440);
+  let timeToAllocate = mins;
+  if (timeToAllocate === undefined || Number.isNaN(timeToAllocate)) {
+    timeToAllocate = 0;
+  }
+
+  let days = Math.floor(timeToAllocate / 1440);
+  let remainingTime = timeToAllocate - Math.floor(days * 1440);
   let hours = Math.floor(remainingTime / 60);
   let minutes = Math.floor(remainingTime - hours * 60);
   return toString

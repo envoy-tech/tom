@@ -31,6 +31,7 @@ export default function MapViewLocationPreferenceBox(
   );
   const [currentLocation, setCurrentLocation] = useState(0);
   const [submitting, setSubmitting] = useState(false);
+  const [showSubmitError, setShowSubmitError] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
   const dispatch = useAppDispatch();
   const router = useRouter();
@@ -50,10 +51,22 @@ export default function MapViewLocationPreferenceBox(
   }, [locations]);
 
   const handleNext = () => {
-    //TODO: Check all locations to make sure that the user has set time and interest for each location
-    setSubmitting(true);
-    router.push("/optimize");
-    setSubmitting(false);
+    // Check to see if all the locations have their time and interest set
+    const unfilledLocations = locations.filter(
+      (location) =>
+        location.interest === undefined ||
+        location.timeAllocated === undefined ||
+        location.timeAllocated === 0
+    );
+
+    if (unfilledLocations.length) {
+      setShowSubmitError(true);
+    } else {
+      setShowSubmitError(false);
+      setSubmitting(true);
+      router.push("/optimize");
+      setSubmitting(false);
+    }
   };
 
   const handleTime = (address: string) => {
@@ -258,7 +271,11 @@ export default function MapViewLocationPreferenceBox(
           </p>
         </div>
       </div>
-      <div className="h-9 w-full flex justify-between mt-3 lg:mt-3 2xl:mt-9">
+      <div className="flex justify-end mt-3 text-sm text-advus-red-500">
+        {showSubmitError &&
+          "Please fill the preferences on the form completely."}
+      </div>
+      <div className="h-9 w-full flex justify-between mt-3">
         <div className="flex flex-row space-x-5">
           <Btn
             buttonType="secondary"

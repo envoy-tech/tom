@@ -7,7 +7,7 @@ import { minToDays } from "@/utils/time";
 type ListViewLocationProps = {
   name: string;
   address: string;
-  interest?: number;
+  interest?: number | null;
   timeAllocated?: number;
 };
 

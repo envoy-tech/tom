@@ -30,7 +30,7 @@ export default function Footer(props: FooterProps) {
           AdventurUs Travel, a product of Envoy Technology, Inc.
         </Link>
         <Link
-          className={`ml-10 mr-20 md:mr-0 md:text-2xs lg:mr-10 text-sm ${
+          className={`ml-10 md:mr-0 mr-20 md:text-2xs lg:text-xs text-sm ${
             mode === "light" ? "text-black" : "text-white"
           }`}
           href="#"

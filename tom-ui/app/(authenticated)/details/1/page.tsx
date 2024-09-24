@@ -13,6 +13,7 @@ import {
   setEndDate,
   setApproximateDuration,
 } from "@/redux/slices/tripSlice";
+import { motion, AnimatePresence } from "framer-motion";
 
 export default function DetailsPageStepOne() {
   const router = useRouter();
@@ -98,7 +99,7 @@ export default function DetailsPageStepOne() {
                     <div className="relative">
                       <Field
                         type="date"
-                        className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-advus-lightblue-500 focus:border-advus-lightblue-500 block w-full pl-5 p-2.5"
+                        className="`block w-full rounded-md border-0 px-3 py-1.5 text-black shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-advus-lightblue-500 sm:text-sm sm:leading-6 outline-none transition-all"
                         placeholder="Select date start"
                         name="startdate"
                       />
@@ -114,7 +115,7 @@ export default function DetailsPageStepOne() {
                     <div className="relative">
                       <Field
                         type="date"
-                        className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-advus-lightblue-500 focus:border-advus-lightblue-500 block w-full pl-5 p-2.5"
+                        className="`block w-full rounded-md border-0 px-3 py-1.5 text-black shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-advus-lightblue-500 sm:text-sm sm:leading-6 outline-none transition-all"
                         placeholder="Select date end"
                         name="enddate"
                       />
@@ -126,36 +127,39 @@ export default function DetailsPageStepOne() {
                     </div>
                   </div>
                 </div>
-                <div className="relative flex items-start">
-                  <div className="flex h-6 items-center">
-                    <Field
-                      id="approximate"
-                      aria-describedby="approximate"
-                      name="approximate"
-                      type="checkbox"
-                      className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600"
-                      checked={isApproxDate}
-                      onChange={() => {
-                        if (isApproxDate) {
-                          setValues({
-                            startdate: values.startdate,
-                            enddate: values.enddate,
-                            approximateduration: 0,
-                          });
-                        }
-                        setIsApproxDate(!isApproxDate);
-                      }}
-                    />
-                  </div>
-                  <div className="ml-3 text-sm leading-6">
-                    <label
-                      htmlFor="approximate"
-                      className="font-medium text-gray-900"
-                    >
-                      These dates are approximate
-                    </label>
-                  </div>
-                </div>
+                <AnimatePresence mode="wait" initial={false}>
+                  <motion.div className="relative flex items-start">
+                    <div className="flex h-6 items-center">
+                      <Field
+                        id="approximate"
+                        aria-describedby="approximate"
+                        name="approximate"
+                        type="checkbox"
+                        className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600"
+                        checked={isApproxDate}
+                        onChange={() => {
+                          if (isApproxDate) {
+                            setValues({
+                              startdate: values.startdate,
+                              enddate: values.enddate,
+                              approximateduration: 0,
+                            });
+                          }
+                          setIsApproxDate(!isApproxDate);
+                        }}
+                      />
+                    </div>
+                    <div className="ml-3 text-sm leading-6">
+                      <label
+                        htmlFor="approximate"
+                        className="font-medium text-gray-900"
+                      >
+                        These dates are approximate
+                      </label>
+                    </div>
+                  </motion.div>
+                </AnimatePresence>
+
                 {isApproxDate && (
                   <FormField
                     id="approximateduration"

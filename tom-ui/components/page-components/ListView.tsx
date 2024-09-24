@@ -70,7 +70,7 @@ export default function ListView(props: ListViewProps) {
           <div className="flex flex-col justify-start items-start">
             <p className="text-sm">Time remaining to allocate</p>
             <p className="text-md text-advus-lightblue-500">
-              {minToDays(timeRemaining, true)}
+              {minToDays(timeRemaining as number, true) as string}
             </p>
           </div>
         </div>

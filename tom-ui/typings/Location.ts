@@ -1,7 +1,7 @@
 export interface Location {
   notes: string;
-  timeAllocated: number;
-  interest: number;
+  timeAllocated: number | undefined;
+  interest: number | undefined;
   name: string;
   lat: number;
   long: number;

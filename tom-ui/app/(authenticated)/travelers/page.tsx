@@ -13,6 +13,7 @@ import { useRouter } from "next/navigation";
 import Spinner from "@/components/ui-components/Spinner";
 
 //TODO: clear the name and email address field when added.
+//TODO: Trigger validation when adding a traveler.
 
 export default function TravelersPage() {
   const formRef = useRef(null);
@@ -29,22 +30,32 @@ export default function TravelersPage() {
     setSubmitting(false);
   };
 
-  const handleAddTraveler = () => {
+  const handleAddTraveler = async () => {
     const name = formRef.current.elements.name.value;
     const email = formRef.current.elements.email.value;
 
     const traveler: Traveler = { name, email };
 
-    setTravelers([...travelers, traveler]);
-    formRef.current.elements.name.value = "";
-    formRef.current.elements.email.value = "";
+    const exisitingTraveler = travelers.find(
+      (existingTraveler) =>
+        existingTraveler.email === traveler.email &&
+        existingTraveler.name === traveler.name
+    );
+
+    if (exisitingTraveler) {
+      
+    } else {
+      setTravelers([...travelers, traveler]);
+      formRef.current.elements.name.value = "";
+      formRef.current.elements.email.value = "";
+    }
   };
 
   const handleRemoveTraveler = (travelerIdx: number) => {
     setTravelers(travelers.filter((traveler, idx) => idx !== travelerIdx));
   };
 
-  const detailsSchema = Yup.object().shape({
+  const travelersSchema = Yup.object().shape({
     name: Yup.string()
       .typeError("Name is required")
       .required("Name is required"),
@@ -119,7 +130,7 @@ export default function TravelersPage() {
               name: "",
               email: "",
             }}
-            {...(!travelers.length && { validationSchema: detailsSchema })}
+            {...(!travelers.length && { validationSchema: travelersSchema })}
             onSubmit={(values, { setSubmitting }) =>
               handleSubmitForm(setSubmitting)
             }
@@ -133,7 +144,7 @@ export default function TravelersPage() {
               handleSubmit,
               isSubmitting,
               submitForm,
-              /* and other goodies */
+              validateForm,
             }) => (
               <Form ref={formRef} onSubmit={handleSubmit}>
                 <div className="flex flex-row justify-between items-center space-x-6">
@@ -166,10 +177,14 @@ export default function TravelersPage() {
                     </div>
                   </div>
                 </div>
-                <div className="flex w-full text-sm mt-3 justify-end text-advus-lightblue-500 font-semibold">
+                <div className="flex w-full text-sm mt-3 justify-end text-advus-lightblue-500 font-semibold hover:text-advus-navyblue-500 transition-colors">
                   <div
                     className="hover:cursor-pointer"
-                    onClick={handleAddTraveler}
+                    onClick={async () => {
+                      const validation = await validateForm();
+                      console.log(validation);
+                      handleAddTraveler();
+                    }}
                   >
                     + Add another traveler
                   </div>
