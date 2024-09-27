@@ -14,6 +14,7 @@ import { getZoom } from "@/utils/google-maps";
 import Marker from "@/components/ui-components/Marker";
 import { XMarkIcon, TrashIcon } from "@heroicons/react/20/solid";
 import { removeLocation } from "@/redux/slices/tripSlice";
+import { AnimatePresence } from "framer-motion";
 
 const libraries = ["places"];
 const mapOptions = {
@@ -181,18 +182,20 @@ export default function ItineraryPageStepOne() {
                   {locations.length &&
                     locations.map((location) => (
                       <OverlayView
-                        key={`${location.name}-${location.address}`}
                         position={{ lat: location.lat, lng: location.long }}
                         mapPaneName={OverlayView.OVERLAY_MOUSE_TARGET}
+                        key={`${location.name}-${location.address}`}
                       >
                         <>
                           <div
                             className="absolute -translate-x-1/2 -translate-y-1/2"
                             onClick={() => setSelectedMarker(location.address)}
                           >
-                            <Marker
-                              selected={location.address === selectedMarker}
-                            />
+                            <AnimatePresence>
+                              <Marker
+                                selected={location.address === selectedMarker}
+                              />
+                            </AnimatePresence>
                           </div>
                           {location.address === selectedMarker && (
                             <div className="h-fit w-32 shadow-md text-black bg-white rounded-md p-3 ml-5 -mt-5 text-balance break-words relative">
