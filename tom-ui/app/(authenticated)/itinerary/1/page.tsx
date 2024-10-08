@@ -72,8 +72,6 @@ export default function ItineraryPageStepOne() {
     }
   }, [locations, isLoaded, mapRef]);
 
-  // TODO: Add animation for pin drop, also zoom first, then do the pin drop, can prob use framer-motion for pin drop animation.
-
   const handleRemoveLocation = (location) => {
     setSelectedMarker("");
     dispatch(removeLocation(location.address));
