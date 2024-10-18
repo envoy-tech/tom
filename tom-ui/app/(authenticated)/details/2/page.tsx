@@ -27,6 +27,7 @@ export default function DetailsPageStepTwo() {
     dispatch(setStartingLocation(startlocation));
     dispatch(setEndingLocation(endlocation));
     router.push("/details/3");
+    router.refresh();
     setSubmitting(false);
   };
 

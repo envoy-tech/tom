@@ -25,7 +25,8 @@ export default function RootLayout({
       <body className={`${poppins.className} h-full`}>
         <ReduxProvider>
           <AuthProvider>
-            {children} <Toast />
+            {children}
+            <Toast />
           </AuthProvider>
         </ReduxProvider>
       </body>

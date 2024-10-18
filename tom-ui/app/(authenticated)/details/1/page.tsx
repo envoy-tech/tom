@@ -5,7 +5,7 @@ import Btn from "@/components/ui-components/Btn";
 import MainNavigationSteps from "@/components/page-components/MainNavigationSteps";
 import { Formik, Form, Field } from "formik";
 import * as Yup from "yup";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAppDispatch, useAppSelector } from "@/hooks/redux";
 import {
@@ -33,6 +33,7 @@ export default function DetailsPageStepOne() {
     dispatch(setEndDate(values.enddate));
     dispatch(setApproximateDuration(values.approximateduration));
     router.push("/details/2");
+    router.refresh();
     setSubmitting(false);
   };
 
