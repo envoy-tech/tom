@@ -68,12 +68,15 @@ export default function RegisterStep1() {
       .oneOf([Yup.ref("password"), ""], "Passwords must match"),
   });
 
+  // TODO: Add eye icon for seeing the password
+  // TODO: make sure the confirm password is the same password as password
+
   return (
     <>
       <div className="sm:mx-auto sm:w-full sm:max-w-sm">
         <img
           className="mx-auto h-10 w-auto"
-          src="/advus-banner.svg"
+          src="/advus-banner-dark.svg"
           alt="Your Company"
         />
         <h2 className="mt-10 text-center text-2xl font-semibold leading-9 tracking-tight text-white">

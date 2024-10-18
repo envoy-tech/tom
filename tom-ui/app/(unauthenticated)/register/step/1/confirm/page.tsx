@@ -1,6 +1,6 @@
 "use client";
 import Steps from "@/components/page-components/Steps";
-import { useState, useRef, SyntheticEvent } from "react";
+import { useState, useRef, SyntheticEvent, useMemo } from "react";
 import { useAppSelector } from "@/hooks/redux";
 import { useRouter } from "next/navigation";
 import Spinner from "@/components/ui-components/Spinner";
@@ -16,8 +16,11 @@ export default function RegisterStep1() {
   const { push } = useRouter();
   const formRef = useRef(null);
 
-  const handleConfirmation = async (e: SyntheticEvent) => {
-    e.preventDefault();
+  const handleConfirmation = async (e: SyntheticEvent | null) => {
+    if (e) {
+      e.preventDefault();
+    }
+
     setSubmitting(true);
     setError("");
     setVerificationMessage("");
@@ -55,12 +58,18 @@ export default function RegisterStep1() {
     }
   };
 
+  useMemo(() => {
+    if (value.length === 6) {
+      handleConfirmation(null);
+    }
+  }, [value]);
+
   return (
     <>
       <div className="sm:mx-auto sm:w-full sm:max-w-sm">
         <img
           className="mx-auto h-10 w-auto"
-          src="/advus-banner.svg"
+          src="/advus-banner-dark.svg"
           alt="Your Company"
         />
         <h2 className="mt-10 text-center text-2xl font-semibold leading-9 tracking-tight text-white">

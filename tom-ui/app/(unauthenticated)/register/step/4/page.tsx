@@ -15,7 +15,6 @@ export default function RegisterStep4() {
     });
 
     const json = await response.json();
-    console.log(json);
   };
 
   return (
@@ -23,15 +22,15 @@ export default function RegisterStep4() {
       <div className="sm:mx-auto sm:w-full sm:max-w-sm">
         <img
           className="mx-auto h-10 w-auto"
-          src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=600"
+          src="/advus-banner-dark.svg"
           alt="Your Company"
         />
         {referred ? (
-          <h2 className="mt-10 text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">
+          <h2 className="mt-10 text-center text-2xl font-bold leading-9 tracking-tight text-white">
             Let's go to [END LOCATION NAME]
           </h2>
         ) : (
-          <h2 className="mt-10 text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">
+          <h2 className="mt-10 text-center text-2xl font-bold leading-9 tracking-tight text-white">
             Ready to go
           </h2>
         )}
@@ -40,7 +39,7 @@ export default function RegisterStep4() {
       {referred ? (
         <p></p>
       ) : (
-        <p className="mt-10 sm:mx-auto sm:w-full sm:max-w-md">
+        <p className="mt-10 sm:mx-auto sm:w-full sm:max-w-md text-white">
           Let's start by selecting the dates and destination of your first trip.
           Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
           eiusmod tempor incididunt ut labore et dolore magna aliqua.

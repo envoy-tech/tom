@@ -8,12 +8,15 @@ type BtnProps = {
   buttonType: "primary" | "secondary";
   type: "button" | "submit" | "reset" | undefined;
   disabled?: boolean;
+  length?: "default" | "long" | "short" | undefined;
 };
 
 export default function Btn(props: PropsWithChildren<BtnProps>) {
-  const { onClickHandler, href, buttonType, type, disabled, children } = props;
+  const { onClickHandler, href, buttonType, type, disabled, length, children } =
+    props;
 
   let typeStyling;
+  let lengthStyling;
 
   switch (buttonType) {
     case "primary":
@@ -30,9 +33,20 @@ export default function Btn(props: PropsWithChildren<BtnProps>) {
       break;
   }
 
+  switch (length) {
+    case "long":
+      lengthStyling = "w-56";
+      break;
+    case "short":
+      lengthStyling = "w-24";
+      break;
+    default:
+      lengthStyling = "w-32";
+  }
+
   const btnComponent = (
     <button
-      className={`flex w-32 justify-center rounded-md px-3 py-1.5 text-sm font-semibold leading-6 shadow-sm outline outline-2 transition-all ${typeStyling}`}
+      className={`flex justify-center rounded-md px-3 py-1.5 text-sm font-semibold leading-6 shadow-sm outline disabled:pointer-events-none disabled:bg-gray-300 disabled:text-gray-500 disabled:outline-none outline-2 transition-all select-none ${typeStyling} ${lengthStyling}`}
       onClick={onClickHandler}
       disabled={disabled}
       type={type}

@@ -57,10 +57,6 @@ export default function RegisterStep2() {
       formRef.current.elements["season[value]"].value
     );
 
-    console.log(ethnicity);
-    console.log(income);
-    console.log(preferredSeason);
-
     if (ethnicity >= 0) {
       dispatch(setEthnicity(ethnicity));
     }
@@ -79,7 +75,7 @@ export default function RegisterStep2() {
       <div className="sm:mx-auto sm:w-full sm:max-w-sm">
         <img
           className="mx-auto h-10 w-auto"
-          src="/advus-banner.svg"
+          src="/advus-banner-dark.svg"
           alt="AdventurUs"
         />
         <h2 className="mt-10 text-center text-2xl font-semibold leading-9 tracking-tight text-white">

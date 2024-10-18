@@ -1,6 +1,6 @@
 import { curry, defaultTo } from "ramda";
 
-const DEFAULT_REGION = "us-east-2";
+const DEFAULT_REGION = "us-east-1";
 
 const orDefaultRegion = defaultTo(DEFAULT_REGION);
 

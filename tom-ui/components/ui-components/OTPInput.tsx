@@ -118,6 +118,12 @@ export default function OTPInput(props: OTPInputProps) {
     target.setSelectionRange(0, target.value.length);
   };
 
+  const inputOnPaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
+    const { clipboardData } = e;
+    const pastedInput = clipboardData.getData("Text");
+    setValue(pastedInput);
+  };
+
   return (
     <div className="flex flex-row items-center justify-between mx-auto w-full max-w-xs">
       {valueItems.map((digit, idx) => (
@@ -134,6 +140,7 @@ export default function OTPInput(props: OTPInputProps) {
             onChange={(e) => inputOnChange(e, idx)}
             onKeyDown={inputOnKeyDown}
             onFocus={inputOnFocus}
+            onPaste={inputOnPaste}
             value={digit}
             key={`otp-input-${idx}`}
           />

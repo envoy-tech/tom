@@ -37,6 +37,9 @@ const config: Config = {
       zIndex: {
         "-1": "-1",
       },
+      fontSize: {
+        "2xs": ".5rem",
+      },
     },
   },
   plugins: [],

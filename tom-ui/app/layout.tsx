@@ -3,7 +3,6 @@ import type { Metadata } from "next";
 import AuthProvider from "@/components/AuthProvider";
 import ReduxProvider from "@/components/ReduxProvider";
 import Toast from "@/components/ui-components/Toast";
-import Footer from "@/components/page-components/Footer";
 import { Poppins } from "next/font/google";
 
 const poppins = Poppins({
@@ -26,7 +25,8 @@ export default function RootLayout({
       <body className={`${poppins.className} h-full`}>
         <ReduxProvider>
           <AuthProvider>
-            {children} <Toast />
+            {children}
+            <Toast />
           </AuthProvider>
         </ReduxProvider>
       </body>
