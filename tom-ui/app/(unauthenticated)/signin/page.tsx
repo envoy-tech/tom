@@ -3,7 +3,8 @@
 import { useSession, signIn, signOut } from "next-auth/react";
 import { Formik, Form, Field } from "formik";
 import { useSearchParams, useRouter } from "next/navigation";
-import { useState, useMemo, Suspense } from "react";
+import { useState, useMemo } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import Btn from "@/components/ui-components/Btn";
 import Spinner from "@/components/ui-components/Spinner";
 import Link from "@/components/ui-components/Link";
@@ -53,13 +54,13 @@ export default function SignIn() {
     <>
       <div className="flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8 bg-advus-navyblue-500">
         <img
-          className="absolute h-3/4 bottom-0 right-52 opacity-5 z-0"
+          className="absolute 2xl:h-3/4 xl:h-1/2 bottom-0 xl:right-52 2xl:right-52 right-0 opacity-5 z-0"
           src="/advus-emblem-white.svg"
         />
         <div className="sm:mx-auto sm:w-full sm:max-w-sm">
           <img
             className="mx-auto h-10 w-auto"
-            src="/advus-banner.svg"
+            src="/advus-banner-dark.svg"
             alt="Your Company"
           />
           <h2 className="mt-10 text-center text-2xl font-semi leading-9 tracking-tight text-white"></h2>
@@ -122,18 +123,25 @@ export default function SignIn() {
                       name="password"
                       type="password"
                       autoComplete="current-password"
-                      className={`block w-full rounded-md border-0 py-1.5 px-3 text-white shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 ${
+                      className={`block w-full rounded-md border-0 py-1.5 px-3 text-black shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 ${
                         errors.password &&
                         touched.password &&
                         "ring-advus-red-500"
                       }`}
                     />
                   </div>
-                  {errors.password && touched.password ? (
-                    <label className="text-xs text-advus-red-500 mt-1">
-                      {errors.password}
-                    </label>
-                  ) : null}
+                  <AnimatePresence>
+                    {errors.password && touched.password ? (
+                      <motion.label
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="text-xs text-advus-red-500 mt-1"
+                      >
+                        {errors.password}
+                      </motion.label>
+                    ) : null}
+                  </AnimatePresence>
                 </div>
                 <div className="text-sm">
                   <Link href="#" linkType="primary">

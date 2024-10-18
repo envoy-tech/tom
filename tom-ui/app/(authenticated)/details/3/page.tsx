@@ -6,30 +6,40 @@ import FormField from "@/components/ui-components/FormField";
 import { Form, Formik } from "formik";
 import { useRef } from "react";
 import * as Yup from "yup";
+import { useAppDispatch, useAppSelector } from "@/hooks/redux";
+import { setTripName } from "@/redux/slices/tripSlice";
+import { useRouter } from "next/navigation";
 
-export default function DetailsPageStepOne() {
+export default function DetailsPageStepThree() {
   const formRef = useRef(null);
+  const dispatch = useAppDispatch();
+  const { tripName } = useAppSelector((state) => state.trip);
+  const router = useRouter();
 
-  const handleSubmitForm = (tripname: string, setSubmitting: Function) => {};
+  const handleSubmitForm = (tripname: string, setSubmitting: Function) => {
+    setSubmitting(true);
+    dispatch(setTripName(tripname));
+    router.push("/travelers");
+    setSubmitting(false);
+  };
 
   const detailsSchema = Yup.object().shape({
     tripname: Yup.string()
       .typeError("Trip Name is required")
       .required("Trip Name is required"),
-    approximatedate: Yup.string().required("This field is required."),
   });
 
   return (
     <>
-      <div className="flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8 relative">
-        <div className="w-100 mb-20 flex items-center justify-center">
+      <div className="flex min-h-full w-full flex-1 flex-col justify-center items-center px-6 py-12 lg:px-8 relative">
+        <div className="w-2/5 mb-20 flex items-center justify-center mt-6">
           <MainNavigationSteps currentStep={1} />
         </div>
         <div className="sm:mx-auto sm:w-full sm:max-w-sm flex flex-col items-center justify-center">
           <p className="text-xs">STEP 3 OF 3</p>
           <img
             className="mx-auto h-10 w-auto"
-            src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=600"
+            src="/advus-banner-light.svg"
             alt="Your Company"
           />
           <h2 className="mt-6 text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">
@@ -40,7 +50,7 @@ export default function DetailsPageStepOne() {
         <div className="mt-6 sm:mx-auto sm:w-full sm:max-w-md">
           <Formik
             initialValues={{
-              tripname: "",
+              tripname: tripName ?? "",
             }}
             validationSchema={detailsSchema}
             onSubmit={(values, { setSubmitting }) =>
@@ -55,6 +65,7 @@ export default function DetailsPageStepOne() {
               handleBlur,
               handleSubmit,
               isSubmitting,
+              submitForm,
               /* and other goodies */
             }) => (
               <Form>
@@ -79,7 +90,11 @@ export default function DetailsPageStepOne() {
                   <Btn buttonType="secondary" type="submit" href="/details/2">
                     Back
                   </Btn>
-                  <Btn buttonType="primary" type="submit" href="/travelers">
+                  <Btn
+                    buttonType="primary"
+                    type="submit"
+                    onClickHandler={submitForm}
+                  >
                     Next
                   </Btn>
                 </div>

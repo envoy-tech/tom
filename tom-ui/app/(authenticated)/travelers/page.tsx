@@ -6,54 +6,75 @@ import Link from "@/components/ui-components/Link";
 import { Form, Formik } from "formik";
 import { useRef, useState } from "react";
 import * as Yup from "yup";
+import { Traveler } from "typings";
+import { useAppDispatch, useAppSelector } from "@/hooks/redux";
+import { setTravelers as setSavedTravelers } from "@/redux/slices/tripSlice";
+import { useRouter } from "next/navigation";
+import Spinner from "@/components/ui-components/Spinner";
 
-type Traveler = {
-  name: string;
-  email: string;
-};
+//TODO: clear the name and email address field when added.
+//TODO: Trigger validation when adding a traveler.
 
-export default function DetailsPageStepOne() {
+export default function TravelersPage() {
   const formRef = useRef(null);
-  const [travelers, setTravelers] = useState<Traveler[]>([]);
+  const dispatch = useAppDispatch();
+  const { travelers: savedTravelers } = useAppSelector((state) => state.trip);
+  const router = useRouter();
 
-  const handleSubmitForm = (
-    name: string,
-    email: string,
-    setSubmitting: Function
-  ) => {};
+  const [travelers, setTravelers] = useState<Traveler[]>(savedTravelers);
 
-  const handleAddTraveler = () => {
+  const handleSubmitForm = (setSubmitting: Function) => {
+    setSubmitting(true);
+    dispatch(setSavedTravelers(travelers));
+    router.push("/itinerary/1");
+    setSubmitting(false);
+  };
+
+  const handleAddTraveler = async () => {
     const name = formRef.current.elements.name.value;
     const email = formRef.current.elements.email.value;
 
     const traveler: Traveler = { name, email };
 
-    setTravelers([...travelers, traveler]);
+    const exisitingTraveler = travelers.find(
+      (existingTraveler) =>
+        existingTraveler.email === traveler.email &&
+        existingTraveler.name === traveler.name
+    );
 
-    console.log(travelers);
+    if (exisitingTraveler) {
+      
+    } else {
+      setTravelers([...travelers, traveler]);
+      formRef.current.elements.name.value = "";
+      formRef.current.elements.email.value = "";
+    }
   };
 
   const handleRemoveTraveler = (travelerIdx: number) => {
     setTravelers(travelers.filter((traveler, idx) => idx !== travelerIdx));
   };
 
-  const detailsSchema = Yup.object().shape({
+  const travelersSchema = Yup.object().shape({
     name: Yup.string()
       .typeError("Name is required")
       .required("Name is required"),
-    approximatedate: Yup.string().required("This field is required."),
+    email: Yup.string()
+      .email()
+      .typeError("A valid email is required")
+      .required("Email is required"),
   });
 
   return (
     <>
-      <div className="flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8 relative">
-        <div className="w-100 mb-20 flex items-center justify-center">
+      <div className="flex min-h-full w-full flex-1 flex-col justify-center items-center px-6 py-12 lg:px-8 relative">
+        <div className="w-2/5 mb-20 flex items-center justify-center mt-36">
           <MainNavigationSteps currentStep={2} />
         </div>
         <div className="sm:mx-auto sm:w-full sm:max-w-sm flex flex-col items-center justify-center">
           <img
             className="mx-auto h-10 w-auto"
-            src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=600"
+            src="/advus-banner-light.svg"
             alt="Your Company"
           />
           <h2 className="mt-6 text-center text-2xl font-semibold leading-9 tracking-tight text-gray-900">
@@ -109,9 +130,9 @@ export default function DetailsPageStepOne() {
               name: "",
               email: "",
             }}
-            validationSchema={detailsSchema}
+            {...(!travelers.length && { validationSchema: travelersSchema })}
             onSubmit={(values, { setSubmitting }) =>
-              handleSubmitForm(values.name, values.email, setSubmitting)
+              handleSubmitForm(setSubmitting)
             }
           >
             {({
@@ -122,9 +143,10 @@ export default function DetailsPageStepOne() {
               handleBlur,
               handleSubmit,
               isSubmitting,
-              /* and other goodies */
+              submitForm,
+              validateForm,
             }) => (
-              <Form ref={formRef}>
+              <Form ref={formRef} onSubmit={handleSubmit}>
                 <div className="flex flex-row justify-between items-center space-x-6">
                   <div className="flex flex-grow flex-col">
                     <div>
@@ -155,10 +177,14 @@ export default function DetailsPageStepOne() {
                     </div>
                   </div>
                 </div>
-                <div className="flex w-full text-sm mt-3 justify-end text-advus-lightblue-500 font-semibold">
+                <div className="flex w-full text-sm mt-3 justify-end text-advus-lightblue-500 font-semibold hover:text-advus-navyblue-500 transition-colors">
                   <div
                     className="hover:cursor-pointer"
-                    onClick={handleAddTraveler}
+                    onClick={async () => {
+                      const validation = await validateForm();
+                      console.log(validation);
+                      handleAddTraveler();
+                    }}
                   >
                     + Add another traveler
                   </div>
@@ -172,8 +198,12 @@ export default function DetailsPageStepOne() {
                     <Link href="/itinerary/1" linkType="secondary">
                       Skip
                     </Link>
-                    <Btn buttonType="primary" type="submit" href="/itinerary/1">
-                      Next
+                    <Btn
+                      buttonType="primary"
+                      type="submit"
+                      onClickHandler={submitForm}
+                    >
+                      {isSubmitting ? <Spinner /> : "Next"}
                     </Btn>
                   </div>
                 </div>
