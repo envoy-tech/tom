@@ -3,6 +3,20 @@
   hosts: localhost
   roles:
     - ansible
-    - build
-    - python
+    - aws
 
+- name: Setup the provisioned hosts
+  hosts: all
+  roles:
+    - setup
+
+- name: Create platform-specific Docker containers for TOM build
+  hosts: build_host_x86_64
+  roles:
+    - build
+    - aws
+  tasks:
+    - name: Build TOM build containers
+      ansible.builtin.include_role:
+        name: build
+        tasks_from: build

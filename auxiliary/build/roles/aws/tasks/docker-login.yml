@@ -1,0 +1,7 @@
+---
+- name: Log into AWS ECR with Docker
+  community.docker.docker_login:
+      registry_url: "{{ aws_ecr_url }}"
+      username: "{{ aws_ecr_username }}"
+      password: "{{ aws_ecr_password }}"
+      state: present

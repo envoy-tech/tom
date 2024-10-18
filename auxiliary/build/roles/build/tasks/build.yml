@@ -1,0 +1,20 @@
+---
+- name: Copy Dockerfile to build host
+  ansible.builtin.copy:
+    src: Dockerfile
+    dest: "{{ home_dir }}/Dockerfile"
+    mode: "0o644"
+
+- name: Print debug
+  ansible.builtin.debug:
+      msg: "Building docker images, this may take some time..."
+
+- name: Build Docker images
+  community.docker.docker_image:
+    name: "tom-build"
+    tag: "{{ date_tag }}-{{ ansible_architecture }}"
+    repository: "{{ aws_ecr_url }}"
+    source: build
+    push: true
+    build:
+      path: "{{ home_dir }}"

@@ -137,4 +137,9 @@ dmypy.json
 .vscode/
 
 # C++ build libraries
-optimization_engine/cmake-build-*/
+cmake-build-*/
+
+# Terraform
+.terraform/
+.terraform.*
+terraform.*

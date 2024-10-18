@@ -1,0 +1,2 @@
+date_tag: "{{ ansible_date_time.year }}{{ ansible_date_time.month }}{{ ansible_date_time.day }}"
+home_dir: "/home/{{ ansible_user }}"

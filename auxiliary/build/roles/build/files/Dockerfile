@@ -8,7 +8,7 @@ RUN dnf update -y && \
     tar -xf Python-3.10.5.tar.xz && \
     cd Python-3.10.5 && \
     ./configure --enable-optimizations --enable-shared && \
-    make -j 2 && \
+    make -j 6 && \
     make altinstall
 
 # Install OR-Tools

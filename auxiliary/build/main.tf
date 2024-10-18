@@ -1,11 +1,10 @@
 provider "aws" {
   region = "us-east-1"
-  profile = "dev"
 }
 
 variable "build_instance_type_x86_64" {
   type = string
-  default = "m5.xlarge"
+  default = "m5.4xlarge"
 }
 
 variable "deployment_name" {
@@ -18,12 +17,12 @@ variable "ssh_key_path" {
   default = "~/.ssh/id_rsa.pub"
 }
 
-data "aws_ami" "amazon_linux_2" {
+data "aws_ami" "amazon_linux_2023" {
   most_recent = true
   owners = ["amazon"]
   filter {
     name = "name"
-    values = ["amzn2-ami-hvm-*-x86_64-gp2"]
+    values = ["al2023-ami-*-x86_64"]
   }
 }
 
@@ -31,7 +30,7 @@ resource "time_static" "now" {}
 
 resource "aws_key_pair" "aws_ssh_key" {
   key_name = "${var.deployment_name}-key-${time_static.now.unix}"
-    public_key = file(pathexpand("${var.ssh_key_path}"))
+    public_key = file(pathexpand(var.ssh_key_path))
 
   lifecycle {
     ignore_changes = [public_key]
@@ -75,7 +74,7 @@ resource "aws_security_group" "egress_all" {
 }
 
 resource "aws_instance" "build_host_x86_64" {
-  ami = data.aws_ami.amazon_linux_2.id
+  ami = data.aws_ami.amazon_linux_2023.id
   instance_type = var.build_instance_type_x86_64
   key_name = aws_key_pair.aws_ssh_key.key_name
   vpc_security_group_ids = [

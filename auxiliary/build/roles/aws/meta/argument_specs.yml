@@ -1,0 +1,9 @@
+---
+argument_specs:
+  main:
+    short_description: Primary aws entry point.
+    options:
+      aws_ecr_password:
+        type: "str"
+        required: true
+        description: "AWS ECR password"
