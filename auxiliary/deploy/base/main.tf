@@ -1,3 +1,7 @@
+terraform {
+  backend "s3" {}
+}
+
 provider "aws" {
   region = "us-east-1"
 }
@@ -88,8 +92,8 @@ resource "aws_s3_bucket" "mps_store" {
   }
 }
 
-resource "aws_ecr_repository" "container_repo" {
-  name         = "${var.environment}-container-repo"
+resource "aws_ecr_repository" "optimization_engine" {
+  name         = "${var.environment}-optimization-engine"
   force_delete = true
 
   tags = {
@@ -98,7 +102,17 @@ resource "aws_ecr_repository" "container_repo" {
   }
 }
 
-resource "aws_sns_topic" "app_pub_sub" {
+resource "aws_ecr_repository" "trip_manager" {
+  name         = "${var.environment}-trip-manager"
+  force_delete = true
+
+  tags = {
+    environment = var.environment
+    created_at  = time_static.now.unix
+  }
+}
+
+resource "aws_sns_topic" "default" {
   name = "${var.environment}-app-pub-sub"
 
   tags = {
@@ -110,23 +124,14 @@ resource "aws_sns_topic" "app_pub_sub" {
 resource "aws_rds_cluster" "rds" {
   cluster_identifier          = "${var.environment}-rds-cluster"
   availability_zones          = local.availability_zones
-  engine                      = "aurora-postgresql"
+  engine                      = "postgres"
+  db_cluster_instance_class   = local.rds_cluster_instance
   database_name               = "${var.environment}_adventurus_rds"
   db_subnet_group_name        = aws_db_subnet_group.rds.name
   manage_master_user_password = true
   master_username             = "${var.environment}_admin"
   skip_final_snapshot         = true
-
-  serverlessv2_scaling_configuration {
-    max_capacity = 1.0
-    min_capacity = 0.5
-  }
-}
-
-resource "aws_rds_cluster_instance" "rds_instance" {
-  cluster_identifier   = aws_rds_cluster.rds.id
-  instance_class       = "db.serverless"
-  engine               = aws_rds_cluster.rds.engine
-  engine_version       = aws_rds_cluster.rds.engine_version
-  db_subnet_group_name = aws_db_subnet_group.rds.name
+  storage_type                = "io1"
+  allocated_storage           = 100
+  iops                        = 1000
 }

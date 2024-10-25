@@ -12,6 +12,10 @@ echo "Wheels will be pulled from ${WHEELS_DIR}"
 # Copy wheels to the build directories
 cp -r "${WHEELS_DIR}/" "${SCRIPT_DIR}"
 
+# Login to docker
+aws ecr get-login-password --region us-east-1 --profile "${AWS_PROFILE}" \
+  | docker login --username AWS --password-stdin "${BUILD_ECR_URL}"
+
 # Create optimization-engine container
 docker build --platform linux/amd64 -t optimization-engine "${SCRIPT_DIR}"
 

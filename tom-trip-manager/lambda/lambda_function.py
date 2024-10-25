@@ -7,11 +7,12 @@ from tom.common.cloud_access.aws import s3, sns
 from tom.trip_manager import TripManager
 
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 
 
 def handler(event, context):
 
-    logger.info("Received event:", extra={**event})
+    logger.info(f"Received event: {event}")
 
     trip_params = {
         "avoid": "tolls",
@@ -20,11 +21,11 @@ def handler(event, context):
         "traffic_model": "best_guess"
     }
 
-    logger.info("GoogleMaps DistanceMatrix Params:", extra={**trip_params})
+    logger.info(f"GoogleMaps DistanceMatrix Params: {trip_params}")
 
     trip = TripManager(**event)
 
-    logger.info("TripManager Created:", extra={**trip.encode()})
+    logger.info(f"TripManager Created: {trip.encode()}")
 
     msg = json.dumps({
         "status": {
@@ -56,7 +57,7 @@ def handler(event, context):
             mps_object_key,
             object_metadata=trip.metadata
         )
-        logger.info("MPS file uploaded to S3:", extra={**response})
+        logger.info(f"MPS file uploaded to S3: {response}")
         msg = json.dumps({
             "status": {
                 "code": sns.TripStatus.TRIP_MANAGER_SUCCESS.value,

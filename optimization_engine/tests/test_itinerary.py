@@ -1,4 +1,5 @@
 import pytest
+import json
 
 from optimization_engine import *
 
@@ -36,3 +37,6 @@ def test_create_itinerary(
         next_solution = solver.NextSolution()
 
     assert itineraries
+
+    with open("itineraries.json", "w") as file:
+        json.dump(itineraries, file)

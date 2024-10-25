@@ -1,23 +1,20 @@
 ARG FUNCTION_DIR="/function"
 
-FROM build-container
+FROM 786929059663.dkr.ecr.us-east-1.amazonaws.com/adventurus/build-images:20241018-x86_64
 ARG FUNCTION_DIR
 
-ENV LD_LIBRARY_PATH=/usr/local/lib64:${LD_LIBRARY_PATH}
-RUN mkdir -p ${FUNCTION_DIR}
+ENV LD_LIBRARY_PATH=/lib64:/usr/local/lib64:${LD_LIBRARY_PATH}
+RUN mkdir ${FUNCTION_DIR}
 COPY lambda_function.py ${FUNCTION_DIR}
 COPY wheels/ ${FUNCTION_DIR}
 
 WORKDIR ${FUNCTION_DIR}
-ARG OE_VENV="oe-venv-3.10.5"
 
 RUN cd ${FUNCTION_DIR} && \
-    python3.10 -m venv ${OE_VENV}&& \
-    source ${OE_VENV}/bin/activate && \
-    pip install -U pip && \
-    pip install wheel awslambdaric && \
-    pip install tom_common*.whl tom_optimization_engine*.whl
+    pip3.10 install -U pip && \
+    pip3.10 install wheel awslambdaric && \
+    pip3.10 install tom_common*.whl tom_optimization_engine*.whl
 
-ENTRYPOINT [ "${FUNCTION_DIR}/${OE_VENV}/bin/python3.10", "-m", "awslambdaric" ]
+ENTRYPOINT [ "/usr/local/bin/python3.10", "-m", "awslambdaric" ]
 
 CMD ["lambda_function.handler"]

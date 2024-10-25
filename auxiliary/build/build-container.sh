@@ -2,16 +2,15 @@
 
 set -e
 
+AWS_PROFILE="${AWS_PROFILE:-dev}"
+echo "Using AWS profile: ${AWS_PROFILE}"
+
 if ! aws sts get-caller-identity > /dev/null 2>&1;
 then
-  echo "You are not logged into AWS.  Login and re-run the script"
-  exit 1
+  aws sso login --profile "${AWS_PROFILE}"
 fi
 
 set -exu
-
-AWS_PROFILE="${AWS_PROFILE:-dev}"
-echo "Using AWS profile: ${AWS_PROFILE}"
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 

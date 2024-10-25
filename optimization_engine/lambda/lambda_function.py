@@ -8,6 +8,7 @@ from optimization_engine import *
 from optimization_engine.itinerary import create_itinerary
 
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 
 
 class VarName:
@@ -16,18 +17,18 @@ class VarName:
 
 def handler(event, context):
 
-    logger.info("Received event:", extra={**event})
+    logger.info(f"Received event: {event}")
 
     bucket_name, object_key = s3.parse_s3_event(event)
-    logger.info("Optimizing S3 object:", extra={"bucket_name": bucket_name, "object_key": object_key})
+    logger.info(f"Optimizing S3 object: {bucket_name=}, {object_key=}")
 
     # Get the uploaded object from S3
     s3_client = s3.connect_to_s3(S3Params.REGION)
     obj_response = s3_client.Object(bucket_name, object_key).get()
 
     trip_mps_body = obj_response["Body"].read().decode("utf-8")
-    trip_metadata = json.loads(obj_response["Metadata"])
-    logger.info("Trip metadata:", extra={**trip_metadata})
+    trip_metadata = obj_response["Metadata"]
+    logger.info(f"Trip metadata: {trip_metadata}")
 
     msg = json.dumps({
         "status": {
@@ -63,11 +64,12 @@ def handler(event, context):
         sns.publish_to_sns(sns_client, sns.TopicNames.optimization_status, error_msg)
         raise e
 
-    logger.info("Optimization complete.", extra={"duration": datetime.now() - begin_time})
-    num_locations = trip_metadata["num_locations"]
-    num_travelers = trip_metadata["num_travelers"]
+    logger.info(f"Optimization complete; duration={datetime.now() - begin_time}")
+    num_locations = int(trip_metadata["num_locations"])
+    num_travelers = int(trip_metadata["num_travelers"])
 
-    start_location_id = trip_metadata["start_location_id"]
+    start_location_id = int(trip_metadata["start_location_id"])
+    end_location_id = int(trip_metadata["end_location_id"])
     start_date = trip_metadata["start_date"]
 
     itineraries = []
@@ -78,12 +80,13 @@ def handler(event, context):
             num_locations,
             num_travelers,
             start_location_id,
+            end_location_id,
             start_date,
         )
         itineraries.append(_itinerary)
         next_solution = solver.NextSolution()
 
-    logging.info("Successfully created itineraries:", extra={"num_itineraries": len(itineraries)})
+    logging.info(f"Successfully created itineraries: num_itineraries={len(itineraries)}")
     # TODO: Update trip entry in postgres with itineraries
 
     msg = json.dumps({

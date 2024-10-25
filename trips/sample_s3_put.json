@@ -24,12 +24,12 @@
           "ownerIdentity": {
             "principalId": "EXAMPLE"
           },
-          "arn": "arn:aws:s3:::example-bucket"
+          "arn": "arn:aws:s3:::adventurus-mps-dev"
         },
         "object": {
-          "key": "dev_test_trip.mps",
+          "key": "proposal_example_trip.mps",
           "size": 1024,
-          "eTag": "f7ec6fd3094aeac45d5cb23cd92b1567",
+          "eTag": "3d90790dd45af7ddb9492d387eecbaff",
           "sequencer": "0A1B2C3D4E5F678901"
         }
       }

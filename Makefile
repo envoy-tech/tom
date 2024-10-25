@@ -32,6 +32,6 @@ wheels: clean
 test:
 	pytest -v -s -n $(shell nproc) --ignore=optimization_engine
 
-lambda_images:
-	# $(MAKE) -C $(OPTIMIZATION_ENGINE) lambda_image
-	$(MAKE) -C $(TRIP_MANAGER) lambda_image
+lambda-images:
+	# $(MAKE) -C $(OPTIMIZATION_ENGINE) lambda-image
+	$(MAKE) -C $(TRIP_MANAGER) lambda-image
