@@ -10,10 +10,12 @@ import { useEffect } from "react";
 type GooglePlacesSearchFieldProps = {
   setSuggestions: React.Dispatch<React.SetStateAction<Suggestions | undefined>>;
   options?: RequestOptions;
+  googleMaps?: any;
 };
 
 export default function GooglePlacesSearchField({
   setSuggestions,
+  googleMaps,
   options = {},
 }: GooglePlacesSearchFieldProps) {
   // https://developers.google.com/maps/documentation/javascript/reference/places-autocomplete-service#AutocompletionRequest
@@ -23,6 +25,7 @@ export default function GooglePlacesSearchField({
         location: { lat: () => 38, lng: () => 97 },
         radius: 100 * 1000,
         componentRestrictions: { country: "us" },
+        googleMaps,
         ...options,
       },
     });

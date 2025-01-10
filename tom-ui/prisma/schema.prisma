@@ -42,7 +42,7 @@ model trip {
   end_date_dttm          DateTime
   dates_approximate      Boolean
   start_location_index   Int
-  endLocation_index      Int
+  end_location_index     Int
   locations_json         Json
   itineraries_json_array Json[]
   profile_trip           profile_trip[]

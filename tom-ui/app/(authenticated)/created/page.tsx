@@ -1,6 +1,6 @@
 "use client";
 import { useMemo, useState } from "react";
-import { useLoadScript, GoogleMap } from "@react-google-maps/api";
+import { useJsApiLoader, GoogleMap } from "@react-google-maps/api";
 import RouteCreatedBox from "@/components/ui-components/RouteCreatedBox";
 import { useAppSelector, useAppDispatch } from "@/hooks/redux";
 import { addLocation } from "@/redux/slices/tripSlice";
@@ -22,9 +22,10 @@ export default function RoutesCreatedPage() {
   );
   const locations = useAppSelector((state) => state.trip.locations);
   const dispatch = useAppDispatch();
-  const { isLoaded } = useLoadScript({
+  const { isLoaded } = useJsApiLoader({
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API as string,
     libraries: libraries as any,
+    version: "3.55",
   });
 
   return (
