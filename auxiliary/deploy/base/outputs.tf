@@ -25,3 +25,8 @@ output "RDS_URL" {
 output "RDS_USERNAME" {
   value = aws_rds_cluster.rds.master_username
 }
+
+output "RDS_PASSWORD" {
+  value = aws_rds_cluster.rds.master_password
+  sensitive = true
+}
