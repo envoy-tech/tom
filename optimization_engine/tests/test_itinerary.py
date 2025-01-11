@@ -23,9 +23,11 @@ def test_create_itinerary(
 
     itineraries = []
     next_solution = True
+    index = 0
     while next_solution:
         itineraries.append(
             create_itinerary(
+                index,
                 solver,
                 num_locations,
                 num_travelers,
@@ -35,6 +37,7 @@ def test_create_itinerary(
             )
         )
         next_solution = solver.NextSolution()
+        index += 1
 
     assert itineraries
 

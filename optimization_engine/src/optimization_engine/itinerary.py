@@ -4,6 +4,7 @@ from tom.common import VARIABLE_REGISTRY
 
 
 def create_itinerary(
+        index: int,
         solver,
         num_locations: int,
         num_travelers: int,
@@ -42,6 +43,7 @@ def create_itinerary(
         departures.append(str(start_date_dttm + dt.timedelta(days=depart_day, hours=depart_hour)))
 
     itinerary = {
+        "index": index,
         "going_to_city": [bool(v) for v in VARS[VarName.GO].data[:num_locations]],
         "route": [int(r) for r in route],
         "num_stops": int(sum(VARS[VarName.GO].data[:num_locations])),
