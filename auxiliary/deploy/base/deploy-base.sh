@@ -21,7 +21,7 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 pushd "${SCRIPT_DIR}"
 
 # Create resources with Terraform
-terraform init -upgrade -backend-config="${ENVIRONMENT}-backend.conf"
+terraform init -upgrade -backend-config="../${ENVIRONMENT}-backend.conf"
 terraform apply -auto-approve \
   -var="environment=${ENVIRONMENT}"
 
