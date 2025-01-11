@@ -1,7 +1,13 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
-import { useJsApiLoader, GoogleMap, OverlayView } from "@react-google-maps/api";
+import {
+  useJsApiLoader,
+  GoogleMap,
+  OverlayViewF,
+  OverlayView,
+} from "@react-google-maps/api";
 import Link from "../ui-components/Link";
+import Btn from "../ui-components/Btn";
 import {
   ArrowLeftIcon,
   ListBulletIcon,
@@ -39,6 +45,7 @@ export default function MapView(props: MapViewProps) {
   const { locations } = useAppSelector((state) => state.trip);
   const [center, setCenter] = useState(mapCenter);
   const [open, setOpen] = useState(true);
+  const [showDialog, setShowDialog] = useState(false);
   const [selectedMarker, setSelectedMarker] = useState("");
   const mapRef = useRef(null);
 
@@ -64,13 +71,13 @@ export default function MapView(props: MapViewProps) {
         lat: bounds.getCenter().lat(),
         lng: bounds.getCenter().lng(),
       });
-      setZoom(
-        getZoom(
-          bounds.getSouthWest(),
-          bounds.getNorthEast(),
-          mapRef.current.getInstance().getDiv().offsetWidth
-        ) - 1
-      );
+      // setZoom(
+      //   getZoom(
+      //     bounds.getSouthWest(),
+      //     bounds.getNorthEast(),
+      //     mapRef.current.getInstance().getDiv().offsetWidth
+      //   ) - 1
+      // );
     }
   }, [isLoaded]);
 
@@ -90,7 +97,7 @@ export default function MapView(props: MapViewProps) {
         >
           {locations.length &&
             locations.map((location) => (
-              <OverlayView
+              <OverlayViewF
                 key={`${location.name}-${location.address}`}
                 position={{ lat: location.lat, lng: location.long }}
                 mapPaneName={OverlayView.OVERLAY_MOUSE_TARGET}
@@ -113,29 +120,25 @@ export default function MapView(props: MapViewProps) {
                     </div>
                   )}
                 </>
-              </OverlayView>
+              </OverlayViewF>
             ))}
         </GoogleMap>
       ) : (
         "Loading..."
       )}
-      <div className="z-10 absolute top-20 left-8 lg:top-20 lg:left-8 2xl:top-24 2xl:left-10 border-2 border-advus-brown-500 px-2 py-1 rounded-md bg-white hover:shadow-xl transition-all hover:-translate-y-1 hover:cursor-pointer active:translate-y-0.5">
-        <Link
-          href="/itinerary/2"
-          linkType="tertiary"
-          className="flex flex-row font-semibold sm:text-sm lg:text-md items-center"
-        >
+      <Link href="/itinerary/2" linkType="tertiary" className="r">
+        <div className="z-10 absolute top-20 left-8 lg:top-20 lg:left-8 2xl:top-24 2xl:left-10 border-2 border-advus-brown-500 px-2 py-1 rounded-md bg-white transition-all hover:bg-advus-brown-500 hover:cursor-pointer hover:text-white active:bg-white active:text-advus-brown-500 flex flex-row font-semibold sm:text-sm lg:text-md items-center">
           <ArrowLeftIcon className="h-5 w-5 mr-2" />
           Return to Step 3: Create Your Itinerary
-        </Link>
-      </div>
+        </div>
+      </Link>
 
       <motion.div className="h-max w-1/2 z-10 absolute top-32 left-8 lg:w-5/12 lg:top-32 lg:left-8 xl:w-4/12 2xl:top-36 2xl:left-10">
         {open ? (
           <MapViewLocationPreferenceBox
-            selectedMarker={selectedMarker}
-            setSelectedMarker={setSelectedMarker}
+            markerControls={{ selectedMarker, setSelectedMarker }}
             setOpen={setOpen}
+            dialogControls={{ showDialog, setShowDialog }}
           />
         ) : (
           <div className="w-8 h-8 border-2 border-advus-lightblue-500 rounded-md bg-white flex justify-center items-center">
@@ -174,6 +177,30 @@ export default function MapView(props: MapViewProps) {
           <MinusIcon className="h-6 w-6" />
         </div>
       </div>
+      {showDialog && (
+        <div className="h-full w-full">
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex flex-col justify-start w-1/5 bg-white p-6 shadow-lg rounded-md">
+            <h1 className="text-2xl font-semibold mt-3">
+              You haven't used up all your time!
+            </h1>
+            <p className="text-sm mt-3">
+              You still have some time left over as indicated in bold underneath
+              the time inputs. Are you sure you want to move forward?
+            </p>
+            <div className="flex flex-row justify-end w-full space-x-3 mt-6">
+              <Btn
+                buttonType="primary"
+                type="submit"
+                href="#"
+                length="long"
+                onClickHandler={() => setShowDialog(false)}
+              >
+                Okay, I understand.
+              </Btn>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }

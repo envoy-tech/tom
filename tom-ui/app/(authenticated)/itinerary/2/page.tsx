@@ -46,13 +46,13 @@ export default function ItineraryPageStepTwo() {
         lat: bounds.getCenter().lat(),
         lng: bounds.getCenter().lng(),
       });
-      setZoom(
-        getZoom(
-          bounds.getSouthWest(),
-          bounds.getNorthEast(),
-          mapRef.current.getInstance().getDiv().offsetWidth
-        ) - 1
-      );
+      // setZoom(
+      //   getZoom(
+      //     bounds.getSouthWest(),
+      //     bounds.getNorthEast(),
+      //     mapRef.current.getInstance().getDiv().offsetWidth
+      //   ) - 1
+      // );
     }
   }, [isLoaded]);
 

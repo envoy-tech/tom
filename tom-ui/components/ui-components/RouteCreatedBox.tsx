@@ -1,15 +1,16 @@
 "use client";
 import { ChevronDownIcon, ChevronUpIcon } from "@heroicons/react/20/solid";
-import { useState } from "react";
+import { useState, Dispatch, SetStateAction } from "react";
 import { useAppSelector } from "@/hooks/redux";
 
 type RouteCreatedBoxProps = {
   locationName: string;
   locationAddress: string;
+  setSelectedMarker: Dispatch<SetStateAction<string>>;
 };
 
 export default function RouteCreatedBox(props: RouteCreatedBoxProps) {
-  const { locationName, locationAddress } = props;
+  const { locationName, locationAddress, setSelectedMarker } = props;
   const locationState = useAppSelector((state) =>
     state.trip.locations.find(
       (location) => location.address === locationAddress
@@ -34,7 +35,10 @@ export default function RouteCreatedBox(props: RouteCreatedBoxProps) {
             <ChevronDownIcon className="h-5 w-5 ml-1" />
           )}
         </div>
-        <div className="flex flex-row text-advus-lightblue-500 hover:cursor-pointer select-none font-semibold">
+        <div
+          className="flex flex-row text-advus-lightblue-500 hover:cursor-pointer select-none font-semibold"
+          onClick={() => setSelectedMarker(locationAddress)}
+        >
           See on map
         </div>
       </div>

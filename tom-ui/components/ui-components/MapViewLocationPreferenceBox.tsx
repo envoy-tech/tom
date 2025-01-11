@@ -17,21 +17,30 @@ import { minToDays } from "@/utils/time";
 import Spinner from "./Spinner";
 
 type MapViewLocationPreferenceBoxProps = {
-  selectedMarker: string;
-  setSelectedMarker: Dispatch<SetStateAction<string>>;
+  markerControls: {
+    selectedMarker: string;
+    setSelectedMarker: Dispatch<SetStateAction<string>>;
+  };
   setOpen: Dispatch<SetStateAction<boolean>>;
+  dialogControls: {
+    showDialog: boolean;
+    setShowDialog: Dispatch<SetStateAction<boolean>>;
+  };
 };
 
 export default function MapViewLocationPreferenceBox(
   props: MapViewLocationPreferenceBoxProps
 ) {
-  const { selectedMarker, setSelectedMarker, setOpen } = props;
+  const { markerControls, setOpen, dialogControls } = props;
+  const { selectedMarker, setSelectedMarker } = markerControls;
+  const { showDialog, setShowDialog } = dialogControls;
   const { locations, startDate, endDate } = useAppSelector(
     (state) => state.trip
   );
   const [currentLocation, setCurrentLocation] = useState(0);
   const [submitting, setSubmitting] = useState(false);
   const [showSubmitError, setShowSubmitError] = useState(false);
+  const [dismissedDialog, setDismissedDialog] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
   const dispatch = useAppDispatch();
   const router = useRouter();
@@ -42,7 +51,8 @@ export default function MapViewLocationPreferenceBox(
       const diff = Math.abs(start.getTime() - end.getTime());
       const minutes = diff / 1000 / 60;
       const totalUsedTime = locations.reduce(
-        (acc, curr) => acc + curr.timeAllocated,
+        (acc, curr) =>
+          curr.timeAllocated !== undefined ? acc + curr.timeAllocated : acc + 0,
         0
       );
 
@@ -62,10 +72,16 @@ export default function MapViewLocationPreferenceBox(
     if (unfilledLocations.length) {
       setShowSubmitError(true);
     } else {
-      setShowSubmitError(false);
-      setSubmitting(true);
-      router.push("/optimize");
-      setSubmitting(false);
+      // Check it see if all of the times are filled completely
+      if (timeRemaining !== 0 && !dismissedDialog) {
+        setShowDialog(true);
+        setDismissedDialog(true);
+      } else {
+        setShowSubmitError(false);
+        setSubmitting(true);
+        router.push("/optimize");
+        setSubmitting(false);
+      }
     }
   };
 
@@ -301,6 +317,7 @@ export default function MapViewLocationPreferenceBox(
           type="button"
           length="long"
           onClickHandler={handleNext}
+          disabled={showDialog}
         >
           {submitting ? <Spinner /> : "Next"}
         </Btn>
