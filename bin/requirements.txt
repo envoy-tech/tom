@@ -4,6 +4,7 @@ boto3-stubs
 cmake
 googlemaps
 ortools
+prisma
 pybind11
 pytest
 pytest-mock

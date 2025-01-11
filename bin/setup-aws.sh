@@ -2,11 +2,14 @@
 
 set -e
 
-AWS_VERSION=$(aws --version)
+echo "Setting up AWS dev profile..."
 
-if [[ $AWS_VERSION ]]; then
+if ! aws --version &> /dev/null; then
+  echo "Please install the AWS CLI v2 from https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html"
+fi
+
+if [[ $(aws configure list-profiles | grep dev) != "dev" ]]; then
   aws configure sso
-
   case "${SHELL}" in
     *bash)
       echo -e "\n# Setup environment for AWS CLI" >> ~/.bashrc
@@ -23,7 +26,4 @@ if [[ $AWS_VERSION ]]; then
       exit 1
       ;;
   esac
-
-else
-  echo "Please install the AWS CLI v2 from https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html"
 fi

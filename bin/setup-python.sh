@@ -2,6 +2,8 @@
 
 set -e
 
+echo "Setting up Python virtual environment..."
+
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
 pushd "${SCRIPT_DIR}/.."
