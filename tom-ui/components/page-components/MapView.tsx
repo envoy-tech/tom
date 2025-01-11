@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
-import { useLoadScript, GoogleMap, OverlayView } from "@react-google-maps/api";
+import { useJsApiLoader, GoogleMap, OverlayView } from "@react-google-maps/api";
 import Link from "../ui-components/Link";
 import {
   ArrowLeftIcon,
@@ -42,7 +42,7 @@ export default function MapView(props: MapViewProps) {
   const [selectedMarker, setSelectedMarker] = useState("");
   const mapRef = useRef(null);
 
-  const { isLoaded } = useLoadScript({
+  const { isLoaded } = useJsApiLoader({
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API as string,
     libraries: libraries as any,
     version: "3.55",

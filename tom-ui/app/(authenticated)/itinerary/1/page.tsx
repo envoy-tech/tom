@@ -1,6 +1,6 @@
 "use client";
 import { useRef, useState, useCallback, useEffect } from "react";
-import { useLoadScript, GoogleMap, OverlayView } from "@react-google-maps/api";
+import { useJsApiLoader, GoogleMap, OverlayView } from "@react-google-maps/api";
 import { ListBulletIcon } from "@heroicons/react/20/solid";
 import { MapIcon } from "@heroicons/react/24/outline";
 import Btn from "@/components/ui-components/Btn";
@@ -15,6 +15,7 @@ import Marker from "@/components/ui-components/Marker";
 import { XMarkIcon, TrashIcon } from "@heroicons/react/20/solid";
 import { removeLocation } from "@/redux/slices/tripSlice";
 import { AnimatePresence } from "framer-motion";
+import type { Location } from "typings";
 
 const libraries = ["places"];
 const mapOptions = {
@@ -29,9 +30,10 @@ export default function ItineraryPageStepOne() {
     mapRef.current = map;
   }, []);
   const mapRef = useRef(null);
-  const { isLoaded } = useLoadScript({
+  const { isLoaded, loadError } = useJsApiLoader({
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API as string,
     libraries: libraries as any,
+    version: "3.55",
   });
   const { locations } = useAppSelector((state) => state.trip);
   const dispatch = useAppDispatch();
@@ -44,7 +46,12 @@ export default function ItineraryPageStepOne() {
   const [zoom, setZoom] = useState(5);
 
   useEffect(() => {
-    if (locations.length && mapRef.current && isLoaded) {
+    if (
+      locations.length &&
+      mapRef.current &&
+      isLoaded &&
+      mapRef.current.getInstance
+    ) {
       const bounds = new window.google.maps.LatLngBounds();
       locations.map((location) =>
         bounds.extend(
@@ -55,24 +62,22 @@ export default function ItineraryPageStepOne() {
         )
       );
 
-      console.log(mapRef.current);
-
       setCenter({
         lat: bounds.getCenter().lat(),
         lng: bounds.getCenter().lng(),
       });
-      // TODO: Figure out why this is erroring
-      // setZoom(
-      //   getZoom(
-      //     bounds.getSouthWest(),
-      //     bounds.getNorthEast(),
-      //     mapRef.current.getInstance().getDiv().offsetWidth
-      //   ) - 1
-      // );
+
+      setZoom(
+        getZoom(
+          bounds.getSouthWest(),
+          bounds.getNorthEast(),
+          mapRef.current.getInstance().getDiv().offsetWidth
+        ) - 1
+      );
     }
   }, [locations, isLoaded, mapRef]);
 
-  const handleRemoveLocation = (location) => {
+  const handleRemoveLocation = (location: Location) => {
     setSelectedMarker("");
     dispatch(removeLocation(location.address));
   };
@@ -94,7 +99,10 @@ export default function ItineraryPageStepOne() {
           </p>
           <div className="w-full mt-6">
             {isLoaded && (
-              <GooglePlacesSearchField setSuggestions={setSuggestions} />
+              <GooglePlacesSearchField
+                setSuggestions={setSuggestions}
+                googleMaps={mapRef.current}
+              />
             )}
           </div>
 
@@ -221,11 +229,11 @@ export default function ItineraryPageStepOne() {
                 "Loading..."
               )
             ) : (
-              <div className="border-gray-400 border-2 w-full h-96 flex flex-col justify-center items-center space-y-3 p-6 overflow-y-scroll">
+              <div className="border-gray-400 border-2 w-full h-fit-content flex flex-col justify-center items-center p-6 overflow-y-scroll">
                 {locations &&
                   locations.map((location, index) => (
                     <div
-                      className="w-full h-full space-y-3"
+                      className="w-full h-full"
                       key={`location-list-${index}`}
                     >
                       <LocationListViewBox
@@ -234,7 +242,7 @@ export default function ItineraryPageStepOne() {
                         index={index + 1}
                       />
                       {index !== locations.length - 1 && (
-                        <div className="border-gray-400 border-b-2 w-full"></div>
+                        <div className="border-gray-400 border-b-2 w-full my-3"></div>
                       )}
                     </div>
                   ))}

@@ -101,11 +101,18 @@ export default function SignIn() {
                       }`}
                     />
                   </div>
-                  {errors.email && touched.email ? (
-                    <label className="text-xs text-advus-red-500 mt-1">
-                      {errors.email}
-                    </label>
-                  ) : null}
+                  <AnimatePresence>
+                    {errors.email && touched.email ? (
+                      <motion.label
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="text-xs text-advus-red-500 mt-1 transition-all"
+                      >
+                        {errors.email}
+                      </motion.label>
+                    ) : null}
+                  </AnimatePresence>
                 </div>
 
                 <div>
@@ -136,7 +143,7 @@ export default function SignIn() {
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
-                        className="text-xs text-advus-red-500 mt-1"
+                        className="text-xs text-advus-red-500 mt-1 transition-all"
                       >
                         {errors.password}
                       </motion.label>

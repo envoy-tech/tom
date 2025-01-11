@@ -12,7 +12,6 @@ import { setTravelers as setSavedTravelers } from "@/redux/slices/tripSlice";
 import { useRouter } from "next/navigation";
 import Spinner from "@/components/ui-components/Spinner";
 
-//TODO: clear the name and email address field when added.
 //TODO: Trigger validation when adding a traveler.
 
 export default function TravelersPage() {
@@ -20,7 +19,6 @@ export default function TravelersPage() {
   const dispatch = useAppDispatch();
   const { travelers: savedTravelers } = useAppSelector((state) => state.trip);
   const router = useRouter();
-
   const [travelers, setTravelers] = useState<Traveler[]>(savedTravelers);
 
   const handleSubmitForm = (setSubmitting: Function) => {
@@ -43,11 +41,12 @@ export default function TravelersPage() {
     );
 
     if (exisitingTraveler) {
-      
     } else {
       setTravelers([...travelers, traveler]);
       formRef.current.elements.name.value = "";
       formRef.current.elements.email.value = "";
+
+      console.log(formRef.current.elements);
     }
   };
 
@@ -145,6 +144,7 @@ export default function TravelersPage() {
               isSubmitting,
               submitForm,
               validateForm,
+              resetForm,
             }) => (
               <Form ref={formRef} onSubmit={handleSubmit}>
                 <div className="flex flex-row justify-between items-center space-x-6">
@@ -182,8 +182,8 @@ export default function TravelersPage() {
                     className="hover:cursor-pointer"
                     onClick={async () => {
                       const validation = await validateForm();
-                      console.log(validation);
                       handleAddTraveler();
+                      resetForm();
                     }}
                   >
                     + Add another traveler

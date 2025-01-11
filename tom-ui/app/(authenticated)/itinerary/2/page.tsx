@@ -1,6 +1,6 @@
 "use client";
 import { useState, useRef, useEffect } from "react";
-import { useLoadScript, GoogleMap, OverlayView } from "@react-google-maps/api";
+import { useJsApiLoader, GoogleMap, OverlayView } from "@react-google-maps/api";
 import Btn from "@/components/ui-components/Btn";
 import LocationNoteBox from "@/components/ui-components/LocationNoteBox";
 import MainNavigationSteps from "@/components/page-components/MainNavigationSteps";
@@ -24,7 +24,7 @@ export default function ItineraryPageStepTwo() {
   const [zoom, setZoom] = useState(5);
   const [selectedMarker, setSelectedMarker] = useState<string>("");
 
-  const { isLoaded } = useLoadScript({
+  const { isLoaded } = useJsApiLoader({
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API as string,
     libraries: libraries as any,
     version: "3.55",
