@@ -5,6 +5,10 @@ generator client {
   provider = "prisma-client-js"
 }
 
+generator py-client {
+  provider = "prisma-client-py"
+}
+
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
@@ -21,6 +25,20 @@ model profile {
   profile_trip     profile_trip[]
 }
 
+model trip {
+  id                     Int            @id @default(autoincrement())
+  created_at             DateTime       @default(now())
+  name                   String
+  start_date_dttm        DateTime
+  end_date_dttm          DateTime
+  dates_approximate      Boolean
+  start_location_index   Int
+  endLocation_index      Int
+  locations_json         Json[]
+  itineraries_json_array Json[]
+  profile_trip           profile_trip[]
+}
+
 // do composite primary key for profile trip
 model profile_trip {
   id                    Int     @id @default(autoincrement())
@@ -32,18 +50,4 @@ model profile_trip {
   trip_preferences_json Json
 
   @@unique([profile_id, trip_id])
-}
-
-model trip {
-  id                     Int            @id @default(autoincrement())
-  createdAt              DateTime       @default(now())
-  name                   String
-  start_date_dttm        DateTime
-  end_date_dttm          DateTime
-  dates_approximate      Boolean
-  start_location_index   Int
-  end_location_index     Int
-  locations_json         Json
-  itineraries_json_array Json[]
-  profile_trip           profile_trip[]
 }
