@@ -1,6 +1,11 @@
 "use client";
 import { useRef, useState, useCallback, useEffect } from "react";
-import { useJsApiLoader, GoogleMap, OverlayView } from "@react-google-maps/api";
+import {
+  useJsApiLoader,
+  GoogleMap,
+  OverlayViewF,
+  OverlayView,
+} from "@react-google-maps/api";
 import { ListBulletIcon } from "@heroicons/react/20/solid";
 import { MapIcon } from "@heroicons/react/24/outline";
 import Btn from "@/components/ui-components/Btn";
@@ -67,13 +72,14 @@ export default function ItineraryPageStepOne() {
         lng: bounds.getCenter().lng(),
       });
 
-      setZoom(
-        getZoom(
-          bounds.getSouthWest(),
-          bounds.getNorthEast(),
-          mapRef.current.getInstance().getDiv().offsetWidth
-        ) - 1
-      );
+      // TODO: This blows up in production instance, try to figure out why.
+      // setZoom(
+      //   getZoom(
+      //     bounds.getSouthWest(),
+      //     bounds.getNorthEast(),
+      //     mapRef.current.getInstance().getDiv().offsetWidth
+      //   ) - 1
+      // );
     }
   }, [locations, isLoaded, mapRef]);
 
@@ -81,6 +87,82 @@ export default function ItineraryPageStepOne() {
     setSelectedMarker("");
     dispatch(removeLocation(location.address));
   };
+
+  const renderMapView = () => {
+    if (isLoaded) {
+      return (
+        <GoogleMap
+          options={mapOptions}
+          zoom={zoom}
+          center={center}
+          mapTypeId={window.google.maps.MapTypeId.ROADMAP}
+          mapContainerStyle={{
+            minHeight: "650px",
+            width: "100%",
+            height: "100%",
+          }}
+          ref={mapRef}
+          onLoad={onMapLoad}
+        >
+          {locations.length &&
+            locations.map((location) => (
+              <OverlayViewF
+                position={{ lat: location.lat, lng: location.long }}
+                mapPaneName={OverlayView.OVERLAY_MOUSE_TARGET}
+                key={`${location.name}-${location.address}`}
+              >
+                <>
+                  <div
+                    className="absolute -translate-x-1/2 -translate-y-1/2"
+                    onClick={() => setSelectedMarker(location.address)}
+                  >
+                    <AnimatePresence>
+                      <Marker selected={location.address === selectedMarker} />
+                    </AnimatePresence>
+                  </div>
+                  {location.address === selectedMarker && (
+                    <div className="h-fit w-32 shadow-md text-black bg-white rounded-md p-3 ml-5 -mt-5 text-balance break-words relative">
+                      <h1 className="font-bold text-md">{location.name}</h1>
+                      <XMarkIcon
+                        className="h-4 w-4 absolute top-1 right-1 cursor-pointer text-advus-brown-500"
+                        onClick={() => setSelectedMarker("")}
+                      />
+                      <div
+                        className="flex flex-row justify-start items-center hover:cursor-pointer select-none text-advus-brown-500 mt-2"
+                        onClick={() => handleRemoveLocation(location)}
+                      >
+                        <TrashIcon className="h-3 w-3 mr-1 text-advus-brown-500" />
+                        Remove
+                      </div>
+                    </div>
+                  )}
+                </>
+              </OverlayViewF>
+            ))}
+        </GoogleMap>
+      );
+    } else {
+      return "Loading...";
+    }
+  };
+
+  const renderListView = () => (
+    <div className="border-gray-400 border-2 w-full h-fit-content flex flex-col justify-center items-center p-6 overflow-y-scroll">
+      {locations &&
+        locations.map((location, index) => (
+          <div className="w-full h-full" key={`location-list-${index}`}>
+            <LocationListViewBox
+              locationName={location.name}
+              locationAddress={location.address}
+              index={index + 1}
+            />
+            {index !== locations.length - 1 && (
+              <div className="border-gray-400 border-b-2 w-full my-3"></div>
+            )}
+          </div>
+        ))}
+    </div>
+  );
 
   return (
     <div className="flex flex-col items-center justify-center w-full h-full px-6 py-12 lg:px-8">
@@ -170,84 +252,7 @@ export default function ItineraryPageStepOne() {
             </div>
           </div>
           <div className="w-full h-full">
-            {showMapView ? (
-              isLoaded ? (
-                <GoogleMap
-                  options={mapOptions}
-                  zoom={zoom}
-                  center={center}
-                  mapTypeId={window.google.maps.MapTypeId.ROADMAP}
-                  mapContainerStyle={{
-                    minHeight: "650px",
-                    width: "100%",
-                    height: "100%",
-                  }}
-                  ref={mapRef}
-                  onLoad={onMapLoad}
-                >
-                  {locations.length &&
-                    locations.map((location) => (
-                      <OverlayView
-                        position={{ lat: location.lat, lng: location.long }}
-                        mapPaneName={OverlayView.OVERLAY_MOUSE_TARGET}
-                        key={`${location.name}-${location.address}`}
-                      >
-                        <>
-                          <div
-                            className="absolute -translate-x-1/2 -translate-y-1/2"
-                            onClick={() => setSelectedMarker(location.address)}
-                          >
-                            <AnimatePresence>
-                              <Marker
-                                selected={location.address === selectedMarker}
-                              />
-                            </AnimatePresence>
-                          </div>
-                          {location.address === selectedMarker && (
-                            <div className="h-fit w-32 shadow-md text-black bg-white rounded-md p-3 ml-5 -mt-5 text-balance break-words relative">
-                              <h1 className="font-bold text-md">
-                                {location.name}
-                              </h1>
-                              <XMarkIcon
-                                className="h-4 w-4 absolute top-1 right-1 cursor-pointer text-advus-brown-500"
-                                onClick={() => setSelectedMarker("")}
-                              />
-                              <div
-                                className="flex flex-row justify-start items-center hover:cursor-pointer select-none text-advus-brown-500 mt-2"
-                                onClick={() => handleRemoveLocation(location)}
-                              >
-                                <TrashIcon className="h-3 w-3 mr-1 text-advus-brown-500" />
-                                Remove
-                              </div>
-                            </div>
-                          )}
-                        </>
-                      </OverlayView>
-                    ))}
-                </GoogleMap>
-              ) : (
-                "Loading..."
-              )
-            ) : (
-              <div className="border-gray-400 border-2 w-full h-fit-content flex flex-col justify-center items-center p-6 overflow-y-scroll">
-                {locations &&
-                  locations.map((location, index) => (
-                    <div
-                      className="w-full h-full"
-                      key={`location-list-${index}`}
-                    >
-                      <LocationListViewBox
-                        locationName={location.name}
-                        locationAddress={location.address}
-                        index={index + 1}
-                      />
-                      {index !== locations.length - 1 && (
-                        <div className="border-gray-400 border-b-2 w-full my-3"></div>
-                      )}
-                    </div>
-                  ))}
-              </div>
-            )}
+            {showMapView ? renderMapView() : renderListView()}
           </div>
         </div>
       </div>
