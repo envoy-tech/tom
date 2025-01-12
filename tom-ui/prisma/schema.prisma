@@ -33,7 +33,7 @@ model trip {
   end_date_dttm          DateTime
   dates_approximate      Boolean
   start_location_index   Int
-  end_location_index      Int
+  end_location_index     Int
   locations_json         Json[]
   itineraries_json_array Json[]
   profile_trip           profile_trip[]
@@ -44,6 +44,7 @@ model profile_trip {
   id                    Int     @id @default(autoincrement())
   profile               profile @relation(fields: [profile_id], references: [id])
   profile_id            Int
+  is_trip_owner         Boolean
   trip                  trip    @relation(fields: [trip_id], references: [id])
   trip_id               Int
   is_ready_to_optimize  Boolean

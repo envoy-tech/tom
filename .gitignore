@@ -143,3 +143,6 @@ cmake-build-*/
 .terraform/
 .terraform.*
 terraform.*
+
+# NVM
+.nvmrc
