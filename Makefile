@@ -5,6 +5,7 @@ WHEEL_DIR = wheels
 COMMON = tom-common
 OPTIMIZATION_ENGINE = optimization_engine
 TRIP_MANAGER = tom-trip-manager
+UI = tom-ui
 
 clean:
 	rm -rf $(WHEEL_DIR)

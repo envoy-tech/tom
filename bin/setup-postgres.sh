@@ -13,6 +13,7 @@ create_dev_user() {
   cat << EOF
   CREATE USER $1 WITH PASSWORD '$2';
   GRANT ALL PRIVILEGES ON DATABASE "postgres" TO $1;
+  ALTER USER $1 WITH SUPERUSER;
 EOF
 }
 

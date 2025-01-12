@@ -5,6 +5,7 @@ set -e
 REMAKE_ENV=${REMAKE_ENV:-true}
 SKIP_AWS=${SKIP_AWS:-false}
 SKIP_PYTHON=${SKIP_PYTHON:-false}
+SKIP_NODE=${SKIP_NODE:-false}
 SKIP_POSTGRES=${SKIP_POSTGRES:-false}
 
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
@@ -29,17 +30,25 @@ else
   source ./setup-python.sh
 fi
 
+# Setup NVM and install Node version for TOM UI
+if [[ "${SKIP_NODE}" == "true" ]]; then
+  echo "Skipping Node setup"
+else
+  source ./setup-node.sh
+fi
+
+POSTGRES_USER=${POSTGRES_USER:-dev}
+POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-default}
+POSTGRES_VERSION=${POSTGRES_VERSION:-14}
+POSTGRES_CLUSTER=${POSTGRES_CLUSTER:-dev}
 # Install Postgresql, run local database, and setup dev user
 if [[ "${SKIP_POSTGRES}" == "true" ]]; then
   echo "Skipping Postgres setup"
 else
-  POSTGRES_USER=${POSTGRES_USER:-dev}
-  POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-default}
-  POSTGRES_VERSION=${POSTGRES_VERSION:-14}
-  POSTGRES_CLUSTER=${POSTGRES_CLUSTER:-dev}
   source ./setup-postgres.sh "${POSTGRES_USER}" "${POSTGRES_PASSWORD}" "${POSTGRES_VERSION}" "${POSTGRES_CLUSTER}"
 fi
 
+# Setup .env
 if [ "${REMAKE_ENV}" == "true" ]; then
   echo "# Base environment setup" > "${ENV_FILE}"
   {
@@ -50,3 +59,12 @@ if [ "${REMAKE_ENV}" == "true" ]; then
     echo "DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@localhost"
   } >> "${ENV_FILE}"
 fi
+
+# Reload shell to finalize Node version install via NVM
+ln -sf "${TOM_ROOT}/.env" "${TOM_ROOT}/tom-ui/.env"
+popd &> /dev/null
+
+if [[ "${SKIP_NODE}" == "false" ]]; then
+  exec ${SHELL}
+fi
+

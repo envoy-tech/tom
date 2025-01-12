@@ -15,7 +15,7 @@ eval "$(pyenv virtualenv-init -)"
 EOF
 }
 
-# Install or update pyenv, as necessary
+# Install or update pyenv as necessary
 if command -v pyenv; then
     pyenv update
 else
