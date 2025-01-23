@@ -12,3 +12,5 @@ echo "tom-ui dir is ${TOM_UI_DIR}"
 
 # Install Node Version Manager (NVM)
 source "${SCRIPT_DIR}/install-nvm.sh"
+
+popd

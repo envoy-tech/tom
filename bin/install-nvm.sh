@@ -83,7 +83,7 @@ EOF
 }
 
 # Install or update NVM as necessary
-if command -v nvm; then
+if command -v nvm > /dev/null 2>&1; then
   echo "NVM already installed"
 else
   curl -o- "https://raw.githubusercontent.com/nvm-sh/nvm/v${NVM_VERSION}/install.sh" | bash

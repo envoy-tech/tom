@@ -7,6 +7,7 @@ ortools
 prisma
 pybind11
 pytest
+pytest-asyncio
 pytest-mock
 pytest-xdist
 python-dotenv

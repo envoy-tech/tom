@@ -8,13 +8,13 @@ SKIP_PYTHON=${SKIP_PYTHON:-false}
 SKIP_NODE=${SKIP_NODE:-false}
 SKIP_POSTGRES=${SKIP_POSTGRES:-false}
 
-SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
-echo "Starting dev setup from ${SCRIPT_DIR}"
-pushd "${SCRIPT_DIR}" &> /dev/null
+# Begin .env.local setup
+TOM_ROOT=$( pwd )
+ENV_FILE="${TOM_ROOT}/.env.local"
 
-# Begin .env setup
-TOM_ROOT=$( cd "${SCRIPT_DIR}/.." && pwd )
-ENV_FILE="${TOM_ROOT}/.env"
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+echo "Starting dev setup from ${SCRIPT_DIR}/bin"
+pushd "${SCRIPT_DIR}/bin" &> /dev/null
 
 # Setup AWS CLI or prompt user to install it
 if [[ "${SKIP_AWS}" == "true" ]]; then
@@ -61,7 +61,7 @@ if [ "${REMAKE_ENV}" == "true" ]; then
 fi
 
 # Reload shell to finalize Node version install via NVM
-ln -sf "${TOM_ROOT}/.env" "${TOM_ROOT}/tom-ui/.env"
+ln -sf "${ENV_FILE}" "${TOM_ROOT}/tom-ui/.env.local"
 popd &> /dev/null
 
 if [[ "${SKIP_NODE}" == "false" ]]; then
