@@ -1,5 +1,6 @@
 import os
 import json
+import asyncio
 from pathlib import Path
 from functools import cache
 
@@ -8,6 +9,7 @@ import pytest
 import googlemaps
 from dotenv import load_dotenv
 
+from tom.common import db
 from tom.common import S3Params
 from tom.common.cloud_access.aws import s3
 
@@ -24,7 +26,13 @@ def _read_binary_file(file_path: Path) -> bytes:
 
 @pytest.fixture(scope="package")
 def env():
-    return load_dotenv()
+    env_path = _get_absolute_path(".env.local")
+    return load_dotenv(env_path)
+
+
+@pytest.fixture(scope="package")
+def db_client(env):
+    return asyncio.run(db.connect())
 
 
 @pytest.fixture(scope="function")
@@ -99,3 +107,10 @@ def small_trip_linear_mps() -> tuple[str, dict]:
         sample_metadata = json.load(f)
 
     return sample_mps, sample_metadata
+
+
+@pytest.fixture(scope="function")
+def itineraries() -> dict:
+    with open(_get_absolute_path("trips/itineraries.json"), "r") as f:
+        itineraries = json.load(f)
+    return itineraries
