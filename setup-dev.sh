@@ -23,6 +23,10 @@ else
   source ./setup-aws.sh
 fi
 
+AWS_USERID=$( aws sts get-caller-identity --query UserId)
+AWS_USERID="${AWS_USERID//\"/}" # Remove quotes from UserId
+TOM_USERNAME="${AWS_USERID#*:}"
+
 # Setup Pyenv and install Python version for TOM
 if [[ "${SKIP_PYTHON}" == "true" ]]; then
   echo "Skipping Python setup"
@@ -53,6 +57,7 @@ if [ "${REMAKE_ENV}" == "true" ]; then
   echo "# Base environment setup" > "${ENV_FILE}"
   {
     echo "TOM_ROOT=${TOM_ROOT}"
+    echo "TOM_USERNAME=${TOM_USERNAME}"
     echo "AWS_PROFILE=dev"
     echo "PYTHON_VERSION=$( python --version | sed 's/Python //g' )"
     echo "PRISMA_SCHEMA_PATH=${TOM_ROOT}/tom-ui/prisma/schema.prisma"

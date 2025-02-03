@@ -8,8 +8,15 @@ provider "aws" {
 
 resource "time_static" "now" {}
 
+resource "aws_ssm_parameter" "developer_ip" {
+  name = "/adventurus/developer_ips/${var.tom_username}"
+  type = "String"
+  value = "${var.local_ip}/32"
+}
+
 resource "aws_vpc" "main" {
-  cidr_block = "10.0.0.0/16"
+  cidr_block           = "10.0.0.0/16"
+  enable_dns_hostnames = true
 
   tags = {
     environment = var.environment
@@ -43,9 +50,9 @@ resource "aws_subnet" "private_subnets" {
   }
 }
 
-resource "aws_db_subnet_group" "rds"{
+resource "aws_db_subnet_group" "rds" {
   name       = "${var.environment}-rds-subnet-group"
-  subnet_ids = aws_subnet.private_subnets[*].id
+  subnet_ids = aws_subnet.public_subnets[*].id
 
   tags = {
     environment = var.environment
@@ -121,17 +128,53 @@ resource "aws_sns_topic" "default" {
   }
 }
 
+data "aws_ssm_parameters_by_path" "allowed_ips" {
+  path      = "/adventurus/developer_ips/"
+}
+
+resource "aws_security_group" "rds_access" {
+  name        = "${var.environment}-rds-access"
+  description = "Allow developer access to Aurora RDS"
+  vpc_id      = aws_vpc.main.id
+
+  tags = {
+    environment = var.environment
+    created_at  = time_static.now.unix
+  }
+}
+
+resource "aws_security_group_rule" "rds_allow_developer_ips" {
+  count             = length(data.aws_ssm_parameters_by_path.allowed_ips.values)
+  type              = "ingress"
+  from_port         = 5432
+  to_port           = 5432
+  protocol          = "tcp"
+  cidr_blocks       = data.aws_ssm_parameters_by_path.allowed_ips.values
+  security_group_id = aws_security_group.rds_access.id
+}
+
 resource "aws_rds_cluster" "rds" {
   cluster_identifier          = "${var.environment}-rds-cluster"
-  availability_zones          = local.availability_zones
-  engine                      = "postgres"
-  db_cluster_instance_class   = local.rds_cluster_instance
-  database_name               = "${var.environment}_adventurus_rds"
-  db_subnet_group_name        = aws_db_subnet_group.rds.name
+  engine                      = "aurora-postgresql"
+  engine_mode                 = "provisioned"
+  database_name               = "adventurus"
+  master_username             = "adventurus_admin"
   manage_master_user_password = true
-  master_username             = "${var.environment}_admin"
+  storage_encrypted           = true
   skip_final_snapshot         = true
-  storage_type                = "io1"
-  allocated_storage           = 100
-  iops                        = 1000
+  db_subnet_group_name        = aws_db_subnet_group.rds.name
+  vpc_security_group_ids      = [aws_security_group.rds_access.id]
+
+  serverlessv2_scaling_configuration {
+    max_capacity             = 2.0
+    min_capacity             = 0.5
+  }
+}
+
+resource "aws_rds_cluster_instance" "rds" {
+  cluster_identifier  = aws_rds_cluster.rds.id
+  instance_class      = "db.serverless"
+  engine              = aws_rds_cluster.rds.engine
+  engine_version      = aws_rds_cluster.rds.engine_version
+  publicly_accessible = true
 }
