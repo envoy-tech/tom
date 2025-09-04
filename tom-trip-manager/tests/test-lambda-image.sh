@@ -4,7 +4,7 @@ set -e
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 echo "Script directory is ${SCRIPT_DIR}"
-ENV_FILE="${SCRIPT_DIR}/../../.env"
+ENV_FILE="${SCRIPT_DIR}/../../.env.dev"
 source "${ENV_FILE}"
 
 AWS_DEFAULT_PROFILE=${AWS_DEFAULT_PROFILE:-dev}

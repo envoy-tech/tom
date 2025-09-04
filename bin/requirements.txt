@@ -10,6 +10,7 @@ pytest
 pytest-asyncio
 pytest-mock
 pytest-xdist
+pytest-dotenv
 python-dotenv
 scikit-build
 wheel

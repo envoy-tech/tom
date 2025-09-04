@@ -4,7 +4,7 @@ import pytest
 from ortools.linear_solver import pywraplp
 
 from tom.trip_manager import TripManager
-from tom.common import S3Params
+from tom.common import Env
 from tom.common.cloud_access.aws import s3
 
 
@@ -25,6 +25,7 @@ def test_generate_mps_string_and_solve(
     assert solve_status == pywraplp.Solver.OPTIMAL
 
 
+# Depends on the MPS_S3_BUCKET existing
 def test_save_mps_metadata_to_s3(
         boto3_dev_session,
         small_trip,
@@ -33,9 +34,10 @@ def test_save_mps_metadata_to_s3(
 ):
     trip_manager = TripManager(**small_trip)
     s3_object_key = "test_save_mps_metadata_to_s3.mps"
+    bucket = Env.MPS_S3_BUCKET
     response = s3.upload_to_s3(
         s3_conn,
-        S3Params.BUCKET_NAME,
+        bucket,
         "test_save_mps_metadata_to_s3",
         s3_object_key,
         object_metadata=trip_manager.metadata
@@ -44,7 +46,7 @@ def test_save_mps_metadata_to_s3(
     s3.delete_file_in_s3(
         s3_conn,
         s3_object_key,
-        S3Params.BUCKET_NAME
+        bucket
     )
 
 

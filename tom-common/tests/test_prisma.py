@@ -8,33 +8,27 @@ async def test_connect(db_client):
 
 
 @pytest.mark.asyncio
-async def test_get_profile():
-    client = await db.connect()
-    user = await db.get_profile(client, profile_id=1)
+async def test_get_profile(db_client):
+    user = await db.get_profile(db_client, profile_id=1)
     assert user.name == "Guillermo Wilder-Gutierrez"
-    await client.disconnect()
 
 
 @pytest.mark.asyncio
-async def test_get_profile_w_include():
-    client = await db.connect()
+async def test_get_profile_w_include(db_client):
     user = await db.get_profile(
-        client,
+        db_client,
         profile_id=1,
         include={"profile_trip": True}
     )
     assert user.profile_trip[0].trip_id == 1
-    await client.disconnect()
 
 
 @pytest.mark.asyncio
-async def test_upload_itineraries(itineraries):
-    client = await db.connect()
+async def test_upload_itineraries(db_client, itineraries):
     trip = await db.update_trip(
-        client,
+        db_client,
         trip_id=1,
         field_name="itineraries_json_array",
         data=itineraries
     )
     assert trip.itineraries_json_array == itineraries
-    await client.disconnect()

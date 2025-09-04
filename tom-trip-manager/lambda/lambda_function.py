@@ -2,7 +2,7 @@ import json
 import logging
 from datetime import datetime
 
-from tom.common import S3Params
+from tom.common import Env, S3Params
 from tom.common.cloud_access.aws import s3, sns
 from tom.trip_manager import TripManager
 
@@ -52,7 +52,7 @@ def handler(event, context):
         s3_conn = s3.connect_to_s3(S3Params.REGION)
         response = s3.upload_to_s3(
             s3_conn,
-            S3Params.BUCKET_NAME,
+            Env.MPS_S3_BUCKET,
             mps_string,
             mps_object_key,
             object_metadata=trip.metadata

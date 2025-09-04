@@ -6,6 +6,7 @@ from functools import cache
 
 import boto3
 import pytest
+import pytest_asyncio
 import googlemaps
 from dotenv import load_dotenv
 
@@ -24,15 +25,11 @@ def _read_binary_file(file_path: Path) -> bytes:
         return f.read()
 
 
-@pytest.fixture(scope="package")
-def env():
-    env_path = _get_absolute_path(".env.local")
-    return load_dotenv(env_path)
-
-
-@pytest.fixture(scope="package")
-def db_client(env):
-    return asyncio.run(db.connect())
+@pytest_asyncio.fixture(scope="function")
+async def db_client():
+    conn = await db.connect()
+    yield conn
+    await conn.disconnect()
 
 
 @pytest.fixture(scope="function")
@@ -51,11 +48,6 @@ def sample_trip_params() -> dict:
         "traffic_model": "best_guess"
     }
     return _params
-
-
-@pytest.fixture(scope="package")
-def gmaps_client():
-    return googlemaps.Client(key=os.getenv("GOOGLE_MAPS_API_KEY"))
 
 
 @pytest.fixture(scope="function")
@@ -80,7 +72,7 @@ def subtour_trip() -> dict:
 
 
 @pytest.fixture(scope="package")
-def boto3_dev_session(env):
+def boto3_dev_session():
     boto3.setup_default_session(profile_name=os.getenv("AWS_PROFILE"))
 
 

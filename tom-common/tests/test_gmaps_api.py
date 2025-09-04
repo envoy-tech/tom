@@ -1,13 +1,11 @@
 import datetime as dt
 
-import numpy as np
-
 from tom.common import Location
 from tom.common.cloud_access.gmaps import create_duration_matrix
 from tom.common.cloud_access.gmaps import create_timezone_matrix
 
 
-def test_distance_matrix_api(env, gmaps_client, sample_trip, sample_trip_params):
+def test_distance_matrix_api(sample_trip, sample_trip_params):
 
     departure_time = dt.datetime.fromisoformat(sample_trip["trip"]["start_date"])
 
@@ -25,7 +23,7 @@ def test_distance_matrix_api(env, gmaps_client, sample_trip, sample_trip_params)
     assert duration_matrix.shape == (len(locations), len(locations))
 
 
-def test_timezone_api(env, gmaps_client, sample_trip):
+def test_timezone_api(sample_trip):
 
     departure_time = dt.datetime.fromisoformat(sample_trip["trip"]["start_date"])
 

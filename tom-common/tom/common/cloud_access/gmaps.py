@@ -1,18 +1,15 @@
-import os
 import logging
 import datetime as dt
 
 import googlemaps
 import numpy as np
-from dotenv import load_dotenv
 
 from tom.common import Env
 
 logger = logging.getLogger(__name__)
 
 
-_ = load_dotenv()
-GMAPS_CLIENT = googlemaps.Client(key=os.getenv(Env.GMAPS_API_KEY))
+GMAPS_CLIENT = googlemaps.Client(key=Env.GMAPS_API_KEY)
 
 
 def get_duration_from_gmap_response(response) -> list[float]:
@@ -65,7 +62,10 @@ def create_duration_matrix(
     return np.array(durations).reshape(num_locations, num_locations) / 60**2
 
 
-def create_timezone_matrix(location_lat_lons: list[tuple[float, float]], start_date: dt.datetime) -> np.ndarray:
+def create_timezone_matrix(
+        location_lat_lons: list[tuple[float, float]],
+        start_date: dt.datetime
+) -> np.ndarray:
 
     num_locations = len(location_lat_lons)
 

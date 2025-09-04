@@ -17,10 +17,7 @@ async def connect(*, database_url: str = None) -> Prisma:
     if database_url is None:
         database_url: str = os.getenv("DATABASE_URL")
 
-    db = Prisma(
-        auto_register=True,
-        datasource={"url": database_url}
-    )
+    db = Prisma(datasource={"url": database_url})
     await db.connect()
     return db
 

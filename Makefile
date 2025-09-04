@@ -31,7 +31,7 @@ wheels: clean
 
 # TODO: Figure out how to incorporate the optimization engine tests
 test:
-	pytest -v -s -n $(shell nproc) --ignore=optimization_engine
+	pytest -v -s -n $(shell nproc) --ignore=optimization_engine --envfile ./.env.local
 
 lambda-images:
 	# $(MAKE) -C $(OPTIMIZATION_ENGINE) lambda-image

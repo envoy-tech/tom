@@ -1,3 +1,5 @@
+import os
+
 from tom.common.location import Location
 from tom.common.traveler import Traveler
 from tom.common.variable import (
@@ -22,14 +24,11 @@ from tom.common.variable import (
 
 
 class Env:
-    PROJECT_ROOT = "PROJECT_ROOT"
-    GMAPS_API_KEY = "GOOGLE_MAPS_API_KEY"
-    AWS_ACCESS_KEY_ID = "AWS_ACCESS_KEY_ID"
-    AWS_SECRET_ACCESS_KEY = "AWS_SECRET_ACCESS_KEY"
-    AWS_SESSION_TOKEN = "AWS_SESSION_TOKEN"
-    AWS_SNS_ARN = "AWS_SNS_ARN"
+    GMAPS_API_KEY  = os.getenv("GMAPS_API_KEY")
+    AWS_SNS_ARN    = os.getenv("AWS_SNS_ARN")
+    SNS_TOPIC_NAME = os.getenv("SNS_TOPIC_NAME")
+    MPS_S3_BUCKET  = os.getenv("MPS_S3_BUCKET")
 
 
 class S3Params:
     REGION = "us-east-1"
-    BUCKET_NAME = "adventurus-mps-dev"

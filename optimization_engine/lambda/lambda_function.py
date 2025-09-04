@@ -1,9 +1,12 @@
 import json
+import asyncio
 import logging
+from dataclasses import field
 from datetime import datetime
 
 from tom.common import S3Params
 from tom.common.cloud_access.aws import s3, sns
+from tom.common import db as prisma_utils
 from optimization_engine import *
 from optimization_engine.itinerary import create_itinerary
 
@@ -14,8 +17,7 @@ logger.setLevel(logging.INFO)
 class VarName:
     pass
 
-
-def handler(event, context):
+async def async_handler(event, context):
 
     logger.info(f"Received event: {event}")
 
@@ -28,6 +30,7 @@ def handler(event, context):
 
     trip_mps_body = obj_response["Body"].read().decode("utf-8")
     trip_metadata = obj_response["Metadata"]
+    trip_id = trip_metadata["trip_id"]
     logger.info(f"Trip metadata: {trip_metadata}")
 
     msg = json.dumps({
@@ -35,7 +38,7 @@ def handler(event, context):
             "code": sns.TripStatus.OPTIMIZATION_ENGINE_BEGIN.value,
             "msg": sns.TripStatus.OPTIMIZATION_ENGINE_BEGIN.name
         },
-        "trip_id": trip_metadata["trip_id"],
+        "trip_id": trip_id,
         "traveler_ids": trip_metadata["traveler_ids"],
         "timestamp": datetime.now().isoformat()
     })
@@ -56,7 +59,7 @@ def handler(event, context):
                 "code": sns.TripStatus.OPTIMIZATION_ENGINE_FAILURE.value,
                 "name": sns.TripStatus.OPTIMIZATION_ENGINE_FAILURE.name
             },
-            "trip_id": trip_metadata["trip_id"],
+            "trip_id": trip_id,
             "traveler_ids": trip_metadata["traveler_ids"],
             "timestamp": datetime.now().isoformat(),
             "error": str(e)
@@ -87,16 +90,29 @@ def handler(event, context):
         next_solution = solver.NextSolution()
 
     logging.info(f"Successfully created itineraries: num_itineraries={len(itineraries)}")
-    # TODO: Update trip entry in postgres with itineraries
+
+    logging.info("Connecting to DB...")
+    db = await prisma_utils.connect()
+    _ = await prisma_utils.update_trip(
+        db,
+        trip_id=trip_id,
+        field_name="itineraries_json_array",
+        data=itineraries
+    )
 
     msg = json.dumps({
         "status": {
             "code": sns.TripStatus.OPTIMIZATION_ENGINE_SUCCESS.value,
             "msg": sns.TripStatus.OPTIMIZATION_ENGINE_SUCCESS.name
         },
-        "trip_id": trip_metadata["trip_id"],
+        "trip_id": trip_id,
         "traveler_ids": trip_metadata["traveler_ids"],
         "timestamp": datetime.now().isoformat()
     })
     sns.publish_to_sns(sns_client, sns.TopicNames.optimization_status, msg)
-    return
+    return {"statusCode": 200}
+
+
+def handler(event, context):
+    loop = asyncio.get_event_loop()
+    return loop.run_until_complete(async_handler(event, context))

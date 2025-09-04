@@ -1,8 +1,8 @@
 {
   "trip": {
     "id": "sample_trip",
-    "start_date": "2025-05-01T00:00:00",
-    "end_date": "2025-05-30T00:00:00",
+    "start_date": "2026-05-01T00:00:00",
+    "end_date": "2026-05-30T00:00:00",
     "start_location_id": 0,
     "end_location_id": 0,
     "trip_owner_id": "1"
